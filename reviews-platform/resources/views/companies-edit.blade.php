@@ -57,12 +57,12 @@
     
     .crop-modal-content {
         background-color: white;
-        padding: 1.5rem;
+        padding: 1rem;
         border-radius: 16px;
         width: 80vw;
         height: auto;
         max-width: 800px;
-        overflow: visible;
+        overflow-y: auto;
         position: relative;
         z-index: 10000;
         margin: auto;
@@ -70,6 +70,20 @@
         pointer-events: auto !important;
         display: flex;
         flex-direction: column;
+        max-height: 90vh;
+    }
+    
+    @media (min-width: 640px) {
+        .crop-modal-content {
+            padding: 1.5rem;
+        }
+    }
+    
+    @media (max-width: 639px) {
+        .crop-modal-content {
+            width: 95%;
+            padding: 1rem;
+        }
     }
     
     .crop-modal-header {
@@ -103,6 +117,14 @@
         align-items: center;
         justify-content: center;
         overflow: hidden;
+        touch-action: none;
+    }
+    
+    @media (max-width: 639px) {
+        #cropImageContainer {
+            height: 300px;
+            margin-bottom: 1rem;
+        }
     }
 
     #cropperImage {
@@ -170,8 +192,17 @@
         border-radius: 50%;
         background-color: #2f80ed;
         border: 2px solid #ffffff;
+        touch-action: none;
         pointer-events: auto;
         box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+    }
+    
+    @media (max-width: 639px) {
+        .crop-handle {
+            width: 24px;
+            height: 24px;
+            border-width: 3px;
+        }
     }
 
     .crop-handle[data-handle="nw"] {
@@ -385,9 +416,14 @@
                             @endif
                         </div>
                         <input type="file" name="background_image" accept="image/*" class="hidden" id="backgroundInput" onchange="handleBackgroundUpload(this)">
-                        <button type="button" onclick="document.getElementById('backgroundInput').click()" class="text-purple-600 hover:text-purple-700 dark:text-purple-400 dark:hover:text-purple-300 mt-2">
+                        <div class="flex gap-2 justify-center mt-2">
+                            <button type="button" onclick="document.getElementById('backgroundInput').click()" class="text-purple-600 hover:text-purple-700 dark:text-purple-400 dark:hover:text-purple-300">
                             <i class="fas fa-upload mr-2"></i>{{ __('companies.background_change') }}
                         </button>
+                            <button type="button" onclick="openStockImageModal()" class="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300">
+                                <i class="fas fa-search mr-2"></i>{{ __('companies.browse_free_images') }}
+                        </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -474,8 +510,39 @@
     </form>
 </div>
 
-<!-- Crop Modal -->
-<div id="cropModal">
+    <!-- Stock Image Search Modal -->
+    <div id="stockImageModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center" style="display: none;">
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col m-4">
+            <div class="p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-xl font-bold text-gray-800 dark:text-gray-100">{{ __('companies.browse_free_images') }}</h3>
+                    <button onclick="closeStockImageModal()" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                        <i class="fas fa-times text-2xl"></i>
+                    </button>
+                </div>
+                <div class="flex gap-2">
+                    <input type="text" id="stockImageSearch" placeholder="{{ __('companies.search_images_placeholder') }}" class="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
+                    <button onclick="searchStockImages()" class="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700">
+                        <i class="fas fa-search mr-2"></i>{{ __('companies.search') }}
+                    </button>
+                </div>
+            </div>
+            <div id="stockImagesGrid" class="flex-1 overflow-y-auto p-4 sm:p-6 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                <div class="col-span-full text-center text-gray-500 dark:text-gray-400 py-8">
+                    <i class="fas fa-image text-4xl mb-2"></i>
+                    <p>{{ __('companies.search_images_hint') }}</p>
+                </div>
+            </div>
+            <div class="p-4 border-t border-gray-200 dark:border-gray-700">
+                <p class="text-xs text-gray-500 dark:text-gray-400 text-center">
+                    {{ __('companies.images_provided_by') }} <a href="https://loremflickr.com" target="_blank" class="text-blue-600 hover:underline">LoremFlickr</a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Crop Modal -->
+    <div id="cropModal">
     <div class="crop-modal-content">
         <div class="crop-modal-header">
             <h3>{{ __('companies.crop_logo') }}</h3>
@@ -597,9 +664,9 @@ document.addEventListener('DOMContentLoaded', function() {
                         e.target.value = `(${value.slice(0, 2)}) ${value.slice(2)}`;
             } else if (value.length > 0) {
                         e.target.value = `(${value}`;
-                    }
-                });
             }
+        });
+    }
             */
         });
 
@@ -1088,19 +1155,26 @@ function saveForm() {
         showNotification('{{ __('companies.error_form_not_found') }}', 'error');
         return;
     }
-
-            // Verificar se há arquivo no input de logo antes de submeter
-            const logoInput = document.getElementById('logoInput');
-            if (logoInput && logoInput.files && logoInput.files.length > 0) {
-                console.log('Logo file ready for submission:', {
-                    fileName: logoInput.files[0].name,
-                    fileSize: logoInput.files[0].size,
-                    fileType: logoInput.files[0].type
-                });
-            } else {
-                console.log('No logo file in input');
-            }
     
+    // Verificar se há arquivo no input de logo antes de submeter
+    const logoInput = document.getElementById('logoInput');
+    if (logoInput && logoInput.files && logoInput.files.length > 0) {
+        console.log('Logo file ready for submission:', {
+            fileName: logoInput.files[0].name,
+            fileSize: logoInput.files[0].size,
+            fileType: logoInput.files[0].type
+        });
+    } else {
+        console.log('No logo file in input');
+    }
+    
+    // Remove any existing save_as_draft input
+    const existingDraftInput = form.querySelector('input[name="save_as_draft"]');
+    if (existingDraftInput) {
+        existingDraftInput.remove();
+    }
+    
+    // Add save_as_draft input with value 'true'
     const draftInput = document.createElement('input');
     draftInput.type = 'hidden';
     draftInput.name = 'save_as_draft';
@@ -1108,34 +1182,50 @@ function saveForm() {
     form.appendChild(draftInput);
     
     const saveBtn = document.querySelector('button[onclick="saveForm()"]');
-            if (saveBtn && !saveBtn.dataset.originalText) {
-                saveBtn.dataset.originalText = saveBtn.innerHTML;
-            }
+    const submitBtn = document.querySelector('button[onclick="submitForm()"]');
+    if (saveBtn && !saveBtn.dataset.originalText) {
+        saveBtn.dataset.originalText = saveBtn.innerHTML;
+    }
     if (saveBtn) {
         saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> {{ __('companies.saving') }}';
         saveBtn.disabled = true;
     }
+    if (submitBtn) {
+        submitBtn.disabled = true;
+    }
     
+    // Submit form (with save_as_draft = true, so it will be saved as draft)
     form.submit();
 }
 
 function submitForm() {
     const form = document.getElementById('companyForm');
-            if (!form) return;
+    if (!form) return;
     if (!form.checkValidity()) {
         form.reportValidity();
         return;
     }
     
+    // Remove any existing save_as_draft input (to ensure it's published)
+    const existingDraftInput = form.querySelector('input[name="save_as_draft"]');
+    if (existingDraftInput) {
+        existingDraftInput.remove();
+    }
+    
     const submitBtn = document.querySelector('button[onclick="submitForm()"]');
-            if (submitBtn && !submitBtn.dataset.originalText) {
-                submitBtn.dataset.originalText = submitBtn.innerHTML;
-            }
+    const saveBtn = document.querySelector('button[onclick="saveForm()"]');
+    if (submitBtn && !submitBtn.dataset.originalText) {
+        submitBtn.dataset.originalText = submitBtn.innerHTML;
+    }
     if (submitBtn) {
         submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> {{ __('companies.activating') }}';
         submitBtn.disabled = true;
     }
+    if (saveBtn) {
+        saveBtn.disabled = true;
+    }
     
+    // Submit form (without save_as_draft, so it will be published)
     form.submit();
 }
 
@@ -1199,6 +1289,155 @@ function handleBackgroundUpload(input) {
                     }
                 }
             });
+        });
+
+        // Stock Image Search Functions
+        function openStockImageModal() {
+            const modal = document.getElementById('stockImageModal');
+            modal.classList.remove('hidden');
+            modal.style.display = 'flex';
+            // Load popular images on open
+            searchStockImages('business');
+        }
+
+        function closeStockImageModal() {
+            const modal = document.getElementById('stockImageModal');
+            modal.classList.add('hidden');
+            modal.style.display = 'none';
+        }
+
+        async function searchStockImages(query = 'business') {
+            const searchInput = document.getElementById('stockImageSearch');
+            const searchTerm = searchInput ? searchInput.value.trim() || query : query;
+            const grid = document.getElementById('stockImagesGrid');
+            
+            if (!grid) return;
+            
+            grid.innerHTML = '<div class="col-span-full text-center py-8"><i class="fas fa-spinner fa-spin text-2xl text-purple-600"></i><p class="mt-2">{{ __('companies.loading_images') }}</p></div>';
+            
+            // Using LoremFlickr directly - no CORS issues and deterministic with lock parameter
+            loadStockImagesFromDirectUrls(searchTerm);
+        }
+
+        function loadStockImagesFromDirectUrls(searchTerm) {
+            const grid = document.getElementById('stockImagesGrid');
+            if (!grid) return;
+
+            grid.innerHTML = '';
+
+            const images = [];
+            const baseSeed = Date.now();
+            const termRaw = searchTerm && searchTerm.trim() ? searchTerm.trim() : 'business';
+            const sanitizedTerm = termRaw.toLowerCase()
+                .replace(/[^a-z0-9\s,]/g, ' ')
+                .trim()
+                .replace(/\s+/g, ',') || 'business';
+
+            for (let i = 1; i <= 20; i++) {
+                const lock = baseSeed + i;
+                images.push({
+                    seed: lock,
+                    term: sanitizedTerm,
+                    displayTerm: termRaw,
+                    thumbUrl: `https://loremflickr.com/400/300/${sanitizedTerm}?lock=${lock}`
+                });
+            }
+
+            displayStockImages(images);
+        }
+
+        function displayStockImages(images) {
+            const grid = document.getElementById('stockImagesGrid');
+            if (!grid) return;
+
+            if (!images || images.length === 0) {
+                grid.innerHTML = '<div class="col-span-full text-center text-gray-500 dark:text-gray-400 py-8"><i class="fas fa-image text-4xl mb-2"></i><p>{{ __('companies.no_images_found') }}</p></div>';
+                return;
+            }
+
+            grid.innerHTML = images.map(image => `
+                <div class="relative group cursor-pointer" onclick="selectStockImage('${image.seed}', '${image.term}')">
+                    <div class="aspect-video bg-gray-200 dark:bg-gray-700 rounded-lg overflow-hidden">
+                        <img src="${image.thumbUrl}" alt="${image.displayTerm || 'Stock image'}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300" loading="lazy" onerror="this.parentElement.innerHTML='<div class=\\'w-full h-full flex items-center justify-center text-gray-400\\'><i class=\\'fas fa-image text-2xl\\'></i></div>'">
+                    </div>
+                    <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-opacity rounded-lg flex items-center justify-center">
+                        <i class="fas fa-check-circle text-white text-2xl opacity-0 group-hover:opacity-100 transition-opacity"></i>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function selectStockImage(seed, term) {
+            try {
+                const grid = document.getElementById('stockImagesGrid');
+                if (grid) {
+                    grid.innerHTML = '<div class="col-span-full text-center py-8"><i class="fas fa-spinner fa-spin text-2xl text-purple-600"></i><p class="mt-2">{{ __('companies.downloading_image') }}</p></div>';
+                }
+
+                const fetchUrl = `https://loremflickr.com/1920/1080/${term}?lock=${seed}`;
+
+                let response = await fetch(fetchUrl, { mode: 'cors' });
+
+                if (!response.ok) {
+                    const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(fetchUrl)}`;
+                    response = await fetch(proxyUrl);
+                }
+
+                const blob = await response.blob();
+                const file = new File([blob], `stock-${seed}.jpg`, { type: 'image/jpeg' });
+
+                const dataTransfer = new DataTransfer();
+                dataTransfer.items.add(file);
+
+                const backgroundInput = document.getElementById('backgroundInput');
+                if (backgroundInput) {
+                    backgroundInput.files = dataTransfer.files;
+
+                    const changeEvent = new Event('change', { bubbles: true });
+                    backgroundInput.dispatchEvent(changeEvent);
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+                        const previewImg = document.getElementById('backgroundPreviewImg');
+            const placeholder = document.getElementById('backgroundPlaceholder');
+                        const previewContainer = document.getElementById('backgroundPreviewContainer');
+
+                        if (!previewImg && previewContainer) {
+                            const img = document.createElement('img');
+                            img.id = 'backgroundPreviewImg';
+                            img.src = e.target.result;
+                            img.alt = '{{ __('companies.background_image') }}';
+                            img.className = 'max-w-xs mx-auto mb-2 rounded-lg';
+                            previewContainer.innerHTML = '';
+                            previewContainer.appendChild(img);
+                        } else if (previewImg) {
+                            previewImg.src = e.target.result;
+                        }
+
+            if (placeholder) {
+                            placeholder.style.display = 'none';
+                        }
+                    };
+                    reader.readAsDataURL(file);
+                }
+
+                closeStockImageModal();
+            } catch (error) {
+                console.error('Error selecting image:', error);
+                alert('{{ __('companies.error_downloading_image') }}');
+            }
+        }
+
+        // Allow Enter key to search
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('stockImageSearch');
+            if (searchInput) {
+                searchInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        searchStockImages();
+                    }
+                });
+            }
         });
 </script>
 @endsection

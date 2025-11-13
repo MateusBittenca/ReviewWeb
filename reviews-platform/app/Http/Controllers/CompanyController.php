@@ -110,11 +110,11 @@ class CompanyController extends Controller
         
         // Validação diferente para rascunho vs publicação
         if ($isDraft) {
-            // Validação mais flexível para rascunho
+            // Validação para rascunho - campos obrigatórios do banco são exigidos
             $request->validate([
-                'name' => 'nullable|string|max:255',
+                'name' => 'required|string|max:255',
                 'url' => 'nullable|string|max:255',
-                'negative_email' => 'nullable|email',
+                'negative_email' => 'required|email',
                 'contact_number' => 'nullable|string|max:20',
                 'business_website' => 'nullable|string|max:500',
                 'business_address' => 'nullable|string|max:500',
@@ -143,9 +143,24 @@ class CompanyController extends Controller
         
         $data = $request->all();
         
+        // Remover campos vazios, null ou "null" (string) do array
+        $data = array_filter($data, function($value) {
+            return $value !== null && $value !== 'null' && $value !== '';
+        });
+        
+        // Para draft, garantir valores padrão para campos obrigatórios se necessário
+        if ($isDraft) {
+            // positive_score tem default no banco, mas vamos garantir um valor
+            if (empty($data['positive_score'])) {
+                $data['positive_score'] = 4; // Valor padrão
+            }
+        }
+        
         // Normalizar Google Business URL - adicionar https:// se não tiver protocolo
-        if (isset($data['google_business_url']) && !empty($data['google_business_url'])) {
+        if (isset($data['google_business_url']) && !empty($data['google_business_url']) && $data['google_business_url'] !== 'null') {
             $data['google_business_url'] = $this->normalizeGoogleBusinessUrl($data['google_business_url']);
+        } else {
+            unset($data['google_business_url']); // Remove se for null ou vazio
         }
         
         // Adicionar user_id automaticamente
@@ -154,14 +169,36 @@ class CompanyController extends Controller
         // Handle file uploads with compression
         if ($request->hasFile('logo')) {
             $data['logo'] = $this->compressAndStoreImage($request->file('logo'), 'logos', 800, 800, 85);
+        } else {
+            unset($data['logo']); // Remove se não houver arquivo
         }
         
         if ($request->hasFile('background_image')) {
             $data['background_image'] = $this->compressAndStoreImage($request->file('background_image'), 'backgrounds', 1920, 1080, 80);
+        } else {
+            unset($data['background_image']); // Remove se não houver arquivo
         }
+        
+        // Remover campos que não devem ser salvos
+        unset($data['save_as_draft']);
+        unset($data['logo_cropped']); // Este campo é processado separadamente
+        unset($data['_token']);
 
         // Definir status
         $data['status'] = $isDraft ? 'draft' : 'published';
+        
+        // Se for rascunho, automaticamente definir como não visível (sempre)
+        if ($isDraft) {
+            $data['is_active'] = false;
+        } else {
+            // Se for publicado, por padrão definir como visível
+            // Se vier is_active do request, usar o valor do request
+            if (!isset($request->is_active)) {
+                $data['is_active'] = true;
+            } else {
+                $data['is_active'] = $request->boolean('is_active');
+            }
+        }
 
         // Create company
         \Log::info('Criando empresa', ['data' => $data]);
@@ -233,11 +270,11 @@ class CompanyController extends Controller
         
         // Validação diferente para rascunho vs publicação
         if ($isDraft) {
-            // Validação mais flexível para rascunho
+            // Validação para rascunho - campos obrigatórios do banco são exigidos
             $request->validate([
-                'name' => 'nullable|string|max:255',
+                'name' => 'required|string|max:255',
                 'url' => 'nullable|string|max:255',
-                'negative_email' => 'nullable|email',
+                'negative_email' => 'required|email',
                 'contact_number' => 'nullable|string|max:20',
                 'business_website' => 'nullable|string|max:500',
                 'business_address' => 'nullable|string|max:500',
@@ -266,15 +303,11 @@ class CompanyController extends Controller
         
         $data = $request->all();
         
-        // Normalizar Google Business URL - adicionar https:// se não tiver protocolo
-        if (isset($data['google_business_url']) && !empty($data['google_business_url'])) {
-            $data['google_business_url'] = $this->normalizeGoogleBusinessUrl($data['google_business_url']);
-        }
-        
-        // Salvar referências das imagens antigas
+        // Salvar referências das imagens antigas ANTES de processar
         $oldLogo = $company->logo;
         $oldBackground = $company->background_image;
         
+        // Processar arquivos ANTES de filtrar campos vazios
         // Handle file uploads - Logo with compression
         \Log::info('Checking for logo file', [
             'hasFile' => $request->hasFile('logo'),
@@ -318,7 +351,7 @@ class CompanyController extends Controller
             }
         } else {
             \Log::info('No logo file in request, preserving old logo');
-            // Preservar logo antiga se não houver novo upload
+            // Preservar logo antiga se não houver novo upload - não incluir no array para não sobrescrever
             unset($data['logo']);
         }
         
@@ -334,14 +367,78 @@ class CompanyController extends Controller
             // Preservar background antigo se não houver novo upload
             unset($data['background_image']);
         }
-
-        // Remover campos de arquivo vazios do array (já removidos acima se não houver upload)
+        
+        // Remover campos vazios, null ou "null" (string) do array (APÓS processar arquivos)
+        // Mas preservar campos de arquivo processados (logo e background_image)
+        $logoPath = isset($data['logo']) ? $data['logo'] : null;
+        $backgroundPath = isset($data['background_image']) ? $data['background_image'] : null;
+        
+        $data = array_filter($data, function($value) {
+            return $value !== null && $value !== 'null' && $value !== '';
+        });
+        
+        // Restaurar caminhos de arquivo processados se existirem
+        if ($logoPath !== null) {
+            $data['logo'] = $logoPath;
+        }
+        if ($backgroundPath !== null) {
+            $data['background_image'] = $backgroundPath;
+        }
+        
+        // Para draft na edição, se campos obrigatórios não vierem, manter os existentes
+        if ($isDraft) {
+            // Se name não vier, manter o existente
+            if (empty($data['name'])) {
+                unset($data['name']);
+            }
+            
+            // Se negative_email não vier, manter o existente
+            if (empty($data['negative_email'])) {
+                unset($data['negative_email']);
+            }
+            
+            // positive_score tem default no banco, mas vamos garantir um valor
+            if (empty($data['positive_score'])) {
+                unset($data['positive_score']); // Manter o existente ou usar default do banco
+            }
+        }
+        
+        // Normalizar Google Business URL - adicionar https:// se não tiver protocolo
+        if (isset($data['google_business_url']) && !empty($data['google_business_url']) && $data['google_business_url'] !== 'null') {
+            $data['google_business_url'] = $this->normalizeGoogleBusinessUrl($data['google_business_url']);
+        } else {
+            unset($data['google_business_url']); // Remove se for null ou vazio
+        }
+        
+        // Remover campos que não devem ser salvos
+        unset($data['save_as_draft']);
+        unset($data['logo_cropped']); // Este campo é processado separadamente
+        unset($data['_token']);
 
         // Definir status
         $data['status'] = $isDraft ? 'draft' : 'published';
+        
+        // Se for rascunho, automaticamente definir como não visível (sempre)
+        if ($isDraft) {
+            $data['is_active'] = false;
+        } else {
+            // Se for publicado, por padrão definir como visível
+            // Se vier is_active do request, usar o valor do request
+            if (!isset($request->is_active)) {
+                $data['is_active'] = true;
+            } else {
+                $data['is_active'] = $request->boolean('is_active');
+            }
+        }
 
         // Update company
-        \Log::info('Atualizando empresa', ['data' => $data]);
+        \Log::info('Atualizando empresa', [
+            'data' => $data,
+            'has_logo' => isset($data['logo']),
+            'logo_path' => $data['logo'] ?? 'NOT SET',
+            'has_background' => isset($data['background_image']),
+            'background_path' => $data['background_image'] ?? 'NOT SET'
+        ]);
         $company->update($data);
         
         // Recarregar a empresa do banco para garantir dados atualizados
@@ -351,7 +448,8 @@ class CompanyController extends Controller
             'company_id' => $company->id, 
             'status' => $company->status,
             'logo' => $company->logo,
-            'logo_url' => $company->logo_url
+            'logo_url' => $company->logo_url,
+            'logo_file_exists' => $company->logo ? Storage::disk('public')->exists($company->logo) : false
         ]);
 
         if (!$isDraft && $company->status === 'published') {
@@ -418,10 +516,18 @@ class CompanyController extends Controller
                 }
                 
                 // Resize maintaining aspect ratio
-                $image->resize($maxWidth, $maxHeight, function ($constraint) {
-                    $constraint->aspectRatio();
-                    $constraint->upsize();
-                });
+                // Only resize if image is larger than max dimensions
+                $currentWidth = $image->width();
+                $currentHeight = $image->height();
+                
+                if ($currentWidth > $maxWidth || $currentHeight > $maxHeight) {
+                    // Image is larger than max - resize it down
+                    $image->resize($maxWidth, $maxHeight, function ($constraint) {
+                        $constraint->aspectRatio();
+                        $constraint->upsize(); // Don't upsize smaller images
+                    });
+                }
+                // If image is smaller, keep original size
                 
                 // Convert to RGB if needed (for better compression)
                 if ($image->mime() === 'image/png') {
@@ -499,9 +605,17 @@ class CompanyController extends Controller
         $originalHeight = \imagesy($sourceImage);
         
         // Calculate new dimensions maintaining aspect ratio
-        $ratio = min($maxWidth / $originalWidth, $maxHeight / $originalHeight);
-        $newWidth = (int)($originalWidth * $ratio);
-        $newHeight = (int)($originalHeight * $ratio);
+        // Only resize if image is larger than max dimensions
+        if ($originalWidth <= $maxWidth && $originalHeight <= $maxHeight) {
+            // Image is already smaller than max - keep original size
+            $newWidth = $originalWidth;
+            $newHeight = $originalHeight;
+        } else {
+            // Image is larger - resize it down
+            $ratio = min($maxWidth / $originalWidth, $maxHeight / $originalHeight);
+            $newWidth = (int)($originalWidth * $ratio);
+            $newHeight = (int)($originalHeight * $ratio);
+        }
         
         // Create new image
         $newImage = \imagecreatetruecolor($newWidth, $newHeight);
@@ -552,6 +666,9 @@ class CompanyController extends Controller
 
         // Remove espaços em branco
         $url = trim($url);
+        
+        // Convert to lowercase for consistency
+        $url = strtolower($url);
 
         // Se já tiver protocolo (http:// ou https://), retorna como está
         if (preg_match('/^https?:\/\//i', $url)) {

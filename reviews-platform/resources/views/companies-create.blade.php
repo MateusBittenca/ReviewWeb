@@ -11,10 +11,15 @@
             <i class="fas fa-arrow-left mr-2"></i>
             <span>{{ __('companies.back') }}</span>
         </a>
-        <button type="button" onclick="document.getElementById('companyForm').submit()" class="btn-primary text-white px-3 sm:px-4 py-2 rounded-lg font-medium text-sm sm:text-base whitespace-nowrap">
+        <button type="button" onclick="saveAsDraft()" class="bg-gray-500 hover:bg-gray-600 text-white px-3 sm:px-4 py-2 rounded-lg font-medium text-sm sm:text-base whitespace-nowrap">
             <i class="fas fa-save mr-2"></i>
-            <span class="hidden sm:inline">{{ __('companies.save_company') }}</span>
+            <span class="hidden sm:inline">{{ __('companies.save_as_draft') }}</span>
             <span class="sm:hidden">{{ __('companies.save') }}</span>
+        </button>
+        <button type="button" onclick="publishCompany()" class="btn-primary text-white px-3 sm:px-4 py-2 rounded-lg font-medium text-sm sm:text-base whitespace-nowrap">
+            <i class="fas fa-upload mr-2"></i>
+            <span class="hidden sm:inline">{{ __('companies.publish') }}</span>
+            <span class="sm:hidden">{{ __('companies.publish') }}</span>
         </button>
     </div>
 @endsection
@@ -106,12 +111,26 @@
         
         .crop-modal-content {
             background-color: white;
-            padding: 2rem;
-            border-radius: 12px;
-            width: 90%;
+            padding: 1rem;
             max-width: 900px;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
             z-index: 10000;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        @media (min-width: 640px) {
+            .crop-modal-content {
+                padding: 2rem;
+                width: 90%;
+            }
+        }
+        
+        @media (max-width: 639px) {
+            .crop-modal-content {
+                width: 95%;
+                padding: 1rem;
+            }
         }
         
         .crop-modal-header {
@@ -142,6 +161,14 @@
             align-items: center;
             justify-content: center;
             overflow: hidden;
+            touch-action: none;
+        }
+        
+        @media (max-width: 639px) {
+            #cropImageContainer {
+                height: 300px;
+                margin-bottom: 1rem;
+            }
         }
 
         #cropperImage {
@@ -201,6 +228,15 @@
             border: 2px solid #ffffff;
             pointer-events: auto;
             box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+            touch-action: none;
+        }
+        
+        @media (max-width: 639px) {
+            .crop-handle {
+                width: 24px;
+                height: 24px;
+                border-width: 3px;
+            }
         }
 
         .crop-handle[data-handle="nw"] {
@@ -503,10 +539,49 @@
                             </div>
                             <input type="file" id="background_image" name="background_image" accept="image/*" class="hidden" onchange="handleFileUpload(this, 'background')">
                         </div>
+                        <div class="flex gap-2 justify-center mt-2">
+                            <button type="button" onclick="document.getElementById('background_image').click()" class="text-purple-600 hover:text-purple-700 dark:text-purple-400 dark:hover:text-purple-300">
+                                <i class="fas fa-upload mr-2"></i>{{ __('companies.background_change') }}
+                            </button>
+                            <button type="button" onclick="openStockImageModal()" class="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300">
+                                <i class="fas fa-search mr-2"></i>{{ __('companies.browse_free_images') }}
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
         </form>
+    </div>
+    
+    <!-- Stock Image Search Modal -->
+    <div id="stockImageModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center" style="display: none;">
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col m-4">
+            <div class="p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-xl font-bold text-gray-800 dark:text-gray-100">{{ __('companies.browse_free_images') }}</h3>
+                    <button onclick="closeStockImageModal()" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                        <i class="fas fa-times text-2xl"></i>
+                    </button>
+                </div>
+                <div class="flex gap-2">
+                    <input type="text" id="stockImageSearch" placeholder="{{ __('companies.search_images_placeholder') }}" class="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
+                    <button onclick="searchStockImages()" class="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700">
+                        <i class="fas fa-search mr-2"></i>{{ __('companies.search') }}
+                    </button>
+                </div>
+            </div>
+            <div id="stockImagesGrid" class="flex-1 overflow-y-auto p-4 sm:p-6 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                <div class="col-span-full text-center text-gray-500 dark:text-gray-400 py-8">
+                    <i class="fas fa-image text-4xl mb-2"></i>
+                    <p>{{ __('companies.search_images_hint') }}</p>
+                </div>
+            </div>
+            <div class="p-4 border-t border-gray-200 dark:border-gray-700">
+                <p class="text-xs text-gray-500 dark:text-gray-400 text-center">
+                    {{ __('companies.images_provided_by') }} <a href="https://loremflickr.com" target="_blank" class="text-blue-600 hover:underline">LoremFlickr</a>
+                </p>
+            </div>
+        </div>
     </div>
     
     <!-- Crop Modal -->
@@ -624,7 +699,7 @@
                     if (value.length > 11) {
                         value = value.slice(0, 11);
                     }
-
+                    
                     if (value.length > 10) {
                         e.target.value = `(${value.slice(0, 2)}) ${value.slice(2, 7)}-${value.slice(7)}`;
                     } else if (value.length > 6) {
@@ -1065,7 +1140,7 @@
         function clamp(value, min, max) {
             return Math.min(Math.max(value, min), max);
         }
-
+        
         // Star Rating Display
         function updateStarDisplay(value) {
             const starCount = document.getElementById('starCount');
@@ -1081,7 +1156,7 @@
             }
             updateProgress();
         }
-
+        
         // Phone number formatting function
         function formatPhoneNumber(input) {
             let value = input.value.replace(/\D/g, '');
@@ -1098,7 +1173,7 @@
                 input.value = '(' + value;
             }
         }
-
+        
         // File Upload Handler (for background image only)
         function handleFileUpload(input, type) {
             const file = input.files[0];
@@ -1118,7 +1193,7 @@
             }
             updateProgress();
         }
-
+        
         // Progress Tracking
         function updateProgress() {
             const fields = [
@@ -1131,7 +1206,7 @@
                 // 'business_address',
                 'google_business_url'
             ];
-
+            
             let completed = 0;
             fields.forEach(field => {
                 const element = document.getElementById(field);
@@ -1139,42 +1214,42 @@
                     completed++;
                 }
             });
-
+            
             const progress = (completed / fields.length) * 100;
             const progressBar = document.getElementById('progressBar');
             const progressText = document.getElementById('progressText');
-
+            
             if (progressBar) {
                 progressBar.style.width = progress + '%';
             }
-
+            
             if (progressText) {
                 const fieldsText = progressText.dataset.fieldsText || 'campos preenchidos';
                 progressText.textContent = `${completed}/${fields.length} ${fieldsText}`;
             }
         }
-
+        
         // Add event listeners to form fields
         document.querySelectorAll('input, textarea').forEach(input => {
             input.addEventListener('input', updateProgress);
         });
-
+        
         // Drag and drop functionality
         document.querySelectorAll('.upload-area').forEach(area => {
             area.addEventListener('dragover', function(e) {
                 e.preventDefault();
                 this.classList.add('dragover');
             });
-
+            
             area.addEventListener('dragleave', function(e) {
                 e.preventDefault();
                 this.classList.remove('dragover');
             });
-
+            
             area.addEventListener('drop', function(e) {
                 e.preventDefault();
                 this.classList.remove('dragover');
-
+                
                 const files = e.dataTransfer.files;
                 if (files.length > 0) {
                     const input = this.querySelector('input[type="file"]');
@@ -1190,22 +1265,221 @@
             });
         });
 
+        // Save as Draft function
+        function saveAsDraft() {
+            const form = document.getElementById('companyForm');
+            if (!form) {
+                console.error('{{ __('companies.form_not_found') }}');
+                return;
+            }
+
+            // Remove any existing save_as_draft input
+            const existingDraftInput = form.querySelector('input[name="save_as_draft"]');
+            if (existingDraftInput) {
+                existingDraftInput.remove();
+            }
+
+            // Add save_as_draft input with value 'true'
+            const draftInput = document.createElement('input');
+            draftInput.type = 'hidden';
+            draftInput.name = 'save_as_draft';
+            draftInput.value = 'true';
+            form.appendChild(draftInput);
+
+            // Disable buttons and show loading
+            const saveBtn = document.querySelector('button[onclick="saveAsDraft()"]');
+            const publishBtn = document.querySelector('button[onclick="publishCompany()"]');
+            if (saveBtn) {
+                saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> {{ __('companies.saving') }}';
+                saveBtn.disabled = true;
+            }
+            if (publishBtn) {
+                publishBtn.disabled = true;
+            }
+
+            // Submit form
+            form.submit();
+        }
+
+        // Publish Company function
+        function publishCompany() {
+            const form = document.getElementById('companyForm');
+            if (!form) {
+                console.error('{{ __('companies.form_not_found') }}');
+                return;
+            }
+
+            // Remove any existing save_as_draft input (to ensure it's published)
+            const existingDraftInput = form.querySelector('input[name="save_as_draft"]');
+            if (existingDraftInput) {
+                existingDraftInput.remove();
+            }
+
+            // Disable buttons and show loading
+            const saveBtn = document.querySelector('button[onclick="saveAsDraft()"]');
+            const publishBtn = document.querySelector('button[onclick="publishCompany()"]');
+            if (publishBtn) {
+                publishBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> {{ __('companies.activating') }}';
+                publishBtn.disabled = true;
+            }
+            if (saveBtn) {
+                saveBtn.disabled = true;
+            }
+
+            // Submit form (without save_as_draft, so it will be published)
+            form.submit();
+        }
+        
         // Form submission - prevent double submit
         const companyForm = document.getElementById('companyForm');
         if (companyForm) {
             companyForm.addEventListener('submit', function() {
-                const submitButtons = document.querySelectorAll('button[type="submit"], button[onclick*="submit"]');
+                const submitButtons = document.querySelectorAll('button[type="submit"], button[onclick*="submit"], button[onclick*="saveAsDraft"], button[onclick*="publishCompany"]');
                 submitButtons.forEach(button => {
                     if (!button.disabled) {
-                        const savingText = 'Salvando...';
+                        const savingText = '{{ __('companies.saving') }}';
                         button.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>' + savingText;
                         button.disabled = true;
                     }
                 });
             });
         }
-
+        
         // Initialize progress on page load
         updateProgress();
+
+        // Stock Image Search Functions
+        function openStockImageModal() {
+            const modal = document.getElementById('stockImageModal');
+            modal.classList.remove('hidden');
+            modal.style.display = 'flex';
+            // Load popular images on open
+            searchStockImages('business');
+        }
+
+        function closeStockImageModal() {
+            const modal = document.getElementById('stockImageModal');
+            modal.classList.add('hidden');
+            modal.style.display = 'none';
+        }
+
+        async function searchStockImages(query = 'business') {
+            const searchInput = document.getElementById('stockImageSearch');
+            const searchTerm = searchInput.value.trim() || query;
+            const grid = document.getElementById('stockImagesGrid');
+            
+            grid.innerHTML = '<div class="col-span-full text-center py-8"><i class="fas fa-spinner fa-spin text-2xl text-purple-600"></i><p class="mt-2">{{ __('companies.loading_images') }}</p></div>';
+            
+            // Using LoremFlickr directly - no CORS issues and deterministic with lock parameter
+            loadStockImagesFromDirectUrls(searchTerm);
+        }
+
+        function loadStockImagesFromDirectUrls(searchTerm) {
+            const grid = document.getElementById('stockImagesGrid');
+            grid.innerHTML = '';
+
+            const images = [];
+            const baseSeed = Date.now();
+            const termRaw = searchTerm && searchTerm.trim() ? searchTerm.trim() : 'business';
+            const sanitizedTerm = termRaw.toLowerCase()
+                .replace(/[^a-z0-9\s,]/g, ' ')
+                .trim()
+                .replace(/\s+/g, ',') || 'business';
+
+            for (let i = 1; i <= 20; i++) {
+                const lock = baseSeed + i;
+                images.push({
+                    seed: lock,
+                    term: sanitizedTerm,
+                    displayTerm: termRaw,
+                    thumbUrl: `https://loremflickr.com/400/300/${sanitizedTerm}?lock=${lock}`
+                });
+            }
+
+            displayStockImages(images);
+        }
+
+        function displayStockImages(images) {
+            const grid = document.getElementById('stockImagesGrid');
+
+            if (!images || images.length === 0) {
+                grid.innerHTML = '<div class="col-span-full text-center text-gray-500 dark:text-gray-400 py-8"><i class="fas fa-image text-4xl mb-2"></i><p>{{ __('companies.no_images_found') }}</p></div>';
+                return;
+            }
+
+            grid.innerHTML = images.map(image => `
+                <div class="relative group cursor-pointer" onclick="selectStockImage('${image.seed}', '${image.term}')">
+                    <div class="aspect-video bg-gray-200 dark:bg-gray-700 rounded-lg overflow-hidden">
+                        <img src="${image.thumbUrl}" alt="${image.displayTerm || 'Stock image'}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300" loading="lazy" onerror="this.parentElement.innerHTML='<div class=\\'w-full h-full flex items-center justify-center text-gray-400\\'><i class=\\'fas fa-image text-2xl\\'></i></div>'">
+                    </div>
+                    <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-opacity rounded-lg flex items-center justify-center">
+                        <i class="fas fa-check-circle text-white text-2xl opacity-0 group-hover:opacity-100 transition-opacity"></i>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function selectStockImage(seed, term) {
+            try {
+                const grid = document.getElementById('stockImagesGrid');
+                grid.innerHTML = '<div class="col-span-full text-center py-8"><i class="fas fa-spinner fa-spin text-2xl text-purple-600"></i><p class="mt-2">{{ __('companies.downloading_image') }}</p></div>';
+
+                const fetchUrl = `https://loremflickr.com/1920/1080/${term}?lock=${seed}`;
+
+                let response = await fetch(fetchUrl, { mode: 'cors' });
+
+                if (!response.ok) {
+                    const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(fetchUrl)}`;
+                    response = await fetch(proxyUrl);
+                }
+
+                const blob = await response.blob();
+                const file = new File([blob], `stock-${seed}.jpg`, { type: 'image/jpeg' });
+
+                const dataTransfer = new DataTransfer();
+                dataTransfer.items.add(file);
+
+                const backgroundInput = document.getElementById('background_image');
+                backgroundInput.files = dataTransfer.files;
+
+                const changeEvent = new Event('change', { bubbles: true });
+                backgroundInput.dispatchEvent(changeEvent);
+
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const bgPreview = document.getElementById('bgPreview');
+                    const bgPreviewImg = document.getElementById('bgPreviewImg');
+                    const bgPlaceholder = document.getElementById('bgPlaceholder');
+
+                    if (bgPreviewImg) {
+                        bgPreviewImg.src = e.target.result;
+                    }
+                    if (bgPreview) {
+                        bgPreview.classList.remove('hidden');
+                    }
+                    if (bgPlaceholder) {
+                        bgPlaceholder.classList.add('hidden');
+                    }
+                };
+                reader.readAsDataURL(file);
+
+                closeStockImageModal();
+            } catch (error) {
+                console.error('Error selecting image:', error);
+                alert('{{ __('companies.error_downloading_image') }}');
+            }
+        }
+
+        // Allow Enter key to search
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('stockImageSearch');
+            if (searchInput) {
+                searchInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        searchStockImages();
+                    }
+                });
+            }
+        });
     </script>
 @endsection

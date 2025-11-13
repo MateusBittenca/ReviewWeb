@@ -104,6 +104,9 @@
             transition: all 0.3s ease;
             filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.15));
             border-radius: 20px;
+            display: block;
+            width: auto;
+            height: auto;
         }
         
         .company-logo:hover {
@@ -143,8 +146,8 @@
             }
             
             .company-logo {
-                max-width: 120px;
-                max-height: 120px;
+                max-width: 120px !important;
+                max-height: 120px !important;
             }
             
             .company-name-large {
@@ -183,8 +186,8 @@
         
         @media (max-width: 480px) {
             .company-logo {
-                max-width: 100px;
-                max-height: 100px;
+                max-width: 100px !important;
+                max-height: 100px !important;
             }
             
             .company-name-large {
@@ -291,8 +294,8 @@
                 <div class="mb-6 sm:mb-8 fade-in">
                     @if(isset($company->logo) && $company->logo)
                         <!-- Logo exists - show much larger logo -->
-                        <div class="inline-flex items-center justify-center w-32 h-32 sm:w-48 sm:h-48 bg-white/20 backdrop-blur-sm rounded-3xl mb-4 sm:mb-8 shadow-lg">
-                            <img src="{{ asset('storage/' . $company->logo) }}" alt="{{ $company->name }}" class="w-24 h-24 sm:w-40 sm:h-40 object-contain company-logo" loading="lazy">
+                        <div class="inline-flex items-center justify-center p-3 sm:p-4 bg-white/20 backdrop-blur-sm rounded-3xl mb-4 sm:mb-8 shadow-lg" style="min-width: fit-content; min-height: fit-content;">
+                            <img src="{{ asset('storage/' . $company->logo) }}" alt="{{ $company->name }}" class="company-logo" loading="lazy" style="max-width: 160px; max-height: 160px; width: auto; height: auto; display: block;">
                         </div>
                         <!-- Company Name below logo -->
                         <h1 class="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4 sm:mb-8 fade-in company-name-large">
@@ -346,8 +349,8 @@
                     <input type="hidden" id="rating" name="rating" value="">
                     <input type="hidden" id="company_token" name="company_token" value="{{ $token }}">
                     
-                    <!-- WhatsApp - Only shown when rating is selected -->
-                    <div id="whatsappSection" class="hidden">
+                    <!-- WhatsApp - Always visible below stars -->
+                    <div id="whatsappSection">
                         <label for="whatsapp" class="block text-sm font-medium text-gray-700 mb-2">
                             <i class="fab fa-whatsapp text-green-500 mr-2"></i>
                             {{ __('public.whatsapp_number') }}
@@ -361,8 +364,8 @@
                             placeholder="{{ __('public.whatsapp_placeholder') }}"
                             maxlength="15"
                         >
-                        <p class="text-xs text-gray-500 mt-1">{{ __('public.whatsapp_hint') }}</p>
-                        <p class="text-sm text-gray-600 mt-3 text-center font-medium" id="confirmText"></p>
+                        <p class="text-xs text-gray-500 mt-1 italic">{{ __('public.competition_internal_use') }}</p>
+                        <p class="text-sm text-gray-600 mt-3 text-center font-medium hidden" id="confirmText"></p>
                     </div>
                     
                     <!-- Comment - Only shown for negative reviews -->
@@ -393,10 +396,14 @@
                 
                 <!-- Loading State -->
                 <div id="loadingState" class="hidden text-center py-8">
-                    <div class="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mb-4">
-                        <i class="fas fa-spinner fa-spin text-blue-600 text-2xl"></i>
+                    <div class="bg-green-100 border border-green-300 rounded-lg p-4 mb-4">
+                        <h5 class="text-lg font-semibold text-green-800 mb-2">{{ __('public.redirecting_to_google') }}</h5>
+                        <p class="text-green-700 mb-3">{{ __('public.redirecting_google_desc') }}</p>
+                        <div class="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-2">
+                            <i class="fas fa-spinner fa-spin text-green-600 text-2xl"></i>
+                        </div>
+                        <p class="text-green-600 text-sm">{{ __('public.redirecting_in_seconds') }}</p>
                     </div>
-                    <p class="text-gray-600">{{ __('public.processing_review') }}</p>
                 </div>
                 
                 <!-- Success State -->
@@ -431,8 +438,8 @@
                 rating_4: 'Bom',
                 rating_5: 'Excelente',
                 redirecting_to_google: 'Redirecionando para o Google...',
-                redirecting_google_desc: 'Você será redirecionado para deixar sua avaliação pública no Google My Business.',
-                redirecting_in_seconds: 'Redirecionando em 3 segundos...',
+                redirecting_google_desc: 'Por favor, complete sua avaliação pública no Google para ajudar outros a nos escolherem.',
+                redirecting_in_seconds: 'Redirecionando em 2 segundos...',
                 thanks_for_negative_feedback: 'Obrigado pelo feedback!',
                 how_can_we_improve: 'O que podemos melhorar?',
                 feedback_placeholder: 'Conte-nos o que aconteceu para que possamos melhorar nosso atendimento...',
@@ -464,8 +471,8 @@
                 rating_4: 'Good',
                 rating_5: 'Excellent',
                 redirecting_to_google: 'Redirecting to Google...',
-                redirecting_google_desc: 'You will be redirected to leave your public review on Google My Business.',
-                redirecting_in_seconds: 'Redirecting in 3 seconds...',
+                redirecting_google_desc: 'Please complete your public review on Google to help others choose us.',
+                redirecting_in_seconds: 'Redirecting in 2 seconds...',
                 thanks_for_negative_feedback: 'Thanks for the feedback!',
                 how_can_we_improve: 'How can we improve?',
                 feedback_placeholder: 'Tell us what happened so we can improve our service...',
@@ -564,21 +571,21 @@
                 this.updateRatingText(rating);
                 document.getElementById('rating').value = rating;
                 
-                // Show WhatsApp section and submit button
-                const whatsappSection = document.getElementById('whatsappSection');
+                // Show submit button when rating is selected
                 const submitBtn = document.getElementById('submitBtn');
                 const confirmText = document.getElementById('confirmText');
                 
-                whatsappSection.classList.remove('hidden');
                 submitBtn.classList.remove('hidden');
                 submitBtn.disabled = false;
                 
                 // Update confirm text
                 const isPositive = rating >= this.positiveThreshold;
                 if (isPositive) {
+                    confirmText.classList.remove('hidden');
                     confirmText.textContent = '{{ __('public.confirm_whatsapp_and_review') }}';
                     document.getElementById('submitBtnText').textContent = '{{ __('public.submit') }}';
                 } else {
+                    confirmText.classList.remove('hidden');
                     confirmText.textContent = '{{ __('public.confirm_whatsapp_and_review') }}';
                     document.getElementById('submitBtnText').textContent = '{{ __('public.submit') }}';
                 }
@@ -671,31 +678,88 @@
             }
             
             showSuccessState(result) {
-                document.getElementById('loadingState').classList.add('hidden');
-                document.getElementById('successState').classList.remove('hidden');
-                
                 console.log('Result from API:', result);
-                
-                // Determine next action based on rating
-                const nextAction = document.getElementById('nextAction');
                 
                 // Check if result has data property, otherwise use the old logic
                 const isPositive = result.data ? result.data.is_positive : (this.selectedRating >= this.positiveThreshold);
                 const googleUrl = result.data ? result.data.google_business_url : this.companyData.google_business_url;
                 const negativeEmail = result.data ? result.data.negative_email : this.companyData.negative_email;
                 
+                console.log('Review result:', {
+                    isPositive,
+                    googleUrl,
+                    resultData: result.data
+                });
+                
                 if (isPositive) {
-                    // Positive review - redirect directly to Google (no message)
-                    if (googleUrl) {
-                        window.open(googleUrl, '_blank');
+                    // Positive review - continue showing loading with countdown, then redirect
+                    if (googleUrl && googleUrl.trim() !== '') {
+                        // Normalize URL - ensure it has protocol
+                        let normalizedUrl = googleUrl.trim();
+                        
+                        // Convert to lowercase
+                        normalizedUrl = normalizedUrl.toLowerCase();
+                        
+                        // Add https:// if protocol is missing
+                        if (!normalizedUrl.match(/^https?:\/\//i)) {
+                            if (normalizedUrl.startsWith('www.')) {
+                                normalizedUrl = 'https://' + normalizedUrl;
+                            } else {
+                                normalizedUrl = 'https://' + normalizedUrl;
+                            }
+                        }
+                        
+                        // Update loading state with countdown
+                        let countdown = 2;
+                        const loadingState = document.getElementById('loadingState');
+                        // Find or create countdown text element
+                        let countdownTextEl = loadingState.querySelector('p.text-green-600.text-sm');
+                        if (!countdownTextEl) {
+                            // If element doesn't exist, create it
+                            const loadingContent = loadingState.querySelector('.bg-green-100');
+                            if (loadingContent) {
+                                countdownTextEl = loadingContent.querySelector('p.text-green-600.text-sm');
+                            }
+                        }
+                        
+                        // Update countdown every second
+                        const countdownInterval = setInterval(() => {
+                            countdown--;
+                            if (countdownTextEl) {
+                                if (countdown > 0) {
+                                    // Use translation for countdown
+                                    const locale = '{{ app()->getLocale() }}';
+                                    if (locale === 'pt_BR') {
+                                        countdownTextEl.textContent = `Redirecionando em ${countdown} segundos...`;
+                                    } else {
+                                        countdownTextEl.textContent = `Redirecting in ${countdown} seconds...`;
+                                    }
+                                } else {
+                                    const locale = '{{ app()->getLocale() }}';
+                                    if (locale === 'pt_BR') {
+                                        countdownTextEl.textContent = 'Redirecionando agora...';
+                                    } else {
+                                        countdownTextEl.textContent = 'Redirecting now...';
+                                    }
+                                }
+                            }
+                            
+                            if (countdown <= 0) {
+                                clearInterval(countdownInterval);
+                                console.log('Redirecting to Google:', normalizedUrl);
+                                // Redirect in the same window
+                                window.location.href = normalizedUrl;
+                            }
+                        }, 1000);
+                        
+                        // Keep loading state visible, don't show success state
+                        return; // Exit early since we're redirecting
+                    } else {
+                        console.warn('No Google URL available for redirect');
+                        // Fallback: Show success message if no Google URL
+                        document.getElementById('loadingState').classList.add('hidden');
+                        document.getElementById('successState').classList.remove('hidden');
                     }
-                    // Show simple success message
-                    nextAction.innerHTML = `
-                        <div class="bg-green-50 border border-green-200 rounded-xl p-6">
-                            <h4 class="text-lg font-semibold text-green-800 mb-2">{{ __('public.review_sent') }}</h4>
-                            <p class="text-green-600">{{ __('public.thanks_for_feedback') }}</p>
-                        </div>
-                    `;
                 } else {
                     // Negative review - hide stars/WhatsApp, show comment box
                     // First, show the form again (it was hidden during loading)
