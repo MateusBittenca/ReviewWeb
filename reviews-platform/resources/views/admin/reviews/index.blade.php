@@ -325,6 +325,13 @@
             <div class="chart-container">
                 <canvas id="reviewsOverTimeChart"></canvas>
             </div>
+            <div id="reviewsOverTimeNoData" class="hidden flex flex-col items-center justify-center h-full min-h-[300px] text-center p-6">
+                <div class="inline-flex items-center justify-center w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full mb-4">
+                    <i class="fas fa-chart-line text-gray-400 dark:text-gray-500 text-2xl"></i>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-2">{{ __('reviews.chart_no_data') }}</h3>
+                <p class="text-gray-600 dark:text-gray-400 text-sm">{{ __('reviews.chart_no_data_desc') }}</p>
+            </div>
         </div>
         
         <!-- Rating Distribution Chart -->
@@ -340,6 +347,13 @@
             </div>
             <div class="chart-container">
                 <canvas id="ratingDistributionChart"></canvas>
+            </div>
+            <div id="ratingDistributionNoData" class="hidden flex flex-col items-center justify-center h-full min-h-[300px] text-center p-6">
+                <div class="inline-flex items-center justify-center w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full mb-4">
+                    <i class="fas fa-chart-pie text-gray-400 dark:text-gray-500 text-2xl"></i>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-2">{{ __('reviews.chart_no_data') }}</h3>
+                <p class="text-gray-600 dark:text-gray-400 text-sm">{{ __('reviews.chart_no_data_desc') }}</p>
             </div>
         </div>
     </div>
@@ -541,8 +555,8 @@
                     this.loadCompanies(),
                     this.loadUsers()
                 ]);
-                await this.loadReviews();
                 this.initializeCharts();
+                await this.loadReviews();
                 this.initCompanySearch();
                 this.bindEvents();
             }
@@ -736,143 +750,8 @@
                 }
             }
             
-            updateChartsWithRealData(reviews) {
-                console.log('updateChartsWithRealData chamado', reviews);
-                if (!reviews || reviews.length === 0) {
-                    console.log('Sem reviews para atualizar gráficos');
-                    return;
-                }
-                
-                // Update rating distribution chart
-                const ratingCounts = [0, 0, 0, 0, 0];
-                reviews.forEach(review => {
-                    if (review.rating >= 1 && review.rating <= 5) {
-                        ratingCounts[5 - review.rating]++;
-                    }
-                });
-                
-                console.log('Rating counts:', ratingCounts);
-                
-                if (this.charts.ratingDistribution) {
-                    this.charts.ratingDistribution.data.datasets[0].data = ratingCounts;
-                    this.charts.ratingDistribution.update();
-                }
-                
-                // Update reviews over time chart
-                this.updateReviewsOverTimeChart(reviews);
-            }
-            
-            updateReviewsOverTimeChart(reviews) {
-                if (!reviews || reviews.length === 0 || !this.charts.reviewsOverTime) return;
-                
-                const today = new Date();
-                const dateRanges = [];
-                const labels = [];
-                const positiveData = [];
-                const negativeData = [];
-                
-                // Create array of dates based on period
-                const period = this.chartPeriod;
-                
-                if (period === 7) {
-                    // Last 7 days - show day names
-                    for (let i = period - 1; i >= 0; i--) {
-                        const date = new Date(today);
-                        date.setDate(date.getDate() - i);
-                        date.setHours(0, 0, 0, 0);
-                        dateRanges.push(date);
-                        labels.push(date.toLocaleDateString('pt-BR', { weekday: 'short' }));
-                        positiveData.push(0);
-                        negativeData.push(0);
-                    }
-                } else if (period === 30) {
-                    // Last 30 days - group by week
-                    const weeksCount = Math.ceil(30 / 7);
-                    for (let i = weeksCount - 1; i >= 0; i--) {
-                        const startDate = new Date(today);
-                        startDate.setDate(startDate.getDate() - (i * 7 + 6));
-                        const endDate = new Date(today);
-                        endDate.setDate(endDate.getDate() - (i * 7));
-                        
-                        dateRanges.push({ start: startDate, end: endDate });
-                        const startStr = startDate.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
-                        const endStr = endDate.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
-                        labels.push(`${startStr} - ${endStr}`);
-                        positiveData.push(0);
-                        negativeData.push(0);
-                    }
-                } else if (period === 90) {
-                    // Last 90 days - group by week
-                    const weeksCount = Math.ceil(90 / 7);
-                    for (let i = weeksCount - 1; i >= 0; i--) {
-                        const startDate = new Date(today);
-                        startDate.setDate(startDate.getDate() - (i * 7 + 6));
-                        const endDate = new Date(today);
-                        endDate.setDate(endDate.getDate() - (i * 7));
-                        
-                        dateRanges.push({ start: startDate, end: endDate });
-                        const startStr = startDate.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
-                        const endStr = endDate.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
-                        labels.push(`${startStr} - ${endStr}`);
-                        positiveData.push(0);
-                        negativeData.push(0);
-                    }
-                }
-                
-                // Count reviews per period
-                reviews.forEach(review => {
-                    const reviewDate = new Date(review.created_at);
-                    reviewDate.setHours(0, 0, 0, 0);
-                    
-                    if (period === 7) {
-                        const index = dateRanges.findIndex(d => d.getTime() === reviewDate.getTime());
-                        if (index >= 0) {
-                            if (review.is_positive) {
-                                positiveData[index]++;
-                            } else {
-                                negativeData[index]++;
-                            }
-                        }
-                    } else {
-                        // For 30 or 90 days
-                        const index = dateRanges.findIndex(range => {
-                            return reviewDate >= range.start && reviewDate <= range.end;
-                        });
-                        if (index >= 0) {
-                            if (review.is_positive) {
-                                positiveData[index]++;
-                            } else {
-                                negativeData[index]++;
-                            }
-                        }
-                    }
-                });
-                
-                // Update chart
-                if (this.charts.reviewsOverTime) {
-                    this.charts.reviewsOverTime.data.labels = labels;
-                    this.charts.reviewsOverTime.data.datasets[0].data = positiveData;
-                    this.charts.reviewsOverTime.data.datasets[1].data = negativeData;
-                    // Update scale options for mobile
-                    if (window.innerWidth < 768) {
-                        this.charts.reviewsOverTime.options.scales.x.ticks.maxRotation = 90;
-                        this.charts.reviewsOverTime.options.scales.x.ticks.minRotation = 90;
-                        this.charts.reviewsOverTime.options.scales.x.ticks.maxTicksLimit = 7;
-                        this.charts.reviewsOverTime.options.scales.x.ticks.font.size = 10;
-                        this.charts.reviewsOverTime.options.scales.y.ticks.font.size = 10;
-                    } else {
-                        this.charts.reviewsOverTime.options.scales.x.ticks.maxRotation = 45;
-                        this.charts.reviewsOverTime.options.scales.x.ticks.minRotation = 0;
-                        this.charts.reviewsOverTime.options.scales.x.ticks.maxTicksLimit = 12;
-                        this.charts.reviewsOverTime.options.scales.x.ticks.font.size = 12;
-                        this.charts.reviewsOverTime.options.scales.y.ticks.font.size = 12;
-                    }
-                    this.charts.reviewsOverTime.update();
-                }
-            }
-            
             initializeCharts() {
-                // Reviews Over Time Chart with sample data
+                // Reviews Over Time Chart - inicializado com dados vazios
                 const reviewsOverTimeCtx = document.getElementById('reviewsOverTimeChart').getContext('2d');
                 this.charts.reviewsOverTime = new Chart(reviewsOverTimeCtx, {
                     type: 'line',
@@ -880,7 +759,7 @@
                         labels: ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'],
                         datasets: [{
                             label: 'Positivas',
-                            data: [12, 19, 15, 21, 18, 25, 22], // Sample data
+                            data: [0, 0, 0, 0, 0, 0, 0], // Dados vazios
                             borderColor: '#10b981',
                             backgroundColor: 'rgba(16, 185, 129, 0.1)',
                             tension: 0.4,
@@ -892,7 +771,7 @@
                             pointBorderWidth: 2
                         }, {
                             label: 'Negativas',
-                            data: [3, 5, 2, 4, 3, 6, 4], // Sample data
+                            data: [0, 0, 0, 0, 0, 0, 0], // Dados vazios
                             borderColor: '#ef4444',
                             backgroundColor: 'rgba(239, 68, 68, 0.1)',
                             tension: 0.4,
@@ -985,14 +864,14 @@
                     }
                 });
                 
-                // Rating Distribution Chart with sample data
+                // Rating Distribution Chart - inicializado com dados vazios
                 const ratingDistributionCtx = document.getElementById('ratingDistributionChart').getContext('2d');
                 this.charts.ratingDistribution = new Chart(ratingDistributionCtx, {
                     type: 'doughnut',
                     data: {
                         labels: ['5★', '4★', '3★', '2★', '1★'],
                         datasets: [{
-                            data: [45, 30, 15, 7, 3], // Sample data
+                            data: [0, 0, 0, 0, 0], // Dados vazios
                             backgroundColor: [
                                 '#10b981',
                                 '#34d399',
@@ -1052,10 +931,21 @@
             
             updateChartsWithRealData(reviews) {
                 console.log('updateChartsWithRealData chamado', reviews);
-                if (!reviews || reviews.length === 0) {
+                
+                // Verificar se há dados
+                const hasData = reviews && reviews.length > 0;
+                
+                if (!hasData) {
                     console.log('Sem reviews para atualizar gráficos');
+                    // Esconder gráficos e mostrar mensagens
+                    this.showChartNoData('reviewsOverTime');
+                    this.showChartNoData('ratingDistribution');
                     return;
                 }
+                
+                // Mostrar gráficos e esconder mensagens
+                this.hideChartNoData('reviewsOverTime');
+                this.hideChartNoData('ratingDistribution');
                 
                 // Update rating distribution chart
                 const ratingCounts = [0, 0, 0, 0, 0];
@@ -1065,19 +955,49 @@
                     }
                 });
                 
-                console.log('Rating counts:', ratingCounts);
+                // Verificar se há pelo menos uma avaliação com rating válido
+                const hasRatingData = ratingCounts.some(count => count > 0);
                 
-                if (this.charts.ratingDistribution) {
+                if (hasRatingData && this.charts.ratingDistribution) {
                     this.charts.ratingDistribution.data.datasets[0].data = ratingCounts;
                     this.charts.ratingDistribution.update();
+                } else {
+                    this.showChartNoData('ratingDistribution');
                 }
                 
                 // Update reviews over time chart
                 this.updateReviewsOverTimeChart(reviews);
             }
             
+            showChartNoData(chartName) {
+                const chartContainer = document.querySelector(`#${chartName}Chart`)?.parentElement;
+                const noDataDiv = document.getElementById(`${chartName}NoData`);
+                
+                if (chartContainer) {
+                    chartContainer.style.display = 'none';
+                }
+                if (noDataDiv) {
+                    noDataDiv.classList.remove('hidden');
+                }
+            }
+            
+            hideChartNoData(chartName) {
+                const chartContainer = document.querySelector(`#${chartName}Chart`)?.parentElement;
+                const noDataDiv = document.getElementById(`${chartName}NoData`);
+                
+                if (chartContainer) {
+                    chartContainer.style.display = 'block';
+                }
+                if (noDataDiv) {
+                    noDataDiv.classList.add('hidden');
+                }
+            }
+            
             updateReviewsOverTimeChart(reviews) {
-                if (!reviews || reviews.length === 0 || !this.charts.reviewsOverTime) return;
+                if (!reviews || reviews.length === 0 || !this.charts.reviewsOverTime) {
+                    this.showChartNoData('reviewsOverTime');
+                    return;
+                }
                 
                 const today = new Date();
                 const dateRanges = [];
@@ -1170,6 +1090,17 @@
                     positiveData.push(positiveCount);
                     negativeData.push(negativeCount);
                 });
+                
+                // Verificar se há dados para exibir
+                const hasData = positiveData.some(count => count > 0) || negativeData.some(count => count > 0);
+                
+                if (!hasData) {
+                    this.showChartNoData('reviewsOverTime');
+                    return;
+                }
+                
+                // Mostrar gráfico e esconder mensagem
+                this.hideChartNoData('reviewsOverTime');
                 
                 // Update chart
                 this.charts.reviewsOverTime.data.labels = labels;

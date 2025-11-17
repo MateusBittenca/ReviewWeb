@@ -151,4 +151,6 @@ return [
     'no_companies_found' => 'No companies found',
     'select_company' => 'Select a company',
     'company_owner' => 'Owner',
+    'chart_no_data' => 'Unable to display',
+    'chart_no_data_desc' => 'No data available for this period',
 ];

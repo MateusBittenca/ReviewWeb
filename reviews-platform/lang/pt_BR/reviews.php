@@ -151,4 +151,6 @@ return [
     'no_companies_found' => 'Nenhuma empresa encontrada',
     'select_company' => 'Selecione uma empresa',
     'company_owner' => 'Proprietário',
+    'chart_no_data' => 'Não foi possível exibir',
+    'chart_no_data_desc' => 'Não há dados disponíveis para este período',
 ];
