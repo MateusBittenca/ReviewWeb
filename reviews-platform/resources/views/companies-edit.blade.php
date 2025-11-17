@@ -91,6 +91,7 @@
         padding-bottom: 1rem;
         border-bottom: 1px solid #e5e7eb;
         flex-shrink: 0;
+        position: relative;
     }
     
     .crop-modal-header h3 {
@@ -104,6 +105,29 @@
         margin: 0.5rem 0 0 0;
         font-size: 0.875rem;
         color: #6b7280;
+    }
+
+    .crop-modal-close {
+        position: absolute;
+        top: 0.25rem;
+        right: 0.25rem;
+        background: transparent;
+        border: none;
+        color: #6b7280;
+        font-size: 1.5rem;
+        line-height: 1;
+        padding: 0.25rem 0.5rem;
+        cursor: pointer;
+        transition: color 0.2s ease;
+    }
+
+    .crop-modal-close:hover {
+        color: #111827;
+    }
+
+    .crop-modal-close:focus {
+        outline: 2px solid #6366f1;
+        outline-offset: 2px;
     }
     
     #cropImageContainer {
@@ -344,8 +368,15 @@
 @endsection
 
 @section('content')
+@php
+    $mediaAutoSaveToken = encrypt([
+        'user_id' => auth()->id(),
+        'company_id' => $company->id,
+        'expires_at' => now()->addMinutes(60)->timestamp,
+    ]);
+@endphp
 <div class="max-w-4xl mx-auto pb-8 sm:pb-6">
-    <form method="POST" action="{{ route('companies.update', $company->id) }}" enctype="multipart/form-data" id="companyForm" class="space-y-4 sm:space-y-6 pb-12 sm:pb-6">
+    <form method="POST" action="{{ route('companies.update', $company->id) }}" enctype="multipart/form-data" id="companyForm" class="space-y-4 sm:space-y-6 pb-12 sm:pb-6" data-media-save-url="{{ route('companies.auto-save-media', $company->id, false) }}" data-media-save-token="{{ $mediaAutoSaveToken }}">
         @csrf
         @method('PUT')
 
@@ -399,6 +430,7 @@
                         <button type="button" onclick="document.getElementById('logoInput').click()" class="text-purple-600 hover:text-purple-700 dark:text-purple-400 dark:hover:text-purple-300 mt-2">
                             <i class="fas fa-upload mr-2"></i>{{ __('companies.logo_change') }}
                         </button>
+                        <div id="logoAutoSaveStatus" class="mt-2 text-xs text-gray-500 hidden flex items-center gap-1 justify-center" aria-live="polite"></div>
                     </div>
                 </div>
 
@@ -424,6 +456,7 @@
                                 <i class="fas fa-search mr-2"></i>{{ __('companies.browse_free_images') }}
                         </button>
                         </div>
+                        <div id="backgroundAutoSaveStatus" class="mt-2 text-xs text-gray-500 hidden flex items-center gap-1 justify-center" aria-live="polite"></div>
                     </div>
                 </div>
             </div>
@@ -547,6 +580,9 @@
         <div class="crop-modal-header">
             <h3>{{ __('companies.crop_logo') }}</h3>
             <p>{{ __('companies.crop_logo_desc') }}</p>
+            <button type="button" class="crop-modal-close" onclick="cancelCrop(true)" aria-label="{{ __('companies.cancel') }}">
+                &times;
+            </button>
         </div>
             <div id="cropImageContainer">
                 <img id="cropperImage" src="" alt="Crop">
@@ -692,6 +728,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
             const reader = new FileReader();
             reader.onload = function(event) {
+                if (!cropState.originalImage) {
+                    cropState.originalImage = new Image();
+                }
                 cropState.originalImage.onload = function() {
                     cropState.naturalWidth = cropState.originalImage.naturalWidth;
                     cropState.naturalHeight = cropState.originalImage.naturalHeight;
@@ -1072,10 +1111,6 @@ document.addEventListener('DOMContentLoaded', function() {
                         fileType: file.type,
                         inputFilesLength: logoInput.files.length
                     });
-                    
-                    // Trigger change event to ensure form recognizes the file
-                    const changeEvent = new Event('change', { bubbles: true });
-                    logoInput.dispatchEvent(changeEvent);
                 } else {
                     console.error('logoInput not found!');
                 }
@@ -1104,7 +1139,15 @@ document.addEventListener('DOMContentLoaded', function() {
                     logoPreviewContainer.insertBefore(newImg, logoPreviewContainer.firstChild);
                 }
 
+                autoSaveMedia('logo');
+
                 cancelCrop(false);
+                setTimeout(() => {
+                    const modal = document.getElementById('cropModal');
+                    if (modal) {
+                        modal.classList.remove('show');
+                    }
+                }, 0);
             }, 'image/png', 0.92);
         }
 
@@ -1256,6 +1299,7 @@ function handleBackgroundUpload(input) {
                     if (previewImg) {
             previewImg.src = e.target.result;
                     }
+                    autoSaveMedia('background');
         };
         reader.readAsDataURL(input.files[0]);
     }
@@ -1392,39 +1436,166 @@ function handleBackgroundUpload(input) {
                 const backgroundInput = document.getElementById('backgroundInput');
                 if (backgroundInput) {
                     backgroundInput.files = dataTransfer.files;
-
-                    const changeEvent = new Event('change', { bubbles: true });
-                    backgroundInput.dispatchEvent(changeEvent);
-
-        const reader = new FileReader();
-        reader.onload = function(e) {
-                        const previewImg = document.getElementById('backgroundPreviewImg');
-            const placeholder = document.getElementById('backgroundPlaceholder');
-                        const previewContainer = document.getElementById('backgroundPreviewContainer');
-
-                        if (!previewImg && previewContainer) {
-                            const img = document.createElement('img');
-                            img.id = 'backgroundPreviewImg';
-                            img.src = e.target.result;
-                            img.alt = '{{ __('companies.background_image') }}';
-                            img.className = 'max-w-xs mx-auto mb-2 rounded-lg';
-                            previewContainer.innerHTML = '';
-                            previewContainer.appendChild(img);
-                        } else if (previewImg) {
-                            previewImg.src = e.target.result;
-                        }
-
-            if (placeholder) {
-                            placeholder.style.display = 'none';
-                        }
-                    };
-                    reader.readAsDataURL(file);
+                    handleBackgroundUpload(backgroundInput);
                 }
 
                 closeStockImageModal();
             } catch (error) {
                 console.error('Error selecting image:', error);
                 alert('{{ __('companies.error_downloading_image') }}');
+            }
+        }
+
+        const mediaAutoSaveMessages = {
+            saving: @json(__('companies.media_auto_save_in_progress')),
+            saved: @json(__('companies.media_auto_save_success')),
+            error: @json(__('companies.media_auto_save_error'))
+        };
+
+        const mediaStatusIcons = {
+            saving: '<i class="fas fa-spinner fa-spin mr-1"></i>',
+            saved: '<i class="fas fa-check-circle text-green-500 mr-1"></i>',
+            error: '<i class="fas fa-exclamation-triangle text-red-500 mr-1"></i>'
+        };
+
+        const mediaStatusTimers = {};
+        const mediaAutoSaveState = {
+            logo: { controller: null },
+            background: { controller: null }
+        };
+
+        function autoSaveMedia(type) {
+            const form = document.getElementById('companyForm');
+            if (!form) return;
+            const mediaSaveUrl = form.dataset.mediaSaveUrl;
+            const mediaSaveToken = form.dataset.mediaSaveToken || '';
+            if (!mediaSaveUrl) return;
+
+            const input = getMediaInputByType(type);
+            if (!input || !input.files || input.files.length === 0) return;
+
+            const csrfMeta = document.querySelector('meta[name="csrf-token"]');
+            if (!csrfMeta) {
+                console.warn('CSRF token not found. Skipping media auto-save.');
+                return;
+            }
+
+            const state = mediaAutoSaveState[type] || {};
+            if (state.controller) {
+                state.controller.abort();
+            }
+            state.controller = new AbortController();
+            mediaAutoSaveState[type] = state;
+
+            let requestUrl = mediaSaveUrl;
+            try {
+                const absoluteUrl = new URL(mediaSaveUrl, window.location.href);
+                absoluteUrl.protocol = window.location.protocol;
+                absoluteUrl.host = window.location.host;
+                requestUrl = absoluteUrl.pathname + absoluteUrl.search;
+            } catch (urlError) {
+                console.warn('autoSaveMedia: unable to normalize URL', urlError);
+            }
+
+            const formData = new FormData();
+            formData.append('_token', csrfMeta.getAttribute('content'));
+            formData.append('media_type', type);
+            if (mediaSaveToken) {
+                formData.append('media_token', mediaSaveToken);
+            }
+
+            if (type === 'logo') {
+                formData.append('logo', input.files[0]);
+            } else {
+                formData.append('background_image', input.files[0]);
+            }
+
+            setMediaStatus(type, 'saving');
+
+            fetch(requestUrl, {
+                method: 'POST',
+                body: formData,
+                credentials: 'include',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': csrfMeta.getAttribute('content')
+                },
+                signal: state.controller.signal
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Auto-save request failed');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (type === 'logo' && data.logo_url) {
+                    const previewImg = document.getElementById('logoPreviewImg');
+                    if (previewImg) {
+                        previewImg.src = `${data.logo_url}?t=${Date.now()}`;
+                    }
+                }
+                if (type === 'background' && data.background_url) {
+                    const previewImg = document.getElementById('backgroundPreviewImg');
+                    if (previewImg) {
+                        previewImg.src = `${data.background_url}?t=${Date.now()}`;
+                    }
+                }
+                setMediaStatus(type, 'saved');
+            })
+            .catch(error => {
+                if (error.name === 'AbortError') {
+                    return;
+                }
+                console.error('Media auto-save error:', error);
+                setMediaStatus(type, 'error');
+            })
+            .finally(() => {
+                state.controller = null;
+            });
+        }
+
+        function getMediaInputByType(type) {
+            if (type === 'logo') {
+                return document.getElementById('logoInput');
+            }
+            return document.getElementById('backgroundInput') || document.getElementById('background_image');
+        }
+
+        function setMediaStatus(type, state) {
+            const indicator = document.getElementById(`${type}AutoSaveStatus`);
+            if (!indicator) {
+                return;
+            }
+
+            if (mediaStatusTimers[type]) {
+                clearTimeout(mediaStatusTimers[type]);
+                mediaStatusTimers[type] = null;
+            }
+
+            indicator.classList.remove('hidden', 'text-red-500', 'text-green-600', 'text-gray-500');
+
+            if (state === 'saving') {
+                indicator.classList.add('text-gray-500');
+            } else if (state === 'saved') {
+                indicator.classList.add('text-green-600');
+            } else if (state === 'error') {
+                indicator.classList.add('text-red-500');
+            }
+
+            const icon = mediaStatusIcons[state] || '';
+            const message = mediaAutoSaveMessages[state] || '';
+            indicator.innerHTML = icon + message;
+
+            if (state === 'saved') {
+                mediaStatusTimers[type] = setTimeout(() => {
+                    indicator.classList.add('hidden');
+                }, 4000);
+            } else if (state === 'error') {
+                mediaStatusTimers[type] = setTimeout(() => {
+                    indicator.classList.add('hidden');
+                }, 6000);
             }
         }
 

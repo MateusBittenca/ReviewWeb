@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: reviews-platform
+    env: php
+    plan: free
+    buildCommand: composer install --no-dev --optimize-autoloader
+    startCommand: php artisan serve --host=0.0.0.0 --port=$PORT
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: false
+      - key: LOG_CHANNEL
+        value: stderr
+    healthCheckPath: /
+
+databases:
+  - name: reviews-db
+    plan: free
+    databaseName: reviews_platform
+    user: reviews_user
+
+

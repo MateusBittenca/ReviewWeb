@@ -1,0 +1,63 @@
+# Laravel & PHP
+/reviews-platform/vendor/
+/reviews-platform/node_modules/
+/reviews-platform/public/storage
+/reviews-platform/public/hot
+/reviews-platform/storage/*.key
+/reviews-platform/.env
+/reviews-platform/.env.backup
+/reviews-platform/.phpunit.result.cache
+/reviews-platform/Homestead.json
+/reviews-platform/Homestead.yaml
+/reviews-platform/npm-debug.log
+/reviews-platform/yarn-error.log
+/reviews-platform/.DS_Store
+/reviews-platform/Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Logs
+*.log
+/reviews-platform/storage/logs/*.log
+
+# Compilados
+/reviews-platform/public/build
+/reviews-platform/public/mix-manifest.json
+/reviews-platform/public/css/app.css
+/reviews-platform/public/js/app.js
+
+# Cache
+/reviews-platform/bootstrap/cache/*.php
+/reviews-platform/storage/framework/cache/*
+/reviews-platform/storage/framework/sessions/*
+/reviews-platform/storage/framework/views/*
+
+# Testes
+/reviews-platform/coverage/
+/.phpunit.cache
+
+# Sistema
+Thumbs.db
+.DS_Store
+desktop.ini
+
+# Temporários
+*.tmp
+*.temp
+*.bak
+*.backup
+*~
+
+# Específico Windows
+$RECYCLE.BIN/
+ehthumbs.db
+
+# Scripts BAT (específicos do usuário)
+*.bat
+

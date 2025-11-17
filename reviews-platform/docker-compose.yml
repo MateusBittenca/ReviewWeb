@@ -1,0 +1,66 @@
+# Docker Compose para Desenvolvimento em Equipe
+
+version: '3.8'
+
+services:
+  # Banco de Dados MySQL
+  mysql:
+    image: mysql:8.0
+    container_name: reviews-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: reviews_platform
+      MYSQL_USER: reviews_user
+      MYSQL_PASSWORD: reviews_pass
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./database/init:/docker-entrypoint-initdb.d
+    networks:
+      - reviews-network
+    restart: unless-stopped
+
+  # Aplicação Laravel
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: reviews-app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - mysql
+    environment:
+      APP_ENV: local
+      APP_DEBUG: true
+      DB_CONNECTION: mysql
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_DATABASE: reviews_platform
+      DB_USERNAME: reviews_user
+      DB_PASSWORD: reviews_pass
+    volumes:
+      - .:/var/www/html
+      - ./storage:/var/www/html/storage
+    networks:
+      - reviews-network
+    restart: unless-stopped
+    command: ["/usr/local/bin/docker-entrypoint.sh"]
+
+  # Redis para Cache (Opcional)
+  redis:
+    image: redis:7-alpine
+    container_name: reviews-redis
+    ports:
+      - "6379:6379"
+    networks:
+      - reviews-network
+    restart: unless-stopped
+
+volumes:
+  mysql_data:
+
+networks:
+  reviews-network:
+    driver: bridge

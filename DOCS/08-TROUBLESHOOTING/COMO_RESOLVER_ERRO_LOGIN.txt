@@ -1,0 +1,92 @@
+╔═══════════════════════════════════════════════════════════════════╗
+║                  ERRO IDENTIFICADO NO LOGIN                       ║
+╚═══════════════════════════════════════════════════════════════════╝
+
+ERRO: "could not find driver"
+LOCAL: AuthController.php linha 33
+CAUSA: Driver PDO MySQL não está habilitado no PHP
+
+╔═══════════════════════════════════════════════════════════════════╗
+║                    SOLUÇÃO RÁPIDA (5 MINUTOS)                     ║
+╚═══════════════════════════════════════════════════════════════════╝
+
+PASSO 1: Execute o diagnóstico
+   ▶ Clique duplo em: VERIFICAR_PHP.bat
+   ▶ Anote o caminho do php.ini que aparecer
+
+PASSO 2: Edite o php.ini
+   ▶ Abra o php.ini (caminho que anotou)
+   ▶ Procure por: ;extension=pdo_mysql
+   ▶ Remova o ; ficando: extension=pdo_mysql
+   ▶ Procure por: ;extension=mysqli  
+   ▶ Remova o ; ficando: extension=mysqli
+   ▶ Salve o arquivo (Ctrl+S)
+
+PASSO 3: Reinicie o servidor
+   ▶ Se usar XAMPP: Pare e inicie o Apache
+   ▶ Se usar php artisan serve: Feche (Ctrl+C) e inicie novamente
+   ▶ Se usar Laragon: Stop All e Start All
+
+PASSO 4: Teste o sistema
+   ▶ Clique duplo em: INICIAR_APLICACAO.bat
+   ▶ Acesse: http://localhost:8000/login
+   ▶ Login: admin@reviewsplatform.com
+   ▶ Senha: admin123
+
+╔═══════════════════════════════════════════════════════════════════╗
+║                       ARQUIVOS CRIADOS                            ║
+╚═══════════════════════════════════════════════════════════════════╝
+
+✓ VERIFICAR_PHP.bat ................ Script de diagnóstico
+✓ SOLUCAO_ERRO_PDO.md .............. Guia detalhado completo
+✓ COMO_RESOLVER_ERRO_LOGIN.txt ..... Este resumo rápido
+
+╔═══════════════════════════════════════════════════════════════════╝
+║                    O QUE FOI CORRIGIDO NO CÓDIGO                  ║
+╚═══════════════════════════════════════════════════════════════════╝
+
+✓ Adicionado campo 'role' no modelo User
+✓ Identificado erro de configuração do PHP
+✓ Código do AuthController está correto
+✓ View de login está funcionando corretamente
+
+╔═══════════════════════════════════════════════════════════════════╗
+║                        NÃO FUNCIONOU?                             ║
+╚═══════════════════════════════════════════════════════════════════╝
+
+Leia o guia completo em: SOLUCAO_ERRO_PDO.md
+
+Principais problemas:
+• PHP não no PATH → Use terminal do XAMPP/Laragon
+• MySQL não rodando → Inicie no XAMPP Control Panel
+• php.ini errado → Execute "php --ini" para confirmar
+• Não reiniciou servidor → Pare completamente e inicie de novo
+
+╔═══════════════════════════════════════════════════════════════════╗
+║                       COMANDOS ÚTEIS                              ║
+╚═══════════════════════════════════════════════════════════════════╝
+
+Verificar versão PHP:
+   php -v
+
+Verificar extensões carregadas:
+   php -m
+
+Verificar PDO MySQL especificamente:
+   php -m | findstr -i "pdo"
+
+Localizar php.ini:
+   php --ini
+
+Testar conexão com banco:
+   cd reviews-platform
+   php artisan migrate:status
+
+Iniciar servidor Laravel:
+   cd reviews-platform
+   php artisan serve
+
+═══════════════════════════════════════════════════════════════════
+
+Última atualização: Outubro 2025
+

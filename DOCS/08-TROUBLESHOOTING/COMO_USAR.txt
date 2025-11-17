@@ -1,0 +1,49 @@
+============================================
+  COMO USAR A APLICACAO - Reviews Platform
+============================================
+
+INICIAR A APLICACAO:
+-------------------
+1. De um clique duplo no arquivo: INICIAR_APLICACAO.bat
+2. Aguarde as duas janelas abrirem (Laravel e React)
+3. Acesse no navegador:
+   - Frontend: http://localhost:5173
+   - Backend:  http://localhost:8000
+
+PARAR A APLICACAO:
+-----------------
+- Feche as janelas que foram abertas
+- OU pressione Ctrl+C em cada janela
+
+PROBLEMAS COMUNS:
+----------------
+
+1. Erro "porta ja em uso":
+   - Feche outras aplicacoes que usam as portas 8000 ou 5173
+   - Ou encerre os processos: taskkill /F /IM php.exe /IM node.exe
+
+2. Erro de banco de dados:
+   - Verifique se o MySQL esta rodando
+   - Confirme as credenciais no arquivo .env
+   - Crie o banco: CREATE DATABASE reviews_platform;
+
+3. Dependencias nao instaladas:
+   - O script instalara automaticamente na primeira execucao
+   - Se falhar, execute manualmente:
+     composer install --ignore-platform-reqs
+     cd frontend && npm install
+
+USUARIO PADRAO:
+--------------
+Email: admin@example.com
+Senha: password
+
+(Criar usuario admin: php artisan db:seed --class=AdminUserSeeder)
+
+SUPORTE:
+-------
+Verifique os logs em: storage/logs/laravel.log
+Execute diagnostico: php artisan about
+
+============================================
+

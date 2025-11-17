@@ -521,6 +521,7 @@
                             <input type="file" id="logoInput" name="logo" accept="image/*" class="hidden" onchange="handleLogoUpload(this)">
                             <input type="hidden" id="logoCropped" name="logo_cropped">
                         </div>
+                        <div id="logoAutoSaveStatus" class="mt-2 text-xs text-gray-500 hidden flex items-center gap-1" aria-live="polite"></div>
                     </div>
                     
                     <!-- Background Image Upload -->
@@ -547,6 +548,7 @@
                                 <i class="fas fa-search mr-2"></i>{{ __('companies.browse_free_images') }}
                             </button>
                         </div>
+                        <div id="backgroundAutoSaveStatus" class="mt-2 text-xs text-gray-500 hidden flex items-center gap-1 justify-center" aria-live="polite"></div>
                     </div>
                 </div>
             </div>
@@ -748,6 +750,9 @@
 
             const reader = new FileReader();
             reader.onload = function(event) {
+                if (!cropState.originalImage) {
+                    cropState.originalImage = new Image();
+                }
                 cropState.originalImage.onload = function() {
                     cropState.naturalWidth = cropState.originalImage.naturalWidth;
                     cropState.naturalHeight = cropState.originalImage.naturalHeight;
@@ -1089,6 +1094,8 @@
                 if (logoPreview) logoPreview.classList.remove('hidden');
                 if (logoPlaceholder) logoPlaceholder.classList.add('hidden');
 
+                autoSaveMedia('logo');
+
                 cancelCrop(false);
 
                 if (typeof updateProgress === 'function') {
@@ -1187,6 +1194,7 @@
                         if (bgPreviewImg) bgPreviewImg.src = e.target.result;
                         if (bgPreview) bgPreview.classList.remove('hidden');
                         if (bgPlaceholder) bgPlaceholder.classList.add('hidden');
+                        autoSaveMedia('background');
                     }
                 };
                 reader.readAsDataURL(file);
@@ -1440,33 +1448,168 @@
                 dataTransfer.items.add(file);
 
                 const backgroundInput = document.getElementById('background_image');
-                backgroundInput.files = dataTransfer.files;
-
-                const changeEvent = new Event('change', { bubbles: true });
-                backgroundInput.dispatchEvent(changeEvent);
-
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const bgPreview = document.getElementById('bgPreview');
-                    const bgPreviewImg = document.getElementById('bgPreviewImg');
-                    const bgPlaceholder = document.getElementById('bgPlaceholder');
-
-                    if (bgPreviewImg) {
-                        bgPreviewImg.src = e.target.result;
-                    }
-                    if (bgPreview) {
-                        bgPreview.classList.remove('hidden');
-                    }
-                    if (bgPlaceholder) {
-                        bgPlaceholder.classList.add('hidden');
-                    }
-                };
-                reader.readAsDataURL(file);
+                if (backgroundInput) {
+                    backgroundInput.files = dataTransfer.files;
+                    handleFileUpload(backgroundInput, 'background');
+                }
 
                 closeStockImageModal();
             } catch (error) {
                 console.error('Error selecting image:', error);
                 alert('{{ __('companies.error_downloading_image') }}');
+            }
+        }
+
+        const mediaAutoSaveMessages = {
+            saving: @json(__('companies.media_auto_save_in_progress')),
+            saved: @json(__('companies.media_auto_save_success')),
+            error: @json(__('companies.media_auto_save_error'))
+        };
+
+        const mediaStatusIcons = {
+            saving: '<i class="fas fa-spinner fa-spin mr-1"></i>',
+            saved: '<i class="fas fa-check-circle text-green-500 mr-1"></i>',
+            error: '<i class="fas fa-exclamation-triangle text-red-500 mr-1"></i>'
+        };
+
+        const mediaStatusTimers = {};
+        const mediaAutoSaveState = {
+            logo: { controller: null },
+            background: { controller: null }
+        };
+
+        function autoSaveMedia(type) {
+            const form = document.getElementById('companyForm');
+            if (!form) return;
+            const mediaSaveUrl = form.dataset.mediaSaveUrl;
+            const mediaSaveToken = form.dataset.mediaSaveToken || '';
+            if (!mediaSaveUrl) return;
+
+            const input = getMediaInputByType(type);
+            if (!input || !input.files || input.files.length === 0) return;
+
+            const csrfMeta = document.querySelector('meta[name="csrf-token"]');
+            if (!csrfMeta) {
+                console.warn('CSRF token not found. Skipping media auto-save.');
+                return;
+            }
+
+            const state = mediaAutoSaveState[type] || {};
+            if (state.controller) {
+                state.controller.abort();
+            }
+            state.controller = new AbortController();
+            mediaAutoSaveState[type] = state;
+
+            let requestUrl = mediaSaveUrl;
+            try {
+                const absoluteUrl = new URL(mediaSaveUrl || '', window.location.href);
+                absoluteUrl.protocol = window.location.protocol;
+                absoluteUrl.host = window.location.host;
+                requestUrl = absoluteUrl.pathname + absoluteUrl.search;
+            } catch (urlError) {
+                console.warn('autoSaveMedia: unable to normalize URL', urlError);
+            }
+
+            const formData = new FormData();
+            formData.append('_token', csrfMeta.getAttribute('content'));
+            formData.append('media_type', type);
+            if (mediaSaveToken) {
+                formData.append('media_token', mediaSaveToken);
+            }
+
+            if (type === 'logo') {
+                formData.append('logo', input.files[0]);
+            } else {
+                formData.append('background_image', input.files[0]);
+            }
+
+            setMediaStatus(type, 'saving');
+
+            fetch(requestUrl, {
+                method: 'POST',
+                body: formData,
+                credentials: 'include',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': csrfMeta.getAttribute('content')
+                },
+                signal: state.controller.signal
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Auto-save request failed');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (type === 'logo' && data.logo_url) {
+                    const previewImg = document.getElementById('logoPreviewImg');
+                    if (previewImg) {
+                        previewImg.src = `${data.logo_url}?t=${Date.now()}`;
+                    }
+                }
+                if (type === 'background' && data.background_url) {
+                    const previewImg = document.getElementById('bgPreviewImg') || document.getElementById('backgroundPreviewImg');
+                    if (previewImg) {
+                        previewImg.src = `${data.background_url}?t=${Date.now()}`;
+                    }
+                }
+                setMediaStatus(type, 'saved');
+            })
+            .catch(error => {
+                if (error.name === 'AbortError') {
+                    return;
+                }
+                console.error('Media auto-save error:', error);
+                setMediaStatus(type, 'error');
+            })
+            .finally(() => {
+                state.controller = null;
+            });
+        }
+
+        function getMediaInputByType(type) {
+            if (type === 'logo') {
+                return document.getElementById('logoInput');
+            }
+            return document.getElementById('backgroundInput') || document.getElementById('background_image');
+        }
+
+        function setMediaStatus(type, state) {
+            const indicator = document.getElementById(`${type}AutoSaveStatus`);
+            if (!indicator) {
+                return;
+            }
+
+            if (mediaStatusTimers[type]) {
+                clearTimeout(mediaStatusTimers[type]);
+                mediaStatusTimers[type] = null;
+            }
+
+            indicator.classList.remove('hidden', 'text-red-500', 'text-green-600', 'text-gray-500');
+
+            if (state === 'saving') {
+                indicator.classList.add('text-gray-500');
+            } else if (state === 'saved') {
+                indicator.classList.add('text-green-600');
+            } else if (state === 'error') {
+                indicator.classList.add('text-red-500');
+            }
+
+            const icon = mediaStatusIcons[state] || '';
+            const message = mediaAutoSaveMessages[state] || '';
+            indicator.innerHTML = icon + message;
+
+            if (state === 'saved') {
+                mediaStatusTimers[type] = setTimeout(() => {
+                    indicator.classList.add('hidden');
+                }, 4000);
+            } else if (state === 'error') {
+                mediaStatusTimers[type] = setTimeout(() => {
+                    indicator.classList.add('hidden');
+                }, 6000);
             }
         }
 

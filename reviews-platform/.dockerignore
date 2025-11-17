@@ -1,0 +1,20 @@
+# Docker Ignore File
+node_modules
+npm-debug.log
+.git
+.gitignore
+README.md
+.env.example
+.nyc_output
+coverage
+.vscode
+.idea
+*.log
+storage/logs/*
+storage/framework/cache/*
+storage/framework/sessions/*
+storage/framework/views/*
+bootstrap/cache/*
+vendor
+.DS_Store
+Thumbs.db

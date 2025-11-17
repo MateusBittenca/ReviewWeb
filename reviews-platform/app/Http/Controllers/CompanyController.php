@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Company;
 use App\Models\ReviewPage;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Facades\Image;
@@ -475,6 +476,95 @@ class CompanyController extends Controller
         }
     }
 
+    public function autoSaveMedia(Request $request, $id)
+    {
+        $company = Company::findOrFail($id);
+        $user = auth()->user();
+
+        if (!$user) {
+            $tokenUser = $this->resolveUserFromMediaToken($request->input('media_token'), $company);
+            if ($tokenUser) {
+                Auth::onceUsingId($tokenUser->id);
+                $user = $tokenUser;
+            }
+        }
+
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => __('companies.media_auto_save_unauthorized'),
+            ], 401);
+        }
+
+        if ($user->role === 'user' && $company->user_id !== $user->id) {
+            return response()->json([
+                'success' => false,
+                'message' => __('companies.media_auto_save_unauthorized'),
+            ], 403);
+        }
+
+        if (!$request->hasFile('logo') && !$request->hasFile('background_image')) {
+            return response()->json([
+                'success' => false,
+                'message' => __('companies.media_auto_save_no_file'),
+            ], 422);
+        }
+
+        $request->validate([
+            'logo' => 'nullable|image|max:2048',
+            'background_image' => 'nullable|image|max:4096',
+        ]);
+
+        try {
+            $response = [
+                'success' => true,
+                'message' => __('companies.media_auto_save_success'),
+            ];
+
+            $updated = false;
+
+            if ($request->hasFile('logo')) {
+                $oldLogo = $company->logo;
+                if ($oldLogo && Storage::disk('public')->exists($oldLogo)) {
+                    Storage::disk('public')->delete($oldLogo);
+                }
+
+                $logoPath = $this->compressAndStoreImage($request->file('logo'), 'logos', 800, 800, 85);
+                $company->logo = $logoPath;
+                $response['logo_url'] = $company->logo_url ?? url('storage/' . $logoPath);
+                $updated = true;
+            }
+
+            if ($request->hasFile('background_image')) {
+                $oldBackground = $company->background_image;
+                if ($oldBackground && Storage::disk('public')->exists($oldBackground)) {
+                    Storage::disk('public')->delete($oldBackground);
+                }
+
+                $backgroundPath = $this->compressAndStoreImage($request->file('background_image'), 'backgrounds', 1920, 1080, 80);
+                $company->background_image = $backgroundPath;
+                $response['background_url'] = $company->background_image_url ?? url('storage/' . $backgroundPath);
+                $updated = true;
+            }
+
+            if ($updated) {
+                $company->save();
+            }
+
+            return response()->json($response);
+        } catch (\Exception $exception) {
+            \Log::error('Erro no auto save de mídia', [
+                'company_id' => $company->id,
+                'message' => $exception->getMessage(),
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => __('companies.media_auto_save_error'),
+            ], 500);
+        }
+    }
+
     public function destroy($id)
     {
         $user = auth()->user();
@@ -490,6 +580,46 @@ class CompanyController extends Controller
         
         return redirect()->route('companies.index')
             ->with('success', 'Empresa excluída com sucesso!');
+    }
+
+    protected function resolveUserFromMediaToken(?string $token, Company $company)
+    {
+        if (!$token) {
+            return null;
+        }
+
+        try {
+            $payload = decrypt($token);
+
+            if (!is_array($payload)) {
+                return null;
+            }
+
+            $userId = $payload['user_id'] ?? null;
+            $companyId = $payload['company_id'] ?? null;
+            $expiresAt = $payload['expires_at'] ?? null;
+
+            if (!$userId || !$companyId || !$expiresAt) {
+                return null;
+            }
+
+            if ((int) $companyId !== (int) $company->id) {
+                return null;
+            }
+
+            if ($expiresAt < now()->timestamp) {
+                return null;
+            }
+
+            return \App\Models\User::find($userId);
+        } catch (\Throwable $exception) {
+            \Log::warning('Invalid media auto-save token', [
+                'company_id' => $company->id,
+                'message' => $exception->getMessage(),
+            ]);
+
+            return null;
+        }
     }
 
     /**
