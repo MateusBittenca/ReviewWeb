@@ -93,3 +93,10 @@ public function getBackgroundImageUrlAttribute()
 
 ✅ **Problema resolvido!** As imagens agora devem aparecer corretamente ao criar uma empresa.
 
+---
+
+## 👨‍💻 Desenvolvedores
+
+**Iago Vilela**  
+**Mateus Bittencourt**
+

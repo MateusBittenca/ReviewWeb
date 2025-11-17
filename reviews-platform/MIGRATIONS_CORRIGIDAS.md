@@ -63,3 +63,10 @@ public function up()
 
 O sistema agora pode executar `php artisan migrate` sem erros, mesmo que algumas colunas já existam no banco de dados.
 
+---
+
+## 👨‍💻 Desenvolvedores
+
+**Iago Vilela**  
+**Mateus Bittencourt**
+

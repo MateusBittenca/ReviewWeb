@@ -123,5 +123,11 @@ Projeto-reviewWEB/
 ---
 
 **Data da organização:** 2025-01-XX
-**Organizado por:** Auto (AI Assistant)
+
+---
+
+## 👨‍💻 Desenvolvedores
+
+**Iago Vilela**  
+**Mateus Bittencourt**
 

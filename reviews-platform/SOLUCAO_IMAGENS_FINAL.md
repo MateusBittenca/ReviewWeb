@@ -98,3 +98,10 @@ As imagens agora devem aparecer corretamente em todas as páginas:
 - O CSS agora tem fallbacks para garantir que as imagens apareçam mesmo se o `onload` não disparar
 - O link simbólico foi recriado corretamente
 
+---
+
+## 👨‍💻 Desenvolvedores
+
+**Iago Vilela**  
+**Mateus Bittencourt**
+

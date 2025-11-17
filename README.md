@@ -174,9 +174,10 @@ Este projeto é propriedade privada. Todos os direitos reservados.
 
 ---
 
-## 👨‍💻 Desenvolvedor
+## 👨‍💻 Desenvolvedores
 
-**Iago Vilela**
+**Iago Vilela**  
+**Mateus Bittencourt**
 
 ---
 
