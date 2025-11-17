@@ -85,7 +85,7 @@
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div class="flex items-center space-x-3 sm:space-x-4 flex-1 min-w-0">
                 @if($selectedCompany->logo)
-                    <img src="{{ asset('storage/' . $selectedCompany->logo) }}" 
+                    <img src="{{ $selectedCompany->logo_url }}" 
                          alt="{{ $selectedCompany->name }}" 
                          class="w-12 h-12 sm:w-16 sm:h-16 rounded-lg object-cover border-2 border-purple-200 flex-shrink-0">
                 @else

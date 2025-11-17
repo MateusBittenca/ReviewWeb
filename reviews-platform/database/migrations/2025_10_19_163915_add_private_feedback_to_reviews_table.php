@@ -12,9 +12,16 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('reviews', function (Blueprint $table) {
-            $table->text('private_feedback')->nullable()->after('comment');
-            $table->enum('contact_preference', ['whatsapp', 'email', 'phone', 'no_contact'])->nullable()->after('private_feedback');
-            $table->boolean('has_private_feedback')->default(false)->after('contact_preference');
+            // Verificar se as colunas já existem antes de adicionar
+            if (!Schema::hasColumn('reviews', 'private_feedback')) {
+                $table->text('private_feedback')->nullable()->after('comment');
+            }
+            if (!Schema::hasColumn('reviews', 'contact_preference')) {
+                $table->enum('contact_preference', ['whatsapp', 'email', 'phone', 'no_contact'])->nullable()->after('private_feedback');
+            }
+            if (!Schema::hasColumn('reviews', 'has_private_feedback')) {
+                $table->boolean('has_private_feedback')->default(false)->after('contact_preference');
+            }
         });
     }
 

@@ -14,7 +14,10 @@ return new class extends Migration
     public function up()
     {
         Schema::table('companies', function (Blueprint $table) {
-            $table->string('url')->nullable()->after('name');
+            // Verificar se a coluna já existe antes de adicionar
+            if (!Schema::hasColumn('companies', 'url')) {
+                $table->string('url')->nullable()->after('name');
+            }
         });
     }
 

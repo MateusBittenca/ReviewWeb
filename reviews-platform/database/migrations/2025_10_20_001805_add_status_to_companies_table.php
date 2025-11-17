@@ -14,7 +14,10 @@ return new class extends Migration
     public function up()
     {
         Schema::table('companies', function (Blueprint $table) {
-            $table->enum('status', ['draft', 'published'])->default('draft')->after('is_active');
+            // Verificar se a coluna já existe antes de adicionar
+            if (!Schema::hasColumn('companies', 'status')) {
+                $table->enum('status', ['draft', 'published'])->default('draft')->after('is_active');
+            }
         });
     }
 

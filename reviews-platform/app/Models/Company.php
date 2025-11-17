@@ -88,15 +88,12 @@ class Company extends Model
             return null;
         }
         
-        // Retorna URL absoluta completa para funcionar em emails
-        $url = url('storage/' . $this->logo);
+        // Limpar o caminho se tiver barras duplas ou prefixos desnecessários
+        $logoPath = ltrim($this->logo, '/');
+        $logoPath = str_replace('storage/', '', $logoPath);
         
-        // Se não começar com http, garantir que seja absoluta
-        if (!str_starts_with($url, 'http')) {
-            $url = config('app.url') . '/storage/' . $this->logo;
-        }
-        
-        return $url;
+        // Retorna URL usando asset() que é mais confiável
+        return asset('storage/' . $logoPath);
     }
     
     /**
@@ -118,8 +115,12 @@ class Company extends Model
             return null;
         }
         
-        // Retorna URL absoluta completa
-        return url('storage/' . $this->background_image);
+        // Limpar o caminho se tiver barras duplas ou prefixos desnecessários
+        $bgPath = ltrim($this->background_image, '/');
+        $bgPath = str_replace('storage/', '', $bgPath);
+        
+        // Retorna URL usando asset() que é mais confiável
+        return asset('storage/' . $bgPath);
     }
 
     public function getGoogleMapsUrlAttribute()

@@ -590,9 +590,17 @@
         .image-placeholder img {
             opacity: 0;
             transition: opacity 0.3s ease;
+            position: relative;
+            z-index: 1;
         }
         
-        .image-placeholder.loaded img {
+        .image-placeholder.loaded img,
+        .image-placeholder img[src] {
+            opacity: 1;
+        }
+        
+        /* Fallback: se a imagem já estiver carregada, mostrar imediatamente */
+        .image-placeholder img[complete] {
             opacity: 1;
         }
         

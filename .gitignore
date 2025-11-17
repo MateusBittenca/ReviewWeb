@@ -58,6 +58,18 @@ desktop.ini
 $RECYCLE.BIN/
 ehthumbs.db
 
-# Scripts BAT (específicos do usuário)
-*.bat
+# Scripts BAT (manter apenas os principais)
+# !INICIAR_APLICACAO.bat
+# !PARAR_APLICACAO.bat
+
+# Backups
+/reviews-platform/backups/*.sql
+*.sql.bak
+
+# Arquivos de teste e utilitários
+/reviews-platform/test_*.php
+/reviews-platform/*_test.php
+/reviews-platform/create_*.php
+/reviews-platform/setup_*.php
+/reviews-platform/check_*.php
 

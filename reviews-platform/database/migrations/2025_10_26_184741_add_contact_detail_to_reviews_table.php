@@ -14,7 +14,10 @@ return new class extends Migration
     public function up()
     {
         Schema::table('reviews', function (Blueprint $table) {
-            $table->string('contact_detail')->nullable()->after('contact_preference');
+            // Verificar se a coluna já existe antes de adicionar
+            if (!Schema::hasColumn('reviews', 'contact_detail')) {
+                $table->string('contact_detail')->nullable()->after('contact_preference');
+            }
         });
     }
 

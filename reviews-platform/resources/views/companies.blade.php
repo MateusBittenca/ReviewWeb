@@ -147,11 +147,13 @@
                         <div class="flex items-center space-x-3">
                             @if($company->logo)
                                 <div class="image-placeholder w-12 h-12">
-                                    <img src="{{ asset('storage/' . $company->logo) }}" 
+                                    <img src="{{ $company->logo_url }}?v={{ time() }}" 
                                          alt="{{ $company->name }}" 
                                          loading="lazy"
                                          class="w-12 h-12 rounded-lg object-cover"
-                                         onload="this.parentElement.classList.add('loaded')">
+                                         onload="var parent = this.parentElement; parent.classList.add('loaded'); this.style.opacity = '1'; if(parent.querySelector('.placeholder-shimmer')) parent.querySelector('.placeholder-shimmer').style.display = 'none';"
+                                         onerror="console.error('Erro ao carregar imagem:', this.src); this.style.display='none'; var next = this.nextElementSibling; if(next) next.style.display='block';"
+                                         style="opacity: 0;">
                                     <div class="placeholder-shimmer"></div>
                                 </div>
                             @else

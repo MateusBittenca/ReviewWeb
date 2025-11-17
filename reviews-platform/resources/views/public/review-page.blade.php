@@ -295,7 +295,7 @@
                     @if(isset($company->logo) && $company->logo)
                         <!-- Logo exists - show much larger logo -->
                         <div class="inline-flex items-center justify-center p-3 sm:p-4 bg-white/20 backdrop-blur-sm rounded-3xl mb-4 sm:mb-8 shadow-lg" style="min-width: fit-content; min-height: fit-content;">
-                            <img src="{{ asset('storage/' . $company->logo) }}" alt="{{ $company->name }}" class="company-logo" loading="lazy" style="max-width: 160px; max-height: 160px; width: auto; height: auto; display: block;">
+                            <img src="{{ $company->logo_url }}" alt="{{ $company->name }}" class="company-logo" loading="lazy" style="max-width: 160px; max-height: 160px; width: auto; height: auto; display: block;" onerror="this.style.display='none';">
                         </div>
                         <!-- Company Name below logo -->
                         <h1 class="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4 sm:mb-8 fade-in company-name-large">
