@@ -2,7 +2,7 @@
 
 @section('title', __('reviews.negative_title') . ' - ' . __('app.name'))
 
-@section('page-title', '🚨 ' . __('reviews.negative_title'))
+@section('page-title', __('reviews.negative_title'))
 @section('page-description', __('reviews.negative_description'))
 
 @section('header-actions')
@@ -229,6 +229,36 @@
                 overflow-wrap: break-word;
                 max-width: 100%;
             }
+            
+            /* Filtros mais compactos no mobile */
+            #negativeFiltersForm {
+                gap: 0.75rem !important;
+            }
+            #negativeFiltersForm > div {
+                margin-bottom: 0.5rem;
+            }
+            #negativeFiltersForm label {
+                font-size: 0.75rem !important;
+                margin-bottom: 0.375rem !important;
+                line-height: 1.2;
+            }
+            #negativeFiltersForm input,
+            #negativeFiltersForm select {
+                font-size: 14px !important;
+                padding-top: 0.5rem !important;
+                padding-bottom: 0.5rem !important;
+                min-height: 36px !important;
+                height: 36px !important;
+            }
+            
+            /* Container de filtros mais compacto */
+            #filtersContainer {
+                padding: 0.75rem !important;
+                margin-bottom: 1rem !important;
+            }
+            #filtersContainer > div {
+                padding: 0.75rem !important;
+            }
         }
     </style>
 @endsection
@@ -249,29 +279,34 @@
     </div>
     
     <!-- Smart Filters Section -->
-    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 mb-6 fade-in">
-        <div class="p-6 border-b border-gray-200 dark:border-gray-700">
-            <div class="flex items-center justify-between mb-4">
-                <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-100">
+    <div id="filtersContainer" class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 mb-6 fade-in">
+        <div class="p-3 md:p-6 border-b border-gray-200 dark:border-gray-700">
+            <div class="flex items-center justify-between mb-3 md:mb-4">
+                <h2 class="text-sm md:text-lg font-semibold text-gray-800 dark:text-gray-100">
                     <i class="fas fa-filter mr-2 text-red-500"></i>
                     {{ __('reviews.smart_filters') }}
                 </h2>
-                <button id="clearFiltersBtn" class="hidden text-sm text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 font-medium">
-                    <i class="fas fa-times mr-1"></i>
-                    {{ __('reviews.clear_all_filters') }}
-                </button>
+                <div class="flex items-center gap-2">
+                    <button id="clearFiltersBtn" class="hidden text-xs md:text-sm text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 font-medium">
+                        <i class="fas fa-times mr-1"></i>
+                        <span class="hidden sm:inline">{{ __('reviews.clear_all_filters') }}</span>
+                    </button>
+                    <button type="button" id="toggleFiltersBtn" class="md:hidden text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors" onclick="toggleNegativeFilters()">
+                        <i class="fas fa-chevron-down" id="toggleNegativeFiltersIcon"></i>
+                    </button>
+                </div>
             </div>
             
             <!-- Active Filters Display -->
-            <div id="activeFilters" class="hidden flex flex-wrap gap-2 mb-4 pb-4 border-b border-gray-200 dark:border-gray-700">
-                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ __('reviews.active_filters') }}:</span>
+            <div id="activeFilters" class="hidden flex flex-wrap gap-2 mb-3 md:mb-4 pb-3 md:pb-4 border-b border-gray-200 dark:border-gray-700">
+                <span class="text-xs md:text-sm font-medium text-gray-700 dark:text-gray-300">{{ __('reviews.active_filters') }}:</span>
                 <!-- Active filter chips will be inserted here -->
             </div>
             
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div id="negativeFiltersForm" class="hidden md:grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
                 <!-- Search Filter -->
                 <div class="lg:col-span-2">
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label class="block text-xs md:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 md:mb-2">
                         <i class="fas fa-search mr-1"></i>
                         {{ __('reviews.search_placeholder') }}
                     </label>
@@ -279,14 +314,14 @@
                         type="text" 
                         id="searchFilter" 
                         placeholder="{{ __('reviews.search_placeholder') }}"
-                        class="w-full px-4 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 rounded-lg text-sm focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                        style="font-size: 16px; min-height: 44px;"
+                        class="w-full px-2 md:px-4 py-1.5 md:py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 rounded-lg text-sm focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                        style="font-size: 14px; min-height: 36px;"
                     >
                 </div>
                 
                 <!-- Company Filter (with search) -->
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label class="block text-xs md:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 md:mb-2">
                         <i class="fas fa-building mr-1"></i>
                         {{ __('reviews.filter_by_company') }}
                     </label>
@@ -296,11 +331,11 @@
                                 type="text" 
                                 id="companySearchInput" 
                                 placeholder="{{ __('reviews.search_company_placeholder') }}"
-                                class="w-full px-4 py-2 pl-10 pr-4 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 rounded-lg text-sm focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                                style="font-size: 16px; min-height: 44px; padding-left: 2.75rem;"
+                                class="w-full px-2 md:px-4 py-1.5 md:py-2 pl-8 md:pl-10 pr-4 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 rounded-lg text-sm focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                                style="font-size: 14px; min-height: 36px; padding-left: 2rem;"
                                 autocomplete="off"
                             >
-                            <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none z-10"></i>
+                            <i class="fas fa-search absolute left-2 md:left-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none z-10"></i>
                             <input type="hidden" id="companyFilter" value="all">
                         </div>
                         <div id="companyDropdown" class="hidden absolute z-50 w-full mt-1 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg max-h-60 overflow-y-auto">
@@ -314,11 +349,11 @@
                 <!-- User Filter (Admin only) -->
                 @if(in_array(Auth::user()->role, ['admin', 'proprietario']))
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label class="block text-xs md:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 md:mb-2">
                         <i class="fas fa-user mr-1"></i>
                         {{ __('reviews.filter_by_user') }}
                     </label>
-                    <select id="userFilter" class="w-full px-4 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 rounded-lg text-sm focus:ring-2 focus:ring-red-500">
+                    <select id="userFilter" class="w-full px-2 md:px-4 py-1.5 md:py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 rounded-lg text-sm focus:ring-2 focus:ring-red-500" style="font-size: 14px; min-height: 36px;">
                         <option value="all">{{ __('reviews.all_users') }}</option>
                         <!-- Users will be loaded dynamically -->
                     </select>
@@ -327,11 +362,11 @@
                 
                 <!-- Status Filter -->
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label class="block text-xs md:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 md:mb-2">
                         <i class="fas fa-check-circle mr-1"></i>
                         {{ __('reviews.filter_by_status') }}
                     </label>
-                    <select id="statusFilter" class="w-full px-4 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 rounded-lg text-sm focus:ring-2 focus:ring-red-500">
+                    <select id="statusFilter" class="w-full px-2 md:px-4 py-1.5 md:py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 rounded-lg text-sm focus:ring-2 focus:ring-red-500" style="font-size: 14px; min-height: 36px;">
                         <option value="all">{{ __('reviews.all_status') }}</option>
                         <option value="unprocessed">{{ __('reviews.unprocessed') }}</option>
                         <option value="processed">{{ __('reviews.processed') }}</option>
@@ -340,11 +375,11 @@
                 
                 <!-- Period Filter -->
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label class="block text-xs md:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 md:mb-2">
                         <i class="fas fa-calendar mr-1"></i>
                         {{ __('reviews.filter_by_period') }}
                     </label>
-                    <select id="periodFilter" class="w-full px-4 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 rounded-lg text-sm focus:ring-2 focus:ring-red-500">
+                    <select id="periodFilter" class="w-full px-2 md:px-4 py-1.5 md:py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 rounded-lg text-sm focus:ring-2 focus:ring-red-500" style="font-size: 14px; min-height: 36px;">
                         <option value="all">{{ __('reviews.all_periods_filter') }}</option>
                         <option value="today">{{ __('reviews.today') }}</option>
                         <option value="week">{{ __('reviews.last_week') }}</option>
@@ -354,11 +389,11 @@
                 
                 <!-- Rating Filter -->
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label class="block text-xs md:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 md:mb-2">
                         <i class="fas fa-star mr-1"></i>
                         {{ __('reviews.filter_by_rating') }}
                     </label>
-                    <select id="ratingFilter" class="w-full px-4 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 rounded-lg text-sm focus:ring-2 focus:ring-red-500">
+                    <select id="ratingFilter" class="w-full px-2 md:px-4 py-1.5 md:py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 rounded-lg text-sm focus:ring-2 focus:ring-red-500" style="font-size: 14px; min-height: 36px;">
                         <option value="all">{{ __('reviews.all_ratings_filter') }}</option>
                         <option value="1">{{ __('reviews.one_star') }}</option>
                         <option value="2">{{ __('reviews.two_stars') }}</option>
@@ -1261,6 +1296,26 @@
                 } catch (error) {
                     hideLoading();
                     showNotification(t.error_saving_note, 'error');
+                }
+            }
+        }
+        
+        // Toggle filters on mobile
+        function toggleNegativeFilters() {
+            const form = document.getElementById('negativeFiltersForm');
+            const icon = document.getElementById('toggleNegativeFiltersIcon');
+            if (form && icon) {
+                const isHidden = form.classList.contains('hidden');
+                if (isHidden) {
+                    form.classList.remove('hidden');
+                    form.classList.add('grid', 'grid-cols-1');
+                    icon.classList.remove('fa-chevron-down');
+                    icon.classList.add('fa-chevron-up');
+                } else {
+                    form.classList.add('hidden');
+                    form.classList.remove('grid', 'grid-cols-1');
+                    icon.classList.remove('fa-chevron-up');
+                    icon.classList.add('fa-chevron-down');
                 }
             }
         }

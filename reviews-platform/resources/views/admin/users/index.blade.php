@@ -11,6 +11,48 @@
     </a>
 @endsection
 
+@section('styles')
+    <style>
+        /* Filtros mais compactos no mobile */
+        @media (max-width: 767px) {
+            #usersFiltersForm {
+                gap: 0.75rem !important;
+            }
+            #usersFiltersForm > div {
+                margin-bottom: 0.5rem;
+            }
+            #usersFiltersForm label {
+                font-size: 0.75rem !important;
+                margin-bottom: 0.375rem !important;
+                line-height: 1.2;
+            }
+            #usersFiltersForm input,
+            #usersFiltersForm select {
+                font-size: 14px !important;
+                padding-top: 0.5rem !important;
+                padding-bottom: 0.5rem !important;
+                min-height: 36px !important;
+                height: 36px !important;
+            }
+            #usersFiltersForm button {
+                font-size: 0.875rem !important;
+                padding-top: 0.5rem !important;
+                padding-bottom: 0.5rem !important;
+                min-height: 36px !important;
+            }
+            
+            /* Container de filtros mais compacto */
+            #filtersContainer {
+                padding: 0.75rem !important;
+                margin-bottom: 1rem !important;
+            }
+            #filtersContainer > div {
+                padding: 0.75rem !important;
+            }
+        }
+    </style>
+@endsection
+
 @section('content')
 <div class="fade-in">
     <!-- Stats Cards -->
@@ -61,30 +103,40 @@
     </div>
 
     <!-- Filters -->
-    <div class="bg-white rounded-xl border border-gray-200 p-4 lg:p-6 mb-6">
-        <div class="flex flex-col sm:flex-row gap-3 sm:gap-4">
+    <div id="filtersContainer" class="bg-white rounded-xl border border-gray-200 p-3 md:p-6 mb-4 md:mb-6">
+        <div class="flex items-center justify-between mb-3 md:mb-4">
+            <h3 class="text-sm md:text-lg font-semibold text-gray-800 dark:text-gray-100">{{ __('users.filters') }}</h3>
+            <button type="button" id="toggleFiltersBtn" class="md:hidden text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors" onclick="toggleUsersFilters()">
+                <i class="fas fa-chevron-down" id="toggleUsersFiltersIcon"></i>
+            </button>
+        </div>
+        <div id="usersFiltersForm" class="hidden md:flex flex-col sm:flex-row gap-2 md:gap-3 lg:gap-4">
             <!-- Search -->
-            <div class="flex-1">
+            <div class="flex-1 min-w-[200px] w-full md:w-auto">
+                <label class="block text-xs md:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{ __('users.search_placeholder') }}</label>
                 <div class="relative">
-                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <div class="absolute inset-y-0 left-0 pl-2 md:pl-3 flex items-center pointer-events-none">
                         <i class="fas fa-search text-gray-400"></i>
                     </div>
                     <input 
                         type="text" 
                         id="searchInput"
-                        class="block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all" 
+                        class="block w-full pl-8 md:pl-10 pr-3 py-1.5 md:py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all" 
                         placeholder="{{ __('users.search_placeholder') }}"
                         onkeyup="filterUsers()"
+                        style="font-size: 14px; min-height: 36px;"
                     >
                 </div>
             </div>
             
             <!-- Role Filter -->
-            <div class="w-full sm:w-auto sm:min-w-[200px]">
+            <div class="flex-1 min-w-[150px] w-full md:w-auto">
+                <label class="block text-xs md:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{ __('users.filter_by_role') }}</label>
                 <select 
                     id="roleFilter" 
-                    class="block w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all text-sm sm:text-base"
+                    class="block w-full px-2 md:px-4 py-1.5 md:py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all text-sm"
                     onchange="filterUsers()"
+                    style="font-size: 14px; min-height: 36px;"
                 >
                     <option value="all">{{ __('users.all_roles') }}</option>
                     @if(Auth::user()->role === 'proprietario')
@@ -98,11 +150,13 @@
             </div>
             
             <!-- Sort -->
-            <div class="w-full sm:w-auto sm:min-w-[200px]">
+            <div class="flex-1 min-w-[150px] w-full md:w-auto">
+                <label class="block text-xs md:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{ __('users.sort') }}</label>
                 <select 
                     id="sortFilter" 
-                    class="block w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all text-sm sm:text-base"
+                    class="block w-full px-2 md:px-4 py-1.5 md:py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all text-sm"
                     onchange="filterUsers()"
+                    style="font-size: 14px; min-height: 36px;"
                 >
                     <option value="newest">{{ __('users.sort_newest') }}</option>
                     <option value="oldest">{{ __('users.sort_oldest') }}</option>
@@ -114,7 +168,8 @@
             <!-- Clear Filters -->
             <button 
                 onclick="clearFilters()" 
-                class="w-full sm:w-auto px-4 py-2.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors font-medium whitespace-nowrap text-sm sm:text-base"
+                class="w-full sm:w-auto px-3 md:px-4 py-1.5 md:py-2.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors font-medium whitespace-nowrap text-sm md:text-base"
+                style="min-height: 36px;"
             >
                 <i class="fas fa-times mr-2"></i>
                 {{ __('users.clear') }}
@@ -394,6 +449,26 @@
         } else {
             if (noResultsMsg) {
                 noResultsMsg.remove();
+            }
+        }
+    }
+    
+    // Toggle filters on mobile
+    function toggleUsersFilters() {
+        const form = document.getElementById('usersFiltersForm');
+        const icon = document.getElementById('toggleUsersFiltersIcon');
+        if (form && icon) {
+            const isHidden = form.classList.contains('hidden');
+            if (isHidden) {
+                form.classList.remove('hidden');
+                form.classList.add('flex', 'flex-col');
+                icon.classList.remove('fa-chevron-down');
+                icon.classList.add('fa-chevron-up');
+            } else {
+                form.classList.add('hidden');
+                form.classList.remove('flex', 'flex-col');
+                icon.classList.remove('fa-chevron-up');
+                icon.classList.add('fa-chevron-down');
             }
         }
     }

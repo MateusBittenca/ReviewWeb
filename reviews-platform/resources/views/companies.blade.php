@@ -36,14 +36,19 @@
     @endif
 
     <!-- Filters -->
-    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 md:p-6 mb-6">
-        <h3 class="text-base md:text-lg font-semibold text-gray-800 dark:text-gray-100 mb-4">{{ __('companies.filters') }}</h3>
-        <form id="filtersForm" method="GET" action="{{ route('companies.index') }}" class="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-3 sm:gap-4">
+    <div id="filtersContainer" class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-3 md:p-6 mb-4 md:mb-6">
+        <div class="flex items-center justify-between mb-3 md:mb-4">
+            <h3 class="text-sm md:text-lg font-semibold text-gray-800 dark:text-gray-100">{{ __('companies.filters') }}</h3>
+            <button type="button" id="toggleFiltersBtn" class="md:hidden text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors" onclick="toggleFilters()">
+                <i class="fas fa-chevron-down" id="toggleFiltersIcon"></i>
+            </button>
+        </div>
+        <form id="filtersForm" method="GET" action="{{ route('companies.index') }}" class="hidden md:flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-2 md:gap-3 lg:gap-4">
             <!-- User Filter (Admin/Proprietario only) -->
             @if(in_array(Auth::user()->role, ['admin', 'proprietario']) && $users && $users->count() > 0)
-            <div class="flex-1 min-w-[200px]">
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{ __('companies.filter_by_user') }}</label>
-                <select name="user_id" id="userFilter" class="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-purple-500 focus:border-transparent" style="min-height: 44px;">
+            <div class="flex-1 min-w-[200px] w-full md:w-auto">
+                <label class="block text-xs md:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{ __('companies.filter_by_user') }}</label>
+                <select name="user_id" id="userFilter" class="w-full px-2 md:px-3 py-1.5 md:py-2 text-sm md:text-base bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-purple-500 focus:border-transparent" style="min-height: 36px; font-size: 14px;">
                     <option value="">{{ __('companies.all_users') }}</option>
                     @foreach($users as $userOption)
                         <option value="{{ $userOption->id }}" {{ request('user_id') == $userOption->id ? 'selected' : '' }}>
@@ -55,8 +60,8 @@
             @endif
             
             <!-- Search by Name -->
-            <div class="flex-1 min-w-[200px] relative">
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{ __('companies.search_company') }}</label>
+            <div class="flex-1 min-w-[200px] w-full md:w-auto relative">
+                <label class="block text-xs md:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{ __('companies.search_company') }}</label>
                 <div class="relative">
                     <input 
                         type="text" 
@@ -64,17 +69,17 @@
                         id="searchFilter" 
                         value="{{ request('search') }}"
                         placeholder="{{ __('companies.search_company_placeholder') }}"
-                        class="w-full px-3 py-2 pl-10 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                        style="font-size: 16px; min-height: 44px; padding-left: 2.75rem;"
+                        class="w-full px-2 md:px-3 py-1.5 md:py-2 pl-8 md:pl-10 text-sm md:text-base bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                        style="min-height: 36px; font-size: 14px; padding-left: 2rem;"
                     >
-                    <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none"></i>
+                    <i class="fas fa-search absolute left-2 md:left-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none text-sm"></i>
                 </div>
             </div>
             
             <!-- Status Filter -->
-            <div class="flex-1 min-w-[150px]">
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{ __('companies.filter_by_status') }}</label>
-                <select name="status" id="statusFilter" class="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-purple-500 focus:border-transparent" style="min-height: 44px;">
+            <div class="flex-1 min-w-[150px] w-full md:w-auto">
+                <label class="block text-xs md:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{ __('companies.filter_by_status') }}</label>
+                <select name="status" id="statusFilter" class="w-full px-2 md:px-3 py-1.5 md:py-2 text-sm md:text-base bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-purple-500 focus:border-transparent" style="min-height: 36px; font-size: 14px;">
                     <option value="all">{{ __('companies.all_statuses') }}</option>
                     <option value="published" {{ request('status') == 'published' ? 'selected' : '' }}>{{ __('companies.active') }}</option>
                     <option value="draft" {{ request('status') == 'draft' ? 'selected' : '' }}>{{ __('companies.draft') }}</option>
@@ -82,9 +87,9 @@
             </div>
             
             <!-- Visibility Filter -->
-            <div class="flex-1 min-w-[150px]">
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{ __('companies.filter_by_visibility') }}</label>
-                <select name="visibility" id="visibilityFilter" class="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-purple-500 focus:border-transparent" style="min-height: 44px;">
+            <div class="flex-1 min-w-[150px] w-full md:w-auto">
+                <label class="block text-xs md:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{ __('companies.filter_by_visibility') }}</label>
+                <select name="visibility" id="visibilityFilter" class="w-full px-2 md:px-3 py-1.5 md:py-2 text-sm md:text-base bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-purple-500 focus:border-transparent" style="min-height: 36px; font-size: 14px;">
                     <option value="all">{{ __('companies.all_visibilities') }}</option>
                     <option value="visible" {{ request('visibility') == 'visible' ? 'selected' : '' }}>{{ __('companies.visible') }}</option>
                     <option value="hidden" {{ request('visibility') == 'hidden' ? 'selected' : '' }}>{{ __('companies.hidden') }}</option>
@@ -92,9 +97,9 @@
             </div>
             
             <!-- Rating Limit Filter -->
-            <div class="flex-1 min-w-[150px]">
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{ __('companies.filter_by_rating_limit') }}</label>
-                <select name="rating_limit" id="ratingLimitFilter" class="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-purple-500 focus:border-transparent" style="min-height: 44px;">
+            <div class="flex-1 min-w-[150px] w-full md:w-auto">
+                <label class="block text-xs md:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{ __('companies.filter_by_rating_limit') }}</label>
+                <select name="rating_limit" id="ratingLimitFilter" class="w-full px-2 md:px-3 py-1.5 md:py-2 text-sm md:text-base bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-purple-500 focus:border-transparent" style="min-height: 36px; font-size: 14px;">
                     <option value="all">{{ __('companies.all_ratings') }}</option>
                     <option value="5" {{ request('rating_limit') == '5' ? 'selected' : '' }}>5 estrelas</option>
                     <option value="4" {{ request('rating_limit') == '4' ? 'selected' : '' }}>4 estrelas</option>
@@ -105,9 +110,9 @@
             </div>
             
             <!-- Reviews Filter -->
-            <div class="flex-1 min-w-[150px]">
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{ __('companies.filter_by_reviews') }}</label>
-                <select name="reviews_filter" id="reviewsFilter" class="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-purple-500 focus:border-transparent" style="min-height: 44px;">
+            <div class="flex-1 min-w-[150px] w-full md:w-auto">
+                <label class="block text-xs md:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{ __('companies.filter_by_reviews') }}</label>
+                <select name="reviews_filter" id="reviewsFilter" class="w-full px-2 md:px-3 py-1.5 md:py-2 text-sm md:text-base bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-purple-500 focus:border-transparent" style="min-height: 36px; font-size: 14px;">
                     <option value="all">{{ __('companies.all_reviews') }}</option>
                     <option value="with_reviews" {{ request('reviews_filter') == 'with_reviews' ? 'selected' : '' }}>{{ __('companies.with_reviews') }}</option>
                     <option value="without_reviews" {{ request('reviews_filter') == 'without_reviews' ? 'selected' : '' }}>{{ __('companies.without_reviews') }}</option>
@@ -115,9 +120,9 @@
             </div>
             
             <!-- Period Filter -->
-            <div class="flex-1 min-w-[150px]">
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{ __('companies.filter_by_period') }}</label>
-                <select name="period" id="periodFilter" class="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-purple-500 focus:border-transparent" style="min-height: 44px;">
+            <div class="flex-1 min-w-[150px] w-full md:w-auto">
+                <label class="block text-xs md:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{ __('companies.filter_by_period') }}</label>
+                <select name="period" id="periodFilter" class="w-full px-2 md:px-3 py-1.5 md:py-2 text-sm md:text-base bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-purple-500 focus:border-transparent" style="min-height: 36px; font-size: 14px;">
                     <option value="all">{{ __('companies.all_periods') }}</option>
                     <option value="today" {{ request('period') == 'today' ? 'selected' : '' }}>{{ __('companies.today') }}</option>
                     <option value="week" {{ request('period') == 'week' ? 'selected' : '' }}>{{ __('companies.this_week') }}</option>
@@ -126,13 +131,13 @@
             </div>
             
             <!-- Action Buttons -->
-            <div class="flex flex-col sm:flex-row items-stretch sm:items-end space-y-2 sm:space-y-0 sm:space-x-2 w-full sm:w-auto">
-                <button type="submit" class="btn-primary text-white px-4 py-2 rounded-lg font-medium w-full sm:w-auto" style="min-height: 44px;">
-                    <i class="fas fa-filter mr-2"></i>
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-end gap-2 w-full sm:w-auto">
+                <button type="submit" class="btn-primary text-white px-3 md:px-4 py-1.5 md:py-2 text-sm md:text-base rounded-lg font-medium w-full sm:w-auto" style="min-height: 36px;">
+                    <i class="fas fa-filter mr-1.5 md:mr-2"></i>
                     {{ __('companies.apply') }}
                 </button>
-                <button type="button" onclick="clearFilters()" class="btn-secondary text-white px-4 py-2 rounded-lg font-medium w-full sm:w-auto" style="min-height: 44px;">
-                    <i class="fas fa-times mr-2"></i>
+                <button type="button" onclick="clearFilters()" class="btn-secondary text-white px-3 md:px-4 py-1.5 md:py-2 text-sm md:text-base rounded-lg font-medium w-full sm:w-auto" style="min-height: 36px;">
+                    <i class="fas fa-times mr-1.5 md:mr-2"></i>
                     {{ __('companies.clear') }}
                 </button>
             </div>
@@ -416,6 +421,26 @@
             }
         });
         
+        // Toggle filters on mobile
+        function toggleFilters() {
+            const form = document.getElementById('filtersForm');
+            const icon = document.getElementById('toggleFiltersIcon');
+            if (form && icon) {
+                const isHidden = form.classList.contains('hidden');
+                if (isHidden) {
+                    form.classList.remove('hidden');
+                    form.classList.add('flex', 'flex-col');
+                    icon.classList.remove('fa-chevron-down');
+                    icon.classList.add('fa-chevron-up');
+                } else {
+                    form.classList.add('hidden');
+                    form.classList.remove('flex', 'flex-col');
+                    icon.classList.remove('fa-chevron-up');
+                    icon.classList.add('fa-chevron-down');
+                }
+            }
+        }
+        
         // Clear filters function
         function clearFilters() {
             const form = document.getElementById('filtersForm');
@@ -464,6 +489,52 @@
             }
             #deleteCompanyModal.show {
                 display: flex !important;
+            }
+            
+            /* Filtros mais compactos no mobile */
+            @media (max-width: 767px) {
+                #filtersForm {
+                    gap: 0.75rem !important;
+                }
+                
+                #filtersForm > div {
+                    margin-bottom: 0.5rem !important;
+                }
+                
+                #filtersForm label {
+                    font-size: 0.75rem !important;
+                    margin-bottom: 0.375rem !important;
+                    line-height: 1.2;
+                }
+                
+                #filtersForm input,
+                #filtersForm select {
+                    font-size: 14px !important;
+                    padding-top: 0.5rem !important;
+                    padding-bottom: 0.5rem !important;
+                    padding-left: 0.5rem !important;
+                    padding-right: 0.5rem !important;
+                    min-height: 36px !important;
+                    height: 36px !important;
+                }
+                
+                #filtersForm button {
+                    font-size: 0.875rem !important;
+                    padding-top: 0.5rem !important;
+                    padding-bottom: 0.5rem !important;
+                    min-height: 36px !important;
+                    height: 36px !important;
+                }
+                
+                /* Container de filtros mais compacto */
+                #filtersContainer {
+                    padding: 0.75rem !important;
+                    margin-bottom: 1rem !important;
+                }
+                
+                #filtersForm {
+                    margin-top: 0.5rem;
+                }
             }
         `;
         document.head.appendChild(style);
