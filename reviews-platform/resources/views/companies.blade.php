@@ -235,10 +235,10 @@
                             <span class="hidden sm:inline">{{ __('companies.edit_company') }}</span>
                             <span class="sm:hidden">{{ __('companies.edit') }}</span>
                         </a>
-                        <form method="POST" action="{{ route('companies.destroy', $company->id) }}" class="inline sm:flex-shrink-0" onsubmit="return confirm('{{ __('companies.confirm_delete') }}')">
+                        <form method="POST" action="{{ route('companies.destroy', $company->id) }}" class="inline sm:flex-shrink-0 delete-company-form" data-company-id="{{ $company->id }}" data-company-name="{{ $company->name }}">
                             @csrf
                             @method('DELETE')
-                            <button type="submit" class="w-full sm:w-auto bg-red-50 text-red-600 px-3 py-2 rounded-lg text-sm font-medium hover:bg-red-100 transition-colors">
+                            <button type="button" class="w-full sm:w-auto bg-red-50 text-red-600 px-3 py-2 rounded-lg text-sm font-medium hover:bg-red-100 transition-colors delete-company-btn">
                                 <i class="fas fa-trash mr-1 sm:mr-0"></i>
                                 <span class="sm:hidden">{{ __('companies.delete') }}</span>
                             </button>
@@ -265,6 +265,47 @@
             </a>
         </div>
     @endif
+
+    <!-- Modal de Confirmação de Exclusão -->
+    <div id="deleteCompanyModal" class="fixed inset-0 z-50 hidden items-center justify-center" style="backdrop-filter: blur(4px);">
+        <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity" id="modalOverlay"></div>
+        <div class="relative bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-md w-full mx-4 transform transition-all scale-95 opacity-0" id="modalContent">
+            <div class="p-6">
+                <!-- Ícone de Alerta -->
+                <div class="flex items-center justify-center w-16 h-16 mx-auto mb-4 bg-red-100 dark:bg-red-900/30 rounded-full">
+                    <i class="fas fa-exclamation-triangle text-red-600 dark:text-red-400 text-3xl"></i>
+                </div>
+                
+                <!-- Título -->
+                <h3 class="text-xl font-bold text-gray-900 dark:text-gray-100 text-center mb-2">
+                    {{ __('companies.delete_company') }}
+                </h3>
+                
+                <!-- Mensagem -->
+                <p class="text-gray-600 dark:text-gray-300 text-center mb-1">
+                    {{ __('companies.confirm_delete') }}
+                </p>
+                <p class="text-sm font-semibold text-gray-800 dark:text-gray-200 text-center mb-6" id="companyNameDisplay">
+                    <!-- Nome da empresa será inserido aqui -->
+                </p>
+                <p class="text-xs text-gray-500 dark:text-gray-400 text-center mb-6">
+                    {{ __('companies.delete_warning') }}
+                </p>
+                
+                <!-- Botões -->
+                <div class="flex flex-col sm:flex-row gap-3">
+                    <button type="button" id="cancelDeleteBtn" class="flex-1 px-4 py-3 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg font-medium hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
+                        <i class="fas fa-times mr-2"></i>
+                        {{ __('companies.cancel') }}
+                    </button>
+                    <button type="button" id="confirmDeleteBtn" class="flex-1 px-4 py-3 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 transition-colors shadow-lg hover:shadow-xl">
+                        <i class="fas fa-trash mr-2"></i>
+                        {{ __('companies.confirm') }}
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
 
 @section('scripts')
@@ -311,6 +352,68 @@
                     this.style.transition = 'box-shadow 0.3s ease, transform 0.3s ease';
                 });
             });
+
+            // Modal de Confirmação de Exclusão
+            let deleteForm = null;
+            const modal = document.getElementById('deleteCompanyModal');
+            const modalContent = document.getElementById('modalContent');
+            const modalOverlay = document.getElementById('modalOverlay');
+            const cancelBtn = document.getElementById('cancelDeleteBtn');
+            const confirmBtn = document.getElementById('confirmDeleteBtn');
+            const companyNameDisplay = document.getElementById('companyNameDisplay');
+
+            // Abrir modal ao clicar no botão de deletar
+            document.querySelectorAll('.delete-company-btn').forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    deleteForm = this.closest('.delete-company-form');
+                    const companyName = deleteForm.getAttribute('data-company-name');
+                    
+                    companyNameDisplay.textContent = `"${companyName}"`;
+                    modal.classList.add('show');
+                    modalContent.style.opacity = '1';
+                    modalContent.style.transform = 'scale(1)';
+                    document.body.style.overflow = 'hidden';
+                });
+            });
+
+            // Fechar modal ao clicar em cancelar
+            if (cancelBtn) {
+                cancelBtn.addEventListener('click', closeModal);
+            }
+
+            // Fechar modal ao clicar no overlay
+            if (modalOverlay) {
+                modalOverlay.addEventListener('click', closeModal);
+            }
+
+            // Fechar modal com ESC
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && modal && modal.classList.contains('show')) {
+                    closeModal();
+                }
+            });
+
+            // Confirmar exclusão
+            if (confirmBtn) {
+                confirmBtn.addEventListener('click', function() {
+                    if (deleteForm) {
+                        deleteForm.submit();
+                    }
+                });
+            }
+
+            function closeModal() {
+                if (modal) {
+                    modal.classList.remove('show');
+                    if (modalContent) {
+                        modalContent.style.opacity = '0';
+                        modalContent.style.transform = 'scale(0.95)';
+                    }
+                    document.body.style.overflow = '';
+                    deleteForm = null;
+                }
+            }
         });
         
         // Clear filters function
@@ -345,6 +448,22 @@
                     transform: scale(4);
                     opacity: 0;
                 }
+            }
+            @keyframes modalFadeIn {
+                from {
+                    opacity: 0;
+                    transform: scale(0.95);
+                }
+                to {
+                    opacity: 1;
+                    transform: scale(1);
+                }
+            }
+            #deleteCompanyModal.show #modalContent {
+                animation: modalFadeIn 0.3s ease-out forwards;
+            }
+            #deleteCompanyModal.show {
+                display: flex !important;
             }
         `;
         document.head.appendChild(style);
