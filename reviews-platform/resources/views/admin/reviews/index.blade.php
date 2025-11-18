@@ -1462,8 +1462,19 @@
         }
         
         function deleteReview(reviewId) {
-            if (confirm('Tem certeza que deseja excluir esta avaliação?')) {
-                showNotification('Avaliação excluída!', 'success');
+            if (window.showConfirmModal) {
+                window.showConfirmModal({
+                    title: 'Excluir Avaliação',
+                    message: 'Tem certeza que deseja excluir esta avaliação?',
+                    warning: 'Esta ação não pode ser desfeita.',
+                    confirmText: 'Confirmar Exclusão',
+                    cancelText: 'Cancelar',
+                    confirmColor: 'red',
+                    onConfirm: () => {
+                        showNotification('Avaliação excluída!', 'success');
+                        // Aqui você pode adicionar a lógica para realmente deletar a avaliação
+                    }
+                });
             }
         }
         

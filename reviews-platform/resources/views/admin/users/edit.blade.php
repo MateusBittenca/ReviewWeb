@@ -222,13 +222,13 @@
                         @if($targetUser->id !== Auth::id())
                         <form action="{{ route('users.destroy', $targetUser->id) }}" 
                               method="POST" 
-                              class="inline-block"
-                              onsubmit="return confirm('{{ __('users.confirm_delete_permanent') }}');">
+                              class="inline-block delete-user-form"
+                              data-user-name="{{ $targetUser->name }}">
                             @csrf
                             @method('DELETE')
                             <button 
-                                type="submit" 
-                                class="px-6 py-2.5 bg-red-600 rounded-lg text-white font-medium shadow-sm hover:shadow-md hover:bg-red-700 transition-all inline-flex items-center gap-2">
+                                type="button" 
+                                class="px-6 py-2.5 bg-red-600 rounded-lg text-white font-medium shadow-sm hover:shadow-md hover:bg-red-700 transition-all inline-flex items-center gap-2 delete-user-btn">
                                 <i class="fas fa-trash"></i>
                                 {{ __('users.delete') }}
                             </button>
@@ -299,6 +299,29 @@
         } else {
             this.setCustomValidity('');
         }
+    });
+    
+    // Modal de confirmação para deletar usuário
+    document.querySelectorAll('.delete-user-btn').forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            const form = this.closest('.delete-user-form');
+            const userName = form.getAttribute('data-user-name');
+            
+            if (window.showConfirmModal) {
+                window.showConfirmModal({
+                    title: '{{ __('users.delete') }}',
+                    message: '{{ __('users.confirm_delete_permanent') }}',
+                    warning: '{{ __('users.delete_warning') }}',
+                    confirmText: '{{ __('users.delete') }}',
+                    cancelText: '{{ __('companies.cancel', ['default' => 'Cancelar']) }}',
+                    confirmColor: 'red',
+                    onConfirm: () => {
+                        form.submit();
+                    }
+                });
+            }
+        });
     });
 </script>
 @endsection

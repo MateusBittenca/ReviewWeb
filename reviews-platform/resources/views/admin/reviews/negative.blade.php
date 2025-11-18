@@ -1200,20 +1200,30 @@
         }
         
         async function markAsProcessed(reviewId) {
-            if (confirm(t.confirm_mark_processed)) {
-                try {
-                    const loader = showLoading('{{ __('app.loading') ?? 'Loading...' }}');
-                    
-                    // Simular API call
-                    await new Promise(resolve => setTimeout(resolve, 1000));
-                    
-                    hideLoading();
-                    showNotification(t.processed_success, 'success');
-                    negativeReviewsPanel.loadNegativeReviews();
-                } catch (error) {
-                    hideLoading();
-                    showNotification(t.error_processing, 'error');
-                }
+            if (window.showConfirmModal) {
+                window.showConfirmModal({
+                    title: t.mark_as_processed || 'Marcar como Processado',
+                    message: t.confirm_mark_processed,
+                    warning: '',
+                    confirmText: t.confirm || 'Confirmar',
+                    cancelText: t.cancel || 'Cancelar',
+                    confirmColor: 'blue',
+                    onConfirm: async () => {
+                        try {
+                            const loader = showLoading('{{ __('app.loading') ?? 'Loading...' }}');
+                            
+                            // Simular API call
+                            await new Promise(resolve => setTimeout(resolve, 1000));
+                            
+                            hideLoading();
+                            showNotification(t.processed_success, 'success');
+                            negativeReviewsPanel.loadNegativeReviews();
+                        } catch (error) {
+                            hideLoading();
+                            showNotification(t.error_processing, 'error');
+                        }
+                    }
+                });
             }
         }
         

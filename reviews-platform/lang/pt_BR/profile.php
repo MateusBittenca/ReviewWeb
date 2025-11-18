@@ -7,6 +7,7 @@ return [
     'change_photo' => 'Alterar Foto',
     'photo_formats' => 'JPG, PNG ou GIF. Máximo 2MB.',
     'choose_photo' => 'Escolher Foto',
+    'delete_photo' => 'Excluir Foto',
     'confirm_delete_photo' => 'Tem certeza que deseja remover sua foto?',
     'personal_information' => 'Informações Pessoais',
     'full_name' => 'Nome Completo',

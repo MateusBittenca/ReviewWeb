@@ -1747,6 +1747,165 @@
                 document.body.style.opacity = '1';
             });
         });
+        
+        // Sistema de Modal de Confirmação Reutilizável
+        window.showConfirmModal = function(options) {
+            const {
+                title = 'Confirmar Ação',
+                message = 'Tem certeza que deseja realizar esta ação?',
+                warning = 'Esta ação não pode ser desfeita.',
+                confirmText = 'Confirmar',
+                cancelText = 'Cancelar',
+                confirmColor = 'red',
+                onConfirm = null,
+                onCancel = null
+            } = options;
+            
+            // Criar modal se não existir
+            let modal = document.getElementById('confirmModal');
+            if (!modal) {
+                modal = document.createElement('div');
+                modal.id = 'confirmModal';
+                modal.className = 'fixed inset-0 z-50 hidden items-center justify-center';
+                modal.style.cssText = 'backdrop-filter: blur(4px);';
+                modal.innerHTML = `
+                    <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity" id="confirmModalOverlay"></div>
+                    <div class="relative bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-md w-full mx-4 transform transition-all scale-95 opacity-0" id="confirmModalContent">
+                        <div class="p-6">
+                            <div class="flex items-center justify-center w-16 h-16 mx-auto mb-4 rounded-full" id="confirmModalIcon">
+                                <i class="fas fa-exclamation-triangle text-3xl"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-gray-900 dark:text-gray-100 text-center mb-2" id="confirmModalTitle"></h3>
+                            <p class="text-gray-600 dark:text-gray-300 text-center mb-1" id="confirmModalMessage"></p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400 text-center mb-6" id="confirmModalWarning"></p>
+                            <div class="flex flex-col sm:flex-row gap-2">
+                                <button type="button" id="confirmModalCancelBtn" class="flex-1 px-3 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg text-sm font-medium hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
+                                    <i class="fas fa-times mr-1.5"></i>
+                                    <span id="confirmModalCancelText"></span>
+                                </button>
+                                <button type="button" id="confirmModalConfirmBtn" class="flex-1 px-3 py-2 text-white rounded-lg text-sm font-medium transition-colors shadow-md hover:shadow-lg">
+                                    <i class="fas fa-check mr-1.5"></i>
+                                    <span id="confirmModalConfirmText"></span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                document.body.appendChild(modal);
+            }
+            
+            // Atualizar conteúdo
+            document.getElementById('confirmModalTitle').textContent = title;
+            document.getElementById('confirmModalMessage').textContent = message;
+            document.getElementById('confirmModalWarning').textContent = warning;
+            document.getElementById('confirmModalCancelText').textContent = cancelText;
+            document.getElementById('confirmModalConfirmText').textContent = confirmText;
+            
+            // Atualizar cores baseado no confirmColor
+            const confirmBtn = document.getElementById('confirmModalConfirmBtn');
+            const iconDiv = document.getElementById('confirmModalIcon');
+            const icon = iconDiv.querySelector('i');
+            
+            // Mapear cores
+            const colorMap = {
+                red: {
+                    iconBg: 'bg-red-100 dark:bg-red-900/30',
+                    iconText: 'text-red-600 dark:text-red-400',
+                    btnBg: 'bg-red-600 hover:bg-red-700'
+                },
+                blue: {
+                    iconBg: 'bg-blue-100 dark:bg-blue-900/30',
+                    iconText: 'text-blue-600 dark:text-blue-400',
+                    btnBg: 'bg-blue-600 hover:bg-blue-700'
+                },
+                green: {
+                    iconBg: 'bg-green-100 dark:bg-green-900/30',
+                    iconText: 'text-green-600 dark:text-green-400',
+                    btnBg: 'bg-green-600 hover:bg-green-700'
+                },
+                yellow: {
+                    iconBg: 'bg-yellow-100 dark:bg-yellow-900/30',
+                    iconText: 'text-yellow-600 dark:text-yellow-400',
+                    btnBg: 'bg-yellow-600 hover:bg-yellow-700'
+                }
+            };
+            
+            const colors = colorMap[confirmColor] || colorMap.red;
+            iconDiv.className = `flex items-center justify-center w-16 h-16 mx-auto mb-4 ${colors.iconBg} rounded-full`;
+            icon.className = `fas fa-exclamation-triangle ${colors.iconText} text-3xl`;
+            confirmBtn.className = `flex-1 px-3 py-2 ${colors.btnBg} text-white rounded-lg text-sm font-medium transition-colors shadow-md hover:shadow-lg`;
+            
+            // Mostrar modal
+            const modalContent = document.getElementById('confirmModalContent');
+            modal.classList.add('show');
+            modal.style.display = 'flex';
+            modalContent.style.opacity = '1';
+            modalContent.style.transform = 'scale(1)';
+            document.body.style.overflow = 'hidden';
+            
+            // Event listeners
+            const overlay = document.getElementById('confirmModalOverlay');
+            const cancelBtn = document.getElementById('confirmModalCancelBtn');
+            const confirmBtnEl = document.getElementById('confirmModalConfirmBtn');
+            
+            const closeModal = () => {
+                modal.classList.remove('show');
+                modalContent.style.opacity = '0';
+                modalContent.style.transform = 'scale(0.95)';
+                setTimeout(() => {
+                    modal.style.display = 'none';
+                }, 300);
+                document.body.style.overflow = '';
+                if (onCancel) onCancel();
+            };
+            
+            // Remover listeners antigos e adicionar novos
+            const newOverlay = overlay.cloneNode(true);
+            overlay.parentNode.replaceChild(newOverlay, overlay);
+            const newCancelBtn = cancelBtn.cloneNode(true);
+            cancelBtn.parentNode.replaceChild(newCancelBtn, cancelBtn);
+            const newConfirmBtn = confirmBtnEl.cloneNode(true);
+            confirmBtnEl.parentNode.replaceChild(newConfirmBtn, confirmBtnEl);
+            
+            // Adicionar novos listeners
+            newOverlay.addEventListener('click', closeModal);
+            newCancelBtn.addEventListener('click', closeModal);
+            newConfirmBtn.addEventListener('click', () => {
+                closeModal();
+                if (onConfirm) onConfirm();
+            });
+            
+            // Fechar com ESC
+            const escHandler = (e) => {
+                if (e.key === 'Escape' && modal.classList.contains('show')) {
+                    closeModal();
+                    document.removeEventListener('keydown', escHandler);
+                }
+            };
+            document.addEventListener('keydown', escHandler);
+        };
+        
+        // Adicionar animação do modal
+        const modalStyle = document.createElement('style');
+        modalStyle.textContent = `
+            @keyframes modalFadeIn {
+                from {
+                    opacity: 0;
+                    transform: scale(0.95);
+                }
+                to {
+                    opacity: 1;
+                    transform: scale(1);
+                }
+            }
+            #confirmModal.show #confirmModalContent {
+                animation: modalFadeIn 0.3s ease-out forwards;
+            }
+            #confirmModal.show {
+                display: flex !important;
+            }
+        `;
+        document.head.appendChild(modalStyle);
     </script>
     
     @yield('scripts')

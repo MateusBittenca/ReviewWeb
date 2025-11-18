@@ -29,6 +29,7 @@ return [
     'edit' => 'Editar',
     'delete' => 'Excluir',
     'confirm_delete' => 'Tem certeza que deseja excluir este usuário?',
+    'delete_warning' => 'Esta ação não pode ser desfeita. Todos os dados relacionados serão permanentemente removidos.',
     'no_users_found' => 'Nenhum usuário encontrado',
     'start_creating' => 'Comece criando seu primeiro usuário no sistema.',
     'create_first_user' => 'Criar Primeiro Usuário',

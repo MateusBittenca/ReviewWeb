@@ -36,12 +36,11 @@
                         @endif
                         
                         @if($user->photo)
-                        <form action="{{ route('profile.photo.delete') }}" method="POST" class="absolute -bottom-2 -right-2">
+                        <form action="{{ route('profile.photo.delete') }}" method="POST" class="absolute -bottom-2 -right-2 delete-photo-form">
                             @csrf
                             @method('DELETE')
-                            <button type="submit" 
-                                    onclick="return confirm('{{ __('profile.confirm_delete_photo') }}')"
-                                    class="w-10 h-10 bg-red-500 hover:bg-red-600 text-white rounded-full shadow-lg transition-colors flex items-center justify-center">
+                            <button type="button" 
+                                    class="w-10 h-10 bg-red-500 hover:bg-red-600 text-white rounded-full shadow-lg transition-colors flex items-center justify-center delete-photo-btn">
                                 <i class="fas fa-trash text-sm"></i>
                             </button>
                         </form>
@@ -297,6 +296,28 @@
             reader.readAsDataURL(file);
         }
     }
+    
+    // Modal de confirmação para deletar foto
+    document.querySelectorAll('.delete-photo-btn').forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            const form = this.closest('.delete-photo-form');
+            
+            if (window.showConfirmModal) {
+                window.showConfirmModal({
+                    title: '{{ __('profile.delete_photo') }}',
+                    message: '{{ __('profile.confirm_delete_photo') }}',
+                    warning: '{{ __('companies.delete_warning') }}',
+                    confirmText: '{{ __('users.delete') }}',
+                    cancelText: '{{ __('companies.cancel') }}',
+                    confirmColor: 'red',
+                    onConfirm: () => {
+                        form.submit();
+                    }
+                });
+            }
+        });
+    });
 </script>
 @endsection
 

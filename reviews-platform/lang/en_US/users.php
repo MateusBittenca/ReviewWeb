@@ -29,6 +29,7 @@ return [
     'edit' => 'Edit',
     'delete' => 'Delete',
     'confirm_delete' => 'Are you sure you want to delete this user?',
+    'delete_warning' => 'This action cannot be undone. All related data will be permanently removed.',
     'no_users_found' => 'No users found',
     'start_creating' => 'Start by creating your first user in the system.',
     'create_first_user' => 'Create First User',

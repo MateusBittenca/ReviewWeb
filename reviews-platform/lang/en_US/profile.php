@@ -7,6 +7,7 @@ return [
     'change_photo' => 'Change Photo',
     'photo_formats' => 'JPG, PNG or GIF. Maximum 2MB.',
     'choose_photo' => 'Choose Photo',
+    'delete_photo' => 'Delete Photo',
     'confirm_delete_photo' => 'Are you sure you want to remove your photo?',
     'personal_information' => 'Personal Information',
     'full_name' => 'Full Name',

@@ -211,12 +211,12 @@
                         @if($user->id !== Auth::id())
                         <form action="{{ route('users.destroy', $user->id) }}" 
                               method="POST" 
-                              class="flex-1 sm:flex-none"
-                              onsubmit="return confirm('{{ __('users.confirm_delete') }}');">
+                              class="flex-1 sm:flex-none delete-user-form"
+                              data-user-name="{{ $user->name }}">
                             @csrf
                             @method('DELETE')
-                            <button type="submit" 
-                                    class="w-full sm:w-auto inline-flex items-center justify-center px-3 lg:px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-all shadow-sm hover:shadow-md">
+                            <button type="button" 
+                                    class="w-full sm:w-auto inline-flex items-center justify-center px-3 lg:px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-all shadow-sm hover:shadow-md delete-user-btn">
                                 <i class="fas fa-trash mr-2"></i>
                                 <span class="sm:hidden lg:inline">{{ __('users.delete') }}</span>
                                 <span class="hidden sm:inline lg:hidden">{{ __('users.delete_short', ['default' => 'Excluir']) }}</span>
@@ -401,6 +401,29 @@
     // Initialize on page load
     document.addEventListener('DOMContentLoaded', function() {
         filterUsers();
+        
+        // Modal de confirmação para deletar usuário
+        document.querySelectorAll('.delete-user-btn').forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                const form = this.closest('.delete-user-form');
+                const userName = form.getAttribute('data-user-name');
+                
+                if (window.showConfirmModal) {
+                    window.showConfirmModal({
+                        title: '{{ __('users.delete') }}',
+                        message: '{{ __('users.confirm_delete') }}',
+                        warning: '{{ __('users.delete_warning') }}',
+                        confirmText: '{{ __('users.delete') }}',
+                        cancelText: '{{ __('companies.cancel', ['default' => 'Cancelar']) }}',
+                        confirmColor: 'red',
+                        onConfirm: () => {
+                            form.submit();
+                        }
+                    });
+                }
+            });
+        });
     });
 </script>
 @endsection
