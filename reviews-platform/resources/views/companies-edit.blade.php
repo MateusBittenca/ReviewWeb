@@ -37,7 +37,7 @@
     
     /* Cropper Modal Styles */
     #cropModal {
-        display: none;
+        display: none !important;
         position: fixed;
         z-index: 9999;
         left: 0;
@@ -46,13 +46,18 @@
         height: 100%;
         background-color: rgba(0, 0, 0, 0.8);
         overflow-y: auto;
+        visibility: hidden;
+        opacity: 0;
+        transition: opacity 0.3s ease, visibility 0.3s ease;
     }
     
     #cropModal.show {
-        display: flex;
+        display: flex !important;
         align-items: center;
         justify-content: center;
         padding: 20px;
+        visibility: visible;
+        opacity: 1;
     }
     
     .crop-modal-content {
@@ -426,10 +431,10 @@
                                 </div>
                             @endif
                         </div>
-                        <input type="file" name="logo" accept="image/*" class="hidden" id="logoInput" onchange="handleLogoUpload(this)">
-                        <button type="button" onclick="document.getElementById('logoInput').click()" class="text-purple-600 hover:text-purple-700 dark:text-purple-400 dark:hover:text-purple-300 mt-2">
+                        <input type="file" name="logo" accept="image/png,image/jpeg,image/jpg,image/gif,image/webp" class="hidden" id="logoInput" onchange="handleLogoUpload(this)">
+                        <label for="logoInput" class="text-purple-600 hover:text-purple-700 dark:text-purple-400 dark:hover:text-purple-300 mt-2 cursor-pointer inline-block" style="touch-action: manipulation; -webkit-tap-highlight-color: transparent;">
                             <i class="fas fa-upload mr-2"></i>{{ __('companies.logo_change') }}
-                        </button>
+                        </label>
                         <div id="logoAutoSaveStatus" class="mt-2 text-xs text-gray-500 hidden flex items-center gap-1 justify-center" aria-live="polite"></div>
                     </div>
                 </div>
@@ -447,14 +452,14 @@
                                 </div>
                             @endif
                         </div>
-                        <input type="file" name="background_image" accept="image/*" class="hidden" id="backgroundInput" onchange="handleBackgroundUpload(this)">
+                        <input type="file" name="background_image" accept="image/png,image/jpeg,image/jpg,image/gif,image/webp" class="hidden" id="backgroundInput" onchange="handleBackgroundUpload(this)">
                         <div class="flex gap-2 justify-center mt-2">
-                            <button type="button" onclick="document.getElementById('backgroundInput').click()" class="text-purple-600 hover:text-purple-700 dark:text-purple-400 dark:hover:text-purple-300">
-                            <i class="fas fa-upload mr-2"></i>{{ __('companies.background_change') }}
-                        </button>
-                            <button type="button" onclick="openStockImageModal()" class="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300">
+                            <label for="backgroundInput" class="text-purple-600 hover:text-purple-700 dark:text-purple-400 dark:hover:text-purple-300 cursor-pointer inline-block" style="touch-action: manipulation; -webkit-tap-highlight-color: transparent;">
+                                <i class="fas fa-upload mr-2"></i>{{ __('companies.background_change') }}
+                            </label>
+                            <button type="button" onclick="openStockImageModal()" class="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300" style="touch-action: manipulation; -webkit-tap-highlight-color: transparent;">
                                 <i class="fas fa-search mr-2"></i>{{ __('companies.browse_free_images') }}
-                        </button>
+                            </button>
                         </div>
                         <div id="backgroundAutoSaveStatus" class="mt-2 text-xs text-gray-500 hidden flex items-center gap-1 justify-center" aria-live="polite"></div>
                     </div>
@@ -728,24 +733,44 @@ document.addEventListener('DOMContentLoaded', function() {
 
             const reader = new FileReader();
             reader.onload = function(event) {
-                if (!cropState.originalImage) {
-                    cropState.originalImage = new Image();
+                try {
+                    if (!cropState.originalImage) {
+                        cropState.originalImage = new Image();
+                    }
+                    cropState.originalImage.onload = function() {
+                        cropState.naturalWidth = cropState.originalImage.naturalWidth;
+                        cropState.naturalHeight = cropState.originalImage.naturalHeight;
+                        cropState.ratios = null;
+                        showCropModal(event.target.result);
+                    };
+                    cropState.originalImage.onerror = function() {
+                        console.error('Error loading image:', file.name);
+                        alert('Erro ao carregar a imagem. Tente novamente.');
+                        input.value = '';
+                    };
+                    cropState.originalImage.src = event.target.result;
+                } catch (error) {
+                    console.error('Error processing image:', error);
+                    alert('Erro ao processar a imagem. Tente novamente.');
+                    input.value = '';
                 }
-                cropState.originalImage.onload = function() {
-                    cropState.naturalWidth = cropState.originalImage.naturalWidth;
-                    cropState.naturalHeight = cropState.originalImage.naturalHeight;
-                    cropState.ratios = null;
-                    showCropModal(event.target.result);
-                };
-                cropState.originalImage.onerror = function() {
-                    alert('Erro ao carregar a imagem. Tente novamente.');
-                };
-                cropState.originalImage.src = event.target.result;
             };
-            reader.onerror = function() {
+            reader.onerror = function(error) {
+                console.error('FileReader error:', error);
                 alert('Erro ao ler o arquivo. Tente novamente.');
+                input.value = '';
             };
-            reader.readAsDataURL(file);
+            reader.onabort = function() {
+                console.warn('FileReader aborted');
+                input.value = '';
+            };
+            try {
+                reader.readAsDataURL(file);
+            } catch (error) {
+                console.error('Error reading file:', error);
+                alert('Erro ao ler o arquivo. Verifique se o arquivo é uma imagem válida.');
+                input.value = '';
+            }
         }
 
         function showCropModal(imageSrc) {
@@ -785,6 +810,10 @@ document.addEventListener('DOMContentLoaded', function() {
             cropElements.image.style.visibility = 'visible';
             cropElements.image.style.opacity = '1';
             cropElements.modal.classList.add('show');
+            // Prevenir scroll do body quando modal aberto
+            document.body.style.overflow = 'hidden';
+            document.body.style.position = 'fixed';
+            document.body.style.width = '100%';
 
             // If image is already loaded (cached), trigger onload manually
             if (cropElements.image.complete && cropElements.image.naturalWidth > 0) {
@@ -1152,6 +1181,10 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         function cancelCrop(resetInput = true) {
+            // Restaurar scroll do body
+            document.body.style.overflow = '';
+            document.body.style.position = '';
+            document.body.style.width = '';
             ensureCropElements();
             endCropInteraction();
 

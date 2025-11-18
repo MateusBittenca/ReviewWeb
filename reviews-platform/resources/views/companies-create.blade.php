@@ -91,7 +91,7 @@
         
         /* Crop Modal Styles */
         #cropModal {
-            display: none;
+            display: none !important;
             position: fixed;
             z-index: 9999;
             left: 0;
@@ -100,13 +100,18 @@
             height: 100%;
             background-color: rgba(0, 0, 0, 0.8);
             overflow: auto;
+            visibility: hidden;
+            opacity: 0;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
         }
         
         #cropModal.show {
-            display: flex;
+            display: flex !important;
             align-items: center;
             justify-content: center;
             padding: 20px;
+            visibility: visible;
+            opacity: 1;
         }
         
         .crop-modal-content {
@@ -509,7 +514,7 @@
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                             {{ __('companies.logo') }}
                         </label>
-                        <div class="upload-area rounded-lg p-8 text-center cursor-pointer bg-gray-50 dark:bg-gray-700 border-gray-300 dark:border-gray-600" onclick="document.getElementById('logoInput').click()">
+                        <label for="logoInput" class="upload-area rounded-lg p-8 text-center cursor-pointer bg-gray-50 dark:bg-gray-700 border-gray-300 dark:border-gray-600 block" style="touch-action: manipulation; -webkit-tap-highlight-color: transparent;">
                             <div id="logoPreview" class="hidden mb-4">
                                 <img id="logoPreviewImg" src="" alt="Preview" class="w-20 h-20 object-contain mx-auto rounded-lg border-2 border-gray-200 dark:border-gray-600">
                             </div>
@@ -518,9 +523,9 @@
                                 <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">{{ __('companies.upload_click') }}</p>
                                 <p class="text-xs text-gray-500 dark:text-gray-400">{{ __('companies.upload_png_jpg') }}</p>
                             </div>
-                            <input type="file" id="logoInput" name="logo" accept="image/*" class="hidden" onchange="handleLogoUpload(this)">
+                            <input type="file" id="logoInput" name="logo" accept="image/png,image/jpeg,image/jpg,image/gif,image/webp" class="hidden" onchange="handleLogoUpload(this)">
                             <input type="hidden" id="logoCropped" name="logo_cropped">
-                        </div>
+                        </label>
                         <div id="logoAutoSaveStatus" class="mt-2 text-xs text-gray-500 hidden flex items-center gap-1" aria-live="polite"></div>
                     </div>
                     
@@ -529,7 +534,7 @@
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                             {{ __('companies.background_image') }}
                         </label>
-                        <div class="upload-area rounded-lg p-8 text-center cursor-pointer bg-gray-50 dark:bg-gray-700 border-gray-300 dark:border-gray-600" onclick="document.getElementById('background_image').click()">
+                        <label for="background_image" class="upload-area rounded-lg p-8 text-center cursor-pointer bg-gray-50 dark:bg-gray-700 border-gray-300 dark:border-gray-600 block" style="touch-action: manipulation; -webkit-tap-highlight-color: transparent;">
                             <div id="bgPreview" class="hidden mb-4">
                                 <img id="bgPreviewImg" src="" alt="Preview" class="w-20 h-20 object-cover mx-auto rounded-lg border-2 border-gray-200 dark:border-gray-600">
                             </div>
@@ -538,13 +543,13 @@
                                 <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">{{ __('companies.upload_click') }}</p>
                                 <p class="text-xs text-gray-500 dark:text-gray-400">{{ __('companies.upload_bg_png_jpg') }}</p>
                             </div>
-                            <input type="file" id="background_image" name="background_image" accept="image/*" class="hidden" onchange="handleFileUpload(this, 'background')">
-                        </div>
+                            <input type="file" id="background_image" name="background_image" accept="image/png,image/jpeg,image/jpg,image/gif,image/webp" class="hidden" onchange="handleFileUpload(this, 'background')">
+                        </label>
                         <div class="flex gap-2 justify-center mt-2">
-                            <button type="button" onclick="document.getElementById('background_image').click()" class="text-purple-600 hover:text-purple-700 dark:text-purple-400 dark:hover:text-purple-300">
+                            <label for="background_image" class="text-purple-600 hover:text-purple-700 dark:text-purple-400 dark:hover:text-purple-300 cursor-pointer inline-block" style="touch-action: manipulation; -webkit-tap-highlight-color: transparent;">
                                 <i class="fas fa-upload mr-2"></i>{{ __('companies.background_change') }}
-                            </button>
-                            <button type="button" onclick="openStockImageModal()" class="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300">
+                            </label>
+                            <button type="button" onclick="openStockImageModal()" class="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300" style="touch-action: manipulation; -webkit-tap-highlight-color: transparent;">
                                 <i class="fas fa-search mr-2"></i>{{ __('companies.browse_free_images') }}
                             </button>
                         </div>
@@ -750,24 +755,44 @@
 
             const reader = new FileReader();
             reader.onload = function(event) {
-                if (!cropState.originalImage) {
-                    cropState.originalImage = new Image();
+                try {
+                    if (!cropState.originalImage) {
+                        cropState.originalImage = new Image();
+                    }
+                    cropState.originalImage.onload = function() {
+                        cropState.naturalWidth = cropState.originalImage.naturalWidth;
+                        cropState.naturalHeight = cropState.originalImage.naturalHeight;
+                        cropState.ratios = null;
+                        showCropModal(event.target.result);
+                    };
+                    cropState.originalImage.onerror = function() {
+                        console.error('Error loading image:', file.name);
+                        alert('Erro ao carregar a imagem. Tente novamente.');
+                        input.value = '';
+                    };
+                    cropState.originalImage.src = event.target.result;
+                } catch (error) {
+                    console.error('Error processing image:', error);
+                    alert('Erro ao processar a imagem. Tente novamente.');
+                    input.value = '';
                 }
-                cropState.originalImage.onload = function() {
-                    cropState.naturalWidth = cropState.originalImage.naturalWidth;
-                    cropState.naturalHeight = cropState.originalImage.naturalHeight;
-                    cropState.ratios = null;
-                    showCropModal(event.target.result);
-                };
-                cropState.originalImage.onerror = function() {
-                    alert('Erro ao carregar a imagem. Tente novamente.');
-                };
-                cropState.originalImage.src = event.target.result;
             };
-            reader.onerror = function() {
+            reader.onerror = function(error) {
+                console.error('FileReader error:', error);
                 alert('Erro ao ler o arquivo. Tente novamente.');
+                input.value = '';
             };
-            reader.readAsDataURL(file);
+            reader.onabort = function() {
+                console.warn('FileReader aborted');
+                input.value = '';
+            };
+            try {
+                reader.readAsDataURL(file);
+            } catch (error) {
+                console.error('Error reading file:', error);
+                alert('Erro ao ler o arquivo. Verifique se o arquivo é uma imagem válida.');
+                input.value = '';
+            }
         }
 
         function showCropModal(imageSrc) {
@@ -778,6 +803,10 @@
             cropElements.image.src = imageSrc;
             cropElements.image.style.display = 'block';
             cropElements.modal.classList.add('show');
+            // Prevenir scroll do body quando modal aberto
+            document.body.style.overflow = 'hidden';
+            document.body.style.position = 'fixed';
+            document.body.style.width = '100%';
 
             if (cropElements.image.complete) {
                 prepareCropUI();
@@ -1105,6 +1134,10 @@
         }
 
         function cancelCrop(resetInput = true) {
+            // Restaurar scroll do body
+            document.body.style.overflow = '';
+            document.body.style.position = '';
+            document.body.style.width = '';
             ensureCropElements();
             endCropInteraction();
 
