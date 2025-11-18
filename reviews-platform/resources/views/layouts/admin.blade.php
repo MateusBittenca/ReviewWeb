@@ -747,13 +747,17 @@
                 justify-content: center;
             }
             
-            /* Garantir que botões mobile não apareçam no desktop */
-            @media (min-width: 1024px) {
-                #mobileMenuBtn,
-                #sidebar button[aria-label="Close menu"] {
-                    display: none !important;
-                }
+        }
+        
+        /* Garantir que botões mobile não apareçam no desktop */
+        @media (min-width: 1024px) {
+            #mobileMenuBtn,
+            #sidebar button[aria-label="Close menu"] {
+                display: none !important;
             }
+        }
+        
+        @media (max-width: 1023px) {
             
             /* Ensure main content takes full width on mobile */
             .page-container {

@@ -293,13 +293,13 @@
                 </p>
                 
                 <!-- Botões -->
-                <div class="flex flex-col sm:flex-row gap-3">
-                    <button type="button" id="cancelDeleteBtn" class="flex-1 px-4 py-3 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg font-medium hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
-                        <i class="fas fa-times mr-2"></i>
+                <div class="flex flex-col sm:flex-row gap-2">
+                    <button type="button" id="cancelDeleteBtn" class="flex-1 px-3 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg text-sm font-medium hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
+                        <i class="fas fa-times mr-1.5"></i>
                         {{ __('companies.cancel') }}
                     </button>
-                    <button type="button" id="confirmDeleteBtn" class="flex-1 px-4 py-3 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 transition-colors shadow-lg hover:shadow-xl">
-                        <i class="fas fa-trash mr-2"></i>
+                    <button type="button" id="confirmDeleteBtn" class="flex-1 px-3 py-2 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 transition-colors shadow-md hover:shadow-lg">
+                        <i class="fas fa-trash mr-1.5"></i>
                         {{ __('companies.confirm') }}
                     </button>
                 </div>
