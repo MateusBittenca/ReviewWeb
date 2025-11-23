@@ -9,7 +9,7 @@
     <a href="/companies/create" class="btn-primary text-white px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg text-sm sm:text-base font-medium min-h-[36px] sm:min-h-[44px] flex items-center justify-center">
         <i class="fas fa-plus mr-1.5 sm:mr-2 text-xs sm:text-sm"></i>
         <span class="hidden sm:inline">{{ __('companies.create') }}</span>
-        <span class="sm:hidden uppercase text-xs">Criar</span>
+        <span class="sm:hidden uppercase text-xs">{{ strtoupper(__('companies.create')) }}</span>
     </a>
 @endsection
 

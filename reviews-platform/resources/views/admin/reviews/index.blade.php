@@ -10,12 +10,12 @@
         <button onclick="exportContacts(this)" class="bg-green-500 text-white px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg text-sm sm:text-base font-medium hover:bg-green-600 transition-colors min-h-[36px] sm:min-h-[44px] flex items-center justify-center flex-1 sm:flex-none">
             <i class="fas fa-download mr-1.5 sm:mr-2 text-xs sm:text-sm"></i>
             <span class="hidden sm:inline">{{ __('reviews.export_contacts') }}</span>
-            <span class="sm:hidden uppercase text-xs">Exportar</span>
+            <span class="sm:hidden uppercase text-xs">{{ strtoupper(__('reviews.export_contacts')) }}</span>
         </button>
         <button onclick="refreshReviews()" class="btn-primary text-white px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg text-sm sm:text-base font-medium min-h-[36px] sm:min-h-[44px] flex items-center justify-center flex-1 sm:flex-none">
             <i class="fas fa-sync-alt mr-1.5 sm:mr-2 text-xs sm:text-sm"></i>
             <span class="hidden sm:inline">{{ __('reviews.update') }}</span>
-            <span class="sm:hidden uppercase text-xs">Atualizar</span>
+            <span class="sm:hidden uppercase text-xs">{{ strtoupper(__('reviews.update')) }}</span>
         </button>
     </div>
 @endsection

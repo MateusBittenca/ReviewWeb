@@ -11,7 +11,7 @@
             <a href="/companies" class="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors text-sm sm:text-base px-2 py-1.5 sm:px-0 sm:py-0 flex items-center">
                 <i class="fas fa-arrow-left mr-1.5 sm:mr-2 text-sm"></i>
                 <span class="hidden sm:inline">{{ __('companies.back') }}</span>
-                <span class="sm:hidden">Voltar</span>
+                <span class="sm:hidden">{{ __('app.back') }}</span>
             </a>
             <span class="px-2 py-1 text-xs sm:text-sm font-medium rounded-full {{ $company->status === 'published' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300' : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300' }} whitespace-nowrap">
                 {{ $company->status === 'published' ? __('companies.active') : __('companies.draft') }}
@@ -22,12 +22,12 @@
             <button type="button" onclick="submitForm()" class="btn-primary text-white px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg text-sm sm:text-base font-medium min-h-[36px] sm:min-h-[44px] flex items-center justify-center flex-1 sm:flex-none">
                 <i class="fas fa-upload mr-1.5 sm:mr-2 text-xs sm:text-sm"></i>
                 <span class="hidden sm:inline">{{ __('companies.activate') }}</span>
-                <span class="sm:hidden uppercase text-xs">Ativar</span>
+                <span class="sm:hidden uppercase text-xs">{{ strtoupper(__('companies.activate')) }}</span>
             </button>
             <button type="button" onclick="saveForm()" class="bg-gray-500 hover:bg-gray-600 text-white px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg text-sm sm:text-base font-medium min-h-[36px] sm:min-h-[44px] flex items-center justify-center flex-1 sm:flex-none">
                 <i class="fas fa-save mr-1.5 sm:mr-2 text-xs sm:text-sm"></i>
                 <span class="hidden sm:inline">{{ __('companies.save') }}</span>
-                <span class="sm:hidden uppercase text-xs">Salvar</span>
+                <span class="sm:hidden uppercase text-xs">{{ strtoupper(__('app.save')) }}</span>
             </button>
         </div>
     </div>

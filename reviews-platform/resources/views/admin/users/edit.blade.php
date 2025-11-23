@@ -217,7 +217,7 @@
                        class="btn-secondary px-3 py-1.5 sm:px-6 sm:py-2.5 rounded-lg text-sm sm:text-base text-white font-medium shadow-sm hover:shadow-md transition-all inline-flex items-center gap-1.5 sm:gap-2 min-h-[36px] sm:min-h-[44px] justify-center sm:justify-start">
                         <i class="fas fa-arrow-left text-xs sm:text-sm"></i>
                         <span class="hidden sm:inline">{{ __('users.back') }}</span>
-                        <span class="sm:hidden">Voltar</span>
+                        <span class="sm:hidden">{{ __('app.back') }}</span>
                     </a>
                     <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
                         @if($targetUser->id !== Auth::id())
@@ -232,7 +232,7 @@
                                 class="px-3 py-1.5 sm:px-6 sm:py-2.5 bg-red-600 rounded-lg text-sm sm:text-base text-white font-medium shadow-sm hover:shadow-md hover:bg-red-700 transition-all inline-flex items-center gap-1.5 sm:gap-2 delete-user-btn min-h-[36px] sm:min-h-[44px] justify-center w-full sm:w-auto">
                                 <i class="fas fa-trash text-xs sm:text-sm"></i>
                                 <span class="hidden sm:inline">{{ __('users.delete') }}</span>
-                                <span class="sm:hidden uppercase text-xs">Excluir</span>
+                                <span class="sm:hidden uppercase text-xs">{{ strtoupper(__('app.delete')) }}</span>
                             </button>
                         </form>
                         @endif
@@ -241,7 +241,7 @@
                             class="btn-primary px-3 py-1.5 sm:px-6 sm:py-2.5 rounded-lg text-sm sm:text-base text-white font-medium shadow-md hover:shadow-lg transition-all inline-flex items-center gap-1.5 sm:gap-2 min-h-[36px] sm:min-h-[44px] justify-center w-full sm:w-auto">
                             <i class="fas fa-save text-xs sm:text-sm"></i>
                             <span class="hidden sm:inline">{{ __('users.save_changes') }}</span>
-                            <span class="sm:hidden uppercase text-xs">Salvar</span>
+                            <span class="sm:hidden uppercase text-xs">{{ strtoupper(__('app.save')) }}</span>
                         </button>
                     </div>
                 </div>
