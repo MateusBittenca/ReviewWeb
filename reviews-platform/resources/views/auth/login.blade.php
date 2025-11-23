@@ -3,110 +3,97 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ __('auth.title') }} - {{ __('app.name') }}</title>
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <title>{{ __('auth.title') }} - {{ __('app.name') }}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="icon" type="image/png" href="{{ asset('assets/images/lopgosDASHBOARD.png') }}">
-    <link rel="shortcut icon" type="image/png" href="{{ asset('assets/images/lopgosDASHBOARD.png') }}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('assets/images/lopgosDASHBOARD.png') }}?v=2">
+    <link rel="shortcut icon" type="image/png" href="{{ asset('assets/images/lopgosDASHBOARD.png') }}?v=2">
     <style>
         * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
             font-family: 'Inter', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
         
-        .gradient-bg {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            background-size: 400% 400%;
-            animation: gradientShift 15s ease infinite;
+        body {
+            background-color: #f9fafb;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
         }
         
-        @keyframes gradientShift {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-        
-        .floating-shapes {
-            position: absolute;
+        /* Login Container */
+        .login-container {
+            background: white;
+            border-radius: 0.75rem;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            padding: 3rem;
             width: 100%;
-            height: 100%;
-            overflow: hidden;
-            z-index: 1;
+            max-width: 450px;
+            position: relative;
         }
         
-        .shape {
-            position: absolute;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 50%;
-            animation: float 6s ease-in-out infinite;
+        /* Logo Section */
+        .logo-container {
+            text-align: center;
+            margin-bottom: 2.5rem;
         }
         
-        .shape:nth-child(1) {
+        .logo-wrapper {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
             width: 80px;
             height: 80px;
-            top: 20%;
-            left: 10%;
-            animation-delay: 0s;
+            margin-bottom: 1.5rem;
         }
         
-        .shape:nth-child(2) {
-            width: 120px;
-            height: 120px;
-            top: 60%;
-            right: 10%;
-            animation-delay: 2s;
+        .logo-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
         }
         
-        .shape:nth-child(3) {
-            width: 60px;
-            height: 60px;
-            bottom: 20%;
-            left: 20%;
-            animation-delay: 4s;
+        .logo-container h1 {
+            font-size: 1.875rem;
+            font-weight: 800;
+            color: #111827;
+            margin-bottom: 0.5rem;
         }
         
-        .shape:nth-child(4) {
-            width: 100px;
-            height: 100px;
-            top: 30%;
-            right: 30%;
-            animation-delay: 1s;
+        .logo-container p {
+            color: #6b7280;
+            font-size: 0.9375rem;
         }
         
-        @keyframes float {
-            0%, 100% { transform: translateY(0px) rotate(0deg); }
-            50% { transform: translateY(-20px) rotate(180deg); }
-        }
-        
-        .login-container {
-            backdrop-filter: blur(10px);
-            background: rgba(255, 255, 255, 0.95);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            box-shadow: 0 25px 45px rgba(0, 0, 0, 0.1);
-        }
-        
+        /* Input Groups */
         .input-group {
             position: relative;
-            transition: transform 0.3s ease;
+            margin-bottom: 1.5rem;
         }
         
         .input-field {
             width: 100%;
-            padding: 1rem 1rem 1rem 3rem;
-            border: 2px solid #e5e7eb;
-            border-radius: 12px;
-            font-size: 1rem;
+            padding: 0.875rem 1rem 0.875rem 3rem;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.75rem;
+            font-size: 0.9375rem;
             transition: all 0.3s ease;
-            background: #ffffff;
-            box-sizing: border-box;
+            background: white;
+            color: #111827;
         }
         
         .input-field:focus {
             outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-            transform: translateY(-2px);
+            border-color: #8b5cf6;
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
         }
         
         .input-icon {
@@ -121,35 +108,32 @@
         }
         
         .input-group:focus-within .input-icon {
-            color: #667eea;
+            color: #8b5cf6;
         }
         
-        .input-field:focus + .input-icon {
-            color: #667eea;
-        }
-        
+        /* Button */
         .btn-login {
             width: 100%;
-            padding: 1rem;
-            background: #667eea;
+            padding: 0.875rem 1.5rem;
+            background: #8b5cf6;
             color: white;
             border: none;
-            border-radius: 12px;
-            font-size: 1rem;
+            border-radius: 0.75rem;
+            font-size: 0.9375rem;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
-            position: relative;
             display: flex;
             align-items: center;
             justify-content: center;
-            overflow: hidden;
+            gap: 0.5rem;
+            margin-top: 1.5rem;
         }
         
         .btn-login:hover {
-            background: #5568d3;
+            background: #7c3aed;
             transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+            box-shadow: 0 8px 20px rgba(139, 92, 246, 0.25);
         }
         
         .btn-login:active {
@@ -162,217 +146,206 @@
             transform: none;
         }
         
-        .btn-login::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-            transition: left 0.5s;
-            z-index: 0;
-        }
-        
-        .btn-login:hover::before {
-            left: 100%;
-        }
-        
-        .btn-login > * {
-            position: relative;
-            z-index: 1;
-        }
-        
-        .logo-container {
-            animation: logoFloat 3s ease-in-out infinite;
-        }
-        
-        @keyframes logoFloat {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-10px); }
-        }
-        
-        .fade-in {
-            animation: fadeIn 0.8s ease-out;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        .slide-in-left {
-            animation: slideInLeft 0.8s ease-out;
-        }
-        
-        @keyframes slideInLeft {
-            from { opacity: 0; transform: translateX(-50px); }
-            to { opacity: 1; transform: translateX(0); }
-        }
-        
-        .slide-in-right {
-            animation: slideInRight 0.8s ease-out;
-        }
-        
-        @keyframes slideInRight {
-            from { opacity: 0; transform: translateX(50px); }
-            to { opacity: 1; transform: translateX(0); }
-        }
-        
-        .pulse-animation {
-            animation: pulse 2s infinite;
-        }
-        
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
-        }
-        
+        /* Back Link */
         .back-link {
-            color: #667eea;
-            text-decoration: none;
-            transition: all 0.3s ease;
             display: inline-flex;
             align-items: center;
             gap: 0.5rem;
+            color: #6b7280;
+            text-decoration: none;
+            font-size: 0.875rem;
+            transition: all 0.3s ease;
+            margin-top: 1.5rem;
         }
         
         .back-link:hover {
-            color: #764ba2;
-            transform: translateX(-5px);
+            color: #8b5cf6;
         }
         
-        .success-message {
-            background: #10b981;
-            color: white;
-            padding: 1rem;
-            border-radius: 12px;
-            margin-bottom: 1rem;
-            animation: slideDown 0.5s ease-out;
-        }
-        
-        @keyframes slideDown {
-            from { opacity: 0; transform: translateY(-20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        .error-message {
-            background: #ef4444;
-            color: white;
-            padding: 1rem;
-            border-radius: 12px;
-            margin-bottom: 1rem;
-            animation: slideDown 0.5s ease-out;
-        }
-        
+        /* Language Selector */
         .language-selector {
             position: fixed;
-            top: 1rem;
-            right: 1rem;
+            top: 1.5rem;
+            right: 1.5rem;
             z-index: 50;
         }
         
-        .language-selector-container {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
+        .language-selector select {
+            appearance: none;
+            background: white;
+            border: 1px solid #e5e7eb;
             border-radius: 0.5rem;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            padding: 0.5rem;
-        }
-        
-        .language-link {
-            padding: 0.5rem 0.75rem;
-            border-radius: 0.375rem;
-            text-decoration: none;
+            padding: 0.5rem 2rem 0.5rem 1rem;
             font-size: 0.875rem;
             font-weight: 500;
+            color: #374151;
+            cursor: pointer;
             transition: all 0.3s ease;
-            display: inline-block;
         }
         
-        .language-link.active {
-            background: #667eea;
-            color: white;
+        .language-selector select:hover {
+            border-color: #8b5cf6;
+            background: #f9fafb;
         }
         
-        .language-link:not(.active) {
-            color: #4b5563;
+        .language-selector select:focus {
+            outline: none;
+            border-color: #8b5cf6;
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
         }
         
-        .language-link:not(.active):hover {
-            background: #f3f4f6;
+        .language-selector::after {
+            content: '\f078';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            right: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            pointer-events: none;
+            color: #6b7280;
+            font-size: 0.75rem;
         }
         
+        /* Messages */
+        .success-message {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            color: #166534;
+            padding: 0.875rem 1rem;
+            border-radius: 0.75rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+        }
+        
+        .error-message {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #991b1b;
+            padding: 0.875rem 1rem;
+            border-radius: 0.75rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+        }
+        
+        /* Additional Info */
+        .additional-info {
+            margin-top: 2rem;
+            text-align: center;
+            font-size: 0.8125rem;
+            color: #6b7280;
+        }
+        
+        .additional-info p {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .additional-info i {
+            color: #8b5cf6;
+        }
+        
+        /* Animations */
+        .fade-in {
+            animation: fadeIn 0.6s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* Responsive */
         @media (max-width: 768px) {
+            body {
+                padding: 1rem;
+            }
+            
             .login-container {
-                margin: 1rem;
                 padding: 2rem 1.5rem;
             }
             
-            .shape {
-                display: none;
-            }
-            
             .language-selector {
-                top: 0.5rem;
-                right: 0.5rem;
+                top: 1rem;
+                right: 1rem;
             }
             
-            .language-link {
-                padding: 0.375rem 0.5rem;
-                font-size: 0.75rem;
+            .logo-container h1 {
+                font-size: 1.5rem;
             }
         }
     </style>
 </head>
-<body class="gradient-bg min-h-screen flex items-center justify-center p-4">
+<body>
     <!-- Language Selector -->
     <div class="language-selector">
-        <div class="language-selector-container">
-            <div class="flex items-center space-x-1">
-                <a href="?lang=pt_BR" class="language-link {{ app()->getLocale() === 'pt_BR' ? 'active' : '' }}">
-                    🇧🇷 PT
-                </a>
-                <a href="?lang=en_US" class="language-link {{ app()->getLocale() === 'en_US' ? 'active' : '' }}">
-                    🇬🇧 EN
-                </a>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Floating Background Shapes -->
-    <div class="floating-shapes">
-        <div class="shape"></div>
-        <div class="shape"></div>
-        <div class="shape"></div>
-        <div class="shape"></div>
+        <select id="languageSelector">
+            <option value="pt_BR" {{ app()->getLocale() === 'pt_BR' ? 'selected' : '' }}>🇧🇷 PT</option>
+            <option value="en_US" {{ app()->getLocale() === 'en_US' ? 'selected' : '' }}>🇬🇧 EN</option>
+        </select>
     </div>
     
     <!-- Login Container -->
-    <div class="login-container rounded-2xl p-8 w-full max-w-md relative z-10 fade-in">
+    <div class="login-container fade-in">
         <!-- Logo and Title -->
-        <div class="text-center mb-8 logo-container">
-            <div class="inline-flex items-center justify-center w-28 h-28 mb-4 pulse-animation">
-                <img src="{{ asset('assets/images/lopgosDASHBOARD.png') }}" alt="{{ __('app.name') }}" class="w-28 h-28 object-contain" style="background: transparent;">
+        <div class="logo-container">
+            <div class="logo-wrapper">
+                <img src="{{ asset('assets/images/lopgosDASHBOARD.png') }}" alt="{{ __('app.name') }}">
             </div>
-            <h1 class="text-3xl font-bold text-gray-800 mb-2">{{ __('auth.welcome_back') }}</h1>
-            <p class="text-gray-600">{{ __('auth.login_subtitle') }}</p>
+            <h1>{{ __('auth.welcome_back') }}</h1>
+            <p>{{ __('auth.login_subtitle') }}</p>
         </div>
         
+        <!-- Messages -->
+        @if(session('success'))
+            <div class="success-message">
+                <i class="fas fa-check-circle"></i>
+                <span>{{ session('success') }}</span>
+            </div>
+        @endif
+        
+        @if(session('error'))
+            <div class="error-message">
+                <i class="fas fa-exclamation-circle"></i>
+                <span>{{ session('error') }}</span>
+            </div>
+        @endif
+        
+        @if($errors->any())
+            <div class="error-message">
+                <i class="fas fa-exclamation-circle"></i>
+                <span>{{ $errors->first() }}</span>
+            </div>
+        @endif
+        
         <!-- Login Form -->
-        <form method="POST" action="/login" class="space-y-6">
+        <form method="POST" action="/login">
             @csrf
             
             <!-- Email Field -->
-            <div class="input-group slide-in-left">
+            <div class="input-group">
                 <input 
                     type="email" 
                     id="email" 
                     name="email" 
                     value="{{ old('email') }}" 
                     required
-                    autocomplete="off"
+                    autocomplete="email"
                     class="input-field"
                     placeholder="{{ __('auth.email_placeholder') }}"
                 >
@@ -380,13 +353,13 @@
             </div>
             
             <!-- Password Field -->
-            <div class="input-group slide-in-right">
+            <div class="input-group">
                 <input 
                     type="password" 
                     id="password" 
                     name="password" 
                     required
-                    autocomplete="off"
+                    autocomplete="current-password"
                     class="input-field"
                     placeholder="{{ __('auth.password_placeholder') }}"
                 >
@@ -394,104 +367,78 @@
             </div>
             
             <!-- Login Button -->
-            <button type="submit" class="btn-login fade-in w-full">
-                <i class="fas fa-arrow-right mr-2"></i>
-                {{ __('auth.login_button') }}
+            <button type="submit" class="btn-login">
+                <i class="fas fa-sign-in-alt"></i>
+                <span>{{ __('auth.login_button') }}</span>
             </button>
         </form>
         
         <!-- Back Link -->
-        <div class="text-center mt-6 fade-in">
+        <div style="text-align: center;">
             <a href="/" class="back-link">
                 <i class="fas fa-arrow-left"></i>
-                {{ __('auth.back_to_home') }}
+                <span>{{ __('auth.back_to_home') }}</span>
             </a>
         </div>
         
         <!-- Additional Info -->
-        <div class="mt-8 text-center text-sm text-gray-500 fade-in">
-            <p class="flex items-center justify-center gap-2">
-                <i class="fas fa-lock text-orange-500"></i>
-                {{ __('auth.security_message') }}
+        <div class="additional-info">
+            <p>
+                <i class="fas fa-shield-alt"></i>
+                <span>{{ __('auth.security_message') }}</span>
             </p>
-            <p class="mt-1">{{ __('auth.platform_version') }}</p>
+            <p>{{ __('auth.platform_version') }}</p>
         </div>
     </div>
     
-    <!-- JavaScript for Enhanced Interactions -->
     <script>
-        // Translations for JavaScript
-        const translations = {
-            pt_BR: {
-                logging_in: '{{ __('auth.logging_in') }}',
-                login_success: '{{ __('auth.login_success') }}',
-                login_error: '{{ __('auth.login_error') }}'
-            },
-            en_US: {
-                logging_in: '{{ __('auth.logging_in') }}',
-                login_success: '{{ __('auth.login_success') }}',
-                login_error: '{{ __('auth.login_error') }}'
-            }
-        };
-        
-        const currentLang = '{{ app()->getLocale() }}';
-        const t = translations[currentLang] || translations.pt_BR;
+        // Language Selector
+        document.getElementById('languageSelector').addEventListener('change', function() {
+            const locale = this.value;
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+            
+            fetch('/change-locale', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken,
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({ locale: locale })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.reload();
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
         
         // Add loading state to button
         document.querySelector('form').addEventListener('submit', function(e) {
             const button = document.querySelector('.btn-login');
-            const originalText = button.innerHTML;
+            const originalHTML = button.innerHTML;
             
-            button.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>' + t.logging_in;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span>{{ __('auth.logging_in') }}</span>';
             button.disabled = true;
             
-            // Re-enable after 3 seconds (in case of error)
+            // Re-enable after 5 seconds (in case of error)
             setTimeout(() => {
-                button.innerHTML = originalText;
+                button.innerHTML = originalHTML;
                 button.disabled = false;
-            }, 3000);
+            }, 5000);
         });
         
-        // Add focus animations
-        document.querySelectorAll('.input-field').forEach(input => {
-            input.addEventListener('focus', function() {
-                this.parentElement.style.transform = 'scale(1.01)';
-            });
-            
-            input.addEventListener('blur', function() {
-                this.parentElement.style.transform = 'scale(1)';
-            });
-        });
-        
-        // Add keyboard navigation
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter' && e.target.classList.contains('input-field')) {
-                const inputs = Array.from(document.querySelectorAll('.input-field'));
-                const currentIndex = inputs.indexOf(e.target);
-                
-                if (currentIndex < inputs.length - 1) {
-                    inputs[currentIndex + 1].focus();
-                } else {
-                    document.querySelector('.btn-login').click();
-                }
+        // Auto-focus first input
+        document.addEventListener('DOMContentLoaded', function() {
+            const emailInput = document.getElementById('email');
+            if (emailInput && !emailInput.value) {
+                emailInput.focus();
             }
         });
-        
-        // Add success/error message handling
-        const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.get('success')) {
-            const successDiv = document.createElement('div');
-            successDiv.className = 'success-message';
-            successDiv.innerHTML = '<i class="fas fa-check-circle mr-2"></i>' + t.login_success;
-            document.querySelector('form').insertBefore(successDiv, document.querySelector('form').firstChild);
-        }
-        
-        if (urlParams.get('error')) {
-            const errorDiv = document.createElement('div');
-            errorDiv.className = 'error-message';
-            errorDiv.innerHTML = '<i class="fas fa-exclamation-circle mr-2"></i>' + t.login_error;
-            document.querySelector('form').insertBefore(errorDiv, document.querySelector('form').firstChild);
-        }
     </script>
 </body>
 </html>

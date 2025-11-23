@@ -9,7 +9,13 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="icon" type="image/png" href="{{ asset('assets/images/lopgosDASHBOARD.png') }}">
+    
+    <!-- Favicon - Logo da Plataforma -->
+    <link rel="icon" type="image/png" sizes="192x192" href="{{ asset('assets/images/lopgosDASHBOARD.png') }}?v=2">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('assets/images/lopgosDASHBOARD.png') }}?v=2">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('assets/images/lopgosDASHBOARD.png') }}?v=2">
+    <link rel="shortcut icon" type="image/png" href="{{ asset('assets/images/lopgosDASHBOARD.png') }}?v=2">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('assets/images/lopgosDASHBOARD.png') }}?v=2">
     <style>
         * {
             margin: 0;
@@ -664,7 +670,7 @@
                 <div class="language-selector">
                     <select id="languageSelector">
                         <option value="pt_BR" {{ app()->getLocale() === 'pt_BR' ? 'selected' : '' }}>🇧🇷 PT</option>
-                        <option value="en_US" {{ app()->getLocale() === 'en_US' ? 'selected' : '' }}>🇺🇸 EN</option>
+                        <option value="en_US" {{ app()->getLocale() === 'en_US' ? 'selected' : '' }}>🇬🇧 EN</option>
                     </select>
                 </div>
                 <a href="/login" class="btn-login">
@@ -960,6 +966,22 @@
     </footer>
 
     <script>
+        // Force favicon reload
+        (function() {
+            const faviconUrl = '{{ asset("assets/images/lopgosDASHBOARD.png") }}?v=' + Date.now();
+            const link = document.createElement('link');
+            link.rel = 'icon';
+            link.type = 'image/png';
+            link.href = faviconUrl;
+            
+            // Remove existing favicon links
+            const existingLinks = document.querySelectorAll('link[rel="icon"]');
+            existingLinks.forEach(l => l.remove());
+            
+            // Add new favicon
+            document.head.appendChild(link);
+        })();
+        
         // Language Selector
         document.getElementById('languageSelector').addEventListener('change', function() {
             const locale = this.value;
