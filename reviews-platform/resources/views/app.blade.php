@@ -1,495 +1,1025 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="{{ app()->getLocale() }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reviews Platform - Sistema de Avaliações</title>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>Reviews Platform - {{ __('landing.hero_title') }}</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="icon" type="image/png" href="{{ asset('assets/images/lopgosDASHBOARD.png') }}">
     <style>
-        /* Tailwind CSS Base Styles */
-        *, ::before, ::after {
+        * {
+            margin: 0;
+            padding: 0;
             box-sizing: border-box;
-            border-width: 0;
-            border-style: solid;
-            border-color: #e5e7eb;
-        }
-        
-        html {
-            line-height: 1.5;
-            -webkit-text-size-adjust: 100%;
-            tab-size: 4;
+            font-family: 'Inter', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
         
         body {
-            margin: 0;
-            line-height: inherit;
-            font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif;
+            background-color: #f9fafb;
+            color: #111827;
+            line-height: 1.6;
+            overflow-x: hidden;
         }
         
-        /* Utility Classes */
-        .min-h-screen { min-height: 100vh; }
-        .bg-gray-100 { background-color: #f3f4f6; }
-        .bg-white { background-color: #ffffff; }
-        .bg-blue-50 { background-color: #eff6ff; }
-        .bg-green-50 { background-color: #f0fdf4; }
-        .bg-red-50 { background-color: #fef2f2; }
-        .bg-gray-50 { background-color: #f9fafb; }
+        /* Header */
+        .header {
+            background: white;
+            border-bottom: 1px solid #e5e7eb;
+            padding: 1.5rem 0;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
         
-        .text-gray-900 { color: #111827; }
-        .text-gray-700 { color: #374151; }
-        .text-gray-600 { color: #4b5563; }
-        .text-gray-500 { color: #6b7280; }
-        .text-blue-900 { color: #1e3a8a; }
-        .text-blue-700 { color: #1d4ed8; }
-        .text-green-900 { color: #14532d; }
-        .text-green-700 { color: #15803d; }
-        .text-red-900 { color: #7f1d1d; }
-        .text-red-700 { color: #b91c1c; }
-        .text-red-800 { color: #991b1b; }
-        .text-orange-700 { color: #c2410c; }
-        .text-white { color: #ffffff; }
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 2rem;
+        }
         
-        .text-xl { font-size: 1.25rem; line-height: 1.75rem; }
-        .text-lg { font-size: 1.125rem; line-height: 1.75rem; }
-        .text-sm { font-size: 0.875rem; line-height: 1.25rem; }
-        .text-xs { font-size: 0.75rem; line-height: 1rem; }
-        .text-2xl { font-size: 1.5rem; line-height: 2rem; }
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
         
-        .font-bold { font-weight: 700; }
-        .font-semibold { font-weight: 600; }
-        .font-medium { font-weight: 500; }
+        .logo img {
+            height: 40px;
+            width: auto;
+        }
         
-        .shadow-sm { box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05); }
-        .shadow { box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1); }
+        .logo-text {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #1f2937;
+        }
         
-        .border { border-width: 1px; }
-        .border-b { border-bottom-width: 1px; }
-        .border-t { border-top-width: 1px; }
-        .border-b-2 { border-bottom-width: 2px; }
-        .border-gray-200 { border-color: #e5e7eb; }
-        .border-gray-300 { border-color: #d1d5db; }
-        .border-red-200 { border-color: #fecaca; }
+        /* Language Selector */
+        .language-selector {
+            position: relative;
+            margin-right: 1rem;
+        }
         
-        .rounded { border-radius: 0.25rem; }
-        .rounded-lg { border-radius: 0.5rem; }
-        .rounded-xl { border-radius: 0.75rem; }
-        
-        .p-3 { padding: 0.75rem; }
-        .p-4 { padding: 1rem; }
-        .p-6 { padding: 1.5rem; }
-        .px-1 { padding-left: 0.25rem; padding-right: 0.25rem; }
-        .px-2 { padding-left: 0.5rem; padding-right: 0.5rem; }
-        .px-3 { padding-left: 0.75rem; padding-right: 0.75rem; }
-        .px-4 { padding-left: 1rem; padding-right: 1rem; }
-        .px-6 { padding-left: 1.5rem; padding-right: 1.5rem; }
-        .px-8 { padding-left: 2rem; padding-right: 2rem; }
-        .py-1 { padding-top: 0.25rem; padding-bottom: 0.25rem; }
-        .py-2 { padding-top: 0.5rem; padding-bottom: 0.5rem; }
-        .py-4 { padding-top: 1rem; padding-bottom: 1rem; }
-        .py-6 { padding-top: 1.5rem; padding-bottom: 1.5rem; }
-        
-        .mb-1 { margin-bottom: 0.25rem; }
-        .mb-2 { margin-bottom: 0.5rem; }
-        .mb-4 { margin-bottom: 1rem; }
-        .mb-6 { margin-bottom: 1.5rem; }
-        .mt-1 { margin-top: 0.25rem; }
-        .mt-12 { margin-top: 3rem; }
-        .ml-2 { margin-left: 0.5rem; }
-        .mr-3 { margin-right: 0.75rem; }
-        
-        .space-y-3 > * + * { margin-top: 0.75rem; }
-        .space-y-4 > * + * { margin-top: 1rem; }
-        .space-y-6 > * + * { margin-top: 1.5rem; }
-        .space-x-2 > * + * { margin-left: 0.5rem; }
-        .space-x-3 > * + * { margin-left: 0.75rem; }
-        .space-x-4 > * + * { margin-left: 1rem; }
-        .space-x-8 > * + * { margin-left: 2rem; }
-        
-        .flex { display: flex; }
-        .grid { display: grid; }
-        .hidden { display: none; }
-        .items-center { align-items: center; }
-        .justify-between { justify-content: space-between; }
-        .justify-center { justify-content: center; }
-        
-        .grid-cols-1 { grid-template-columns: repeat(1, minmax(0, 1fr)); }
-        .gap-6 { gap: 1.5rem; }
-        
-        .max-w-7xl { max-width: 80rem; }
-        .mx-auto { margin-left: auto; margin-right: auto; }
-        
-        .h-16 { height: 4rem; }
-        
-        .w-full { width: 100%; }
-        .w-16 { width: 4rem; }
-        
-        /* Button Styles */
-        .bg-blue-600 { background-color: #2563eb; }
-        .bg-green-600 { background-color: #16a34a; }
-        .bg-red-600 { background-color: #dc2626; }
-        .bg-gray-300 { background-color: #d1d5db; }
-        .bg-gray-600 { background-color: #4b5563; }
-        .bg-red-100 { background-color: #fee2e2; }
-        
-        .hover\:bg-blue-700:hover { background-color: #1d4ed8; }
-        .hover\:bg-green-700:hover { background-color: #15803d; }
-        .hover\:bg-red-700:hover { background-color: #b91c1c; }
-        .hover\:bg-gray-400:hover { background-color: #9ca3af; }
-        .hover\:bg-gray-700:hover { background-color: #374151; }
-        .hover\:text-gray-700:hover { color: #374151; }
-        .hover\:border-gray-300:hover { border-color: #d1d5db; }
-        
-        .border-blue-500 { border-color: #3b82f6; }
-        .text-blue-600 { color: #2563eb; }
-        .border-transparent { border-color: transparent; }
-        
-        /* Input Styles */
-        input, select, textarea {
-            border: 1px solid #d1d5db;
+        .language-selector select {
+            appearance: none;
+            background: white;
+            border: 1px solid #e5e7eb;
             border-radius: 0.5rem;
-            padding: 0.5rem 0.75rem;
+            padding: 0.5rem 2rem 0.5rem 1rem;
             font-size: 0.875rem;
-            line-height: 1.25rem;
+            font-weight: 500;
+            color: #374151;
+            cursor: pointer;
+            transition: all 0.3s ease;
         }
         
-        input:focus, select:focus, textarea:focus {
+        .language-selector select:hover {
+            border-color: #8b5cf6;
+            background: #f9fafb;
+        }
+        
+        .language-selector select:focus {
             outline: none;
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 3px rgb(59 130 246 / 0.1);
+            border-color: #8b5cf6;
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+        }
+        
+        .language-selector::after {
+            content: '\f078';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            right: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            pointer-events: none;
+            color: #6b7280;
+            font-size: 0.75rem;
+        }
+        
+        .btn-login {
+            background: #8b5cf6;
+            color: white;
+            padding: 0.75rem 2rem;
+            border-radius: 0.75rem;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn-login:hover {
+            background: #7c3aed;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(139, 92, 246, 0.25);
+        }
+        
+        /* Hero Section */
+        .hero {
+            background: white;
+            padding: 140px 2rem 80px;
+            text-align: center;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .hero-content {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        .hero h1 {
+            font-size: 3.5rem;
+            font-weight: 900;
+            margin-bottom: 1.5rem;
+            line-height: 1.2;
+            color: #111827;
+            animation: fadeInUp 0.8s ease;
+        }
+        
+        .hero p {
+            font-size: 1.25rem;
+            margin-bottom: 2.5rem;
+            color: #4b5563;
+            animation: fadeInUp 0.8s ease 0.2s both;
+        }
+        
+        .hero-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            animation: fadeInUp 0.8s ease 0.4s both;
+        }
+        
+        .btn-primary {
+            background: #8b5cf6;
+            color: white;
+            padding: 1rem 3rem;
+            border-radius: 0.75rem;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn-primary:hover {
+            background: #7c3aed;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(139, 92, 246, 0.25);
+        }
+        
+        .btn-secondary {
+            background: white;
+            color: #6b7280;
+            padding: 1rem 3rem;
+            border-radius: 0.75rem;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            border: 2px solid #e5e7eb;
+        }
+        
+        .btn-secondary:hover {
+            background: #f9fafb;
+            border-color: #8b5cf6;
+            color: #8b5cf6;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+        }
+        
+        /* Stats Section */
+        .stats {
+            padding: 4rem 2rem;
+            background: #f9fafb;
+        }
+        
+        .stats-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 0.75rem;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08);
+        }
+        
+        .stat-info h3 {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #6b7280;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-info p {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #8b5cf6;
+        }
+        
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            background: #ede9fe;
+            border-radius: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .stat-icon i {
+            font-size: 1.5rem;
+            color: #8b5cf6;
+        }
+        
+        /* Features Section */
+        .features {
+            padding: 6rem 2rem;
+            background: white;
+        }
+        
+        .section-title {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+        
+        .section-title h2 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #111827;
+            margin-bottom: 1rem;
+        }
+        
+        .section-title p {
+            font-size: 1.2rem;
+            color: #6b7280;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .features-grid {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 2rem;
+        }
+        
+        .feature-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 0.75rem;
+            border: 1px solid #e5e7eb;
+            transition: all 0.3s ease;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08);
+            border-color: #8b5cf6;
+        }
+        
+        .feature-icon {
+            width: 56px;
+            height: 56px;
+            background: #ede9fe;
+            border-radius: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .feature-icon i {
+            font-size: 1.75rem;
+            color: #8b5cf6;
+        }
+        
+        .feature-card h3 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: #111827;
+        }
+        
+        .feature-card p {
+            color: #4b5563;
+            line-height: 1.7;
+        }
+        
+        /* How It Works */
+        .how-it-works {
+            padding: 6rem 2rem;
+            background: #f9fafb;
+        }
+        
+        .steps-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-top: 4rem;
+        }
+        
+        .step {
+            text-align: center;
+            background: white;
+            padding: 2.5rem 2rem;
+            border-radius: 0.75rem;
+            border: 1px solid #e5e7eb;
+            transition: all 0.3s ease;
+        }
+        
+        .step:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08);
+            border-color: #8b5cf6;
+        }
+        
+        .step-number {
+            width: 64px;
+            height: 64px;
+            background: #8b5cf6;
+            color: white;
+            border-radius: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.75rem;
+            font-weight: 800;
+            margin: 0 auto 1.5rem;
+        }
+        
+        .step h3 {
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+            font-weight: 700;
+            color: #111827;
+        }
+        
+        .step p {
+            color: #4b5563;
+            line-height: 1.7;
+        }
+        
+        /* Benefits */
+        .benefits {
+            padding: 6rem 2rem;
+            background: white;
+        }
+        
+        .benefits-grid {
+            max-width: 1200px;
+            margin: 3rem auto 0;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 2rem;
+        }
+        
+        .benefit-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 0.75rem;
+            border: 1px solid #e5e7eb;
+            display: flex;
+            align-items: flex-start;
+            gap: 1.5rem;
+            transition: all 0.3s ease;
+        }
+        
+        .benefit-card:hover {
+            transform: translateX(8px);
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08);
+            border-color: #8b5cf6;
+        }
+        
+        .benefit-icon {
+            width: 48px;
+            height: 48px;
+            background: #ede9fe;
+            border-radius: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        
+        .benefit-icon i {
+            font-size: 1.5rem;
+            color: #8b5cf6;
+        }
+        
+        .benefit-content h4 {
+            font-size: 1.125rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: #111827;
+        }
+        
+        .benefit-content p {
+            color: #6b7280;
+            line-height: 1.6;
+        }
+        
+        /* CTA Section */
+        .cta {
+            padding: 6rem 2rem;
+            background: #8b5cf6;
+            text-align: center;
+            color: white;
+        }
+        
+        .cta h2 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+        }
+        
+        .cta p {
+            font-size: 1.25rem;
+            margin-bottom: 2.5rem;
+            opacity: 0.95;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .cta .btn-primary {
+            background: white;
+            color: #8b5cf6;
+        }
+        
+        .cta .btn-primary:hover {
+            background: #f9fafb;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+        
+        /* Footer */
+        .footer {
+            background: #111827;
+            color: white;
+            padding: 3rem 2rem 1.5rem;
+        }
+        
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 3rem;
+            margin-bottom: 2rem;
+        }
+        
+        .footer-section h4 {
+            font-size: 1.125rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .footer-section h4 i {
+            color: #8b5cf6;
+        }
+        
+        .footer-section p, .footer-section a {
+            color: #9ca3af;
+            text-decoration: none;
+            display: block;
+            margin-bottom: 0.5rem;
+            transition: color 0.3s ease;
+        }
+        
+        .footer-section a:hover {
+            color: #8b5cf6;
+        }
+        
+        .footer-bottom {
+            text-align: center;
+            padding-top: 2rem;
+            border-top: 1px solid #374151;
+            color: #9ca3af;
+        }
+        
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+        
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
         }
         
         /* Responsive */
-        @media (min-width: 768px) {
-            .md\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-            .md\:px-6 { padding-left: 1.5rem; padding-right: 1.5rem; }
-            .md\:px-8 { padding-left: 2rem; padding-right: 2rem; }
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+            
+            .hero p {
+                font-size: 1.1rem;
+            }
+            
+            .hero-buttons {
+                flex-direction: column;
+            }
+            
+            .section-title h2 {
+                font-size: 2rem;
+            }
+            
+            .cta h2 {
+                font-size: 2rem;
+            }
+            
+            .header-content {
+                padding: 0 1rem;
+                flex-wrap: wrap;
+                gap: 1rem;
+            }
+            
+            .logo {
+                flex: 1 1 100%;
+                justify-content: center;
+            }
+            
+            .logo img {
+                height: 32px;
+            }
+            
+            .logo-text {
+                font-size: 1.25rem;
+            }
+            
+            .header-content > div {
+                flex: 1 1 100%;
+                justify-content: center;
+            }
+            
+            .language-selector {
+                margin-right: 0.5rem;
+            }
+            
+            .language-selector select {
+                padding: 0.5rem 1.5rem 0.5rem 0.75rem;
+                font-size: 0.8125rem;
+            }
+            
+            .btn-login {
+                padding: 0.625rem 1.5rem;
+                font-size: 0.875rem;
+            }
+            
+            .features-grid,
+            .benefits-grid,
+            .steps-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .benefit-card {
+                flex-direction: column;
+                text-align: center;
+            }
         }
         
-        @media (min-width: 1024px) {
-            .lg\:px-8 { padding-left: 2rem; padding-right: 2rem; }
+        /* Scroll indicator */
+        ::-webkit-scrollbar {
+            width: 6px;
         }
         
-        @media (min-width: 640px) {
-            .sm\:px-6 { padding-left: 1.5rem; padding-right: 1.5rem; }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: rgba(139, 92, 246, 0.3);
+            border-radius: 10px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(139, 92, 246, 0.5);
         }
     </style>
 </head>
 <body>
-    <div id="root"></div>
-    
-    <script type="text/babel">
-        const { useState } = React;
-        
-        const App = () => {
-            const [currentPage, setCurrentPage] = useState('dashboard');
-            const [message, setMessage] = useState('Reviews Platform funcionando!');
-            
-            const pages = {
-                dashboard: {
-                    title: '🏠 Dashboard',
-                    content: (
-                        <div className="space-y-6">
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                <div className="bg-blue-50 p-6 rounded-lg">
-                                    <h3 className="text-xl font-semibold text-blue-900 mb-2">🏢 Empresas</h3>
-                                    <p className="text-blue-700 mb-2">Total: 24 empresas</p>
-                                    <button onClick={() => setCurrentPage('companies')} className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-                                        Gerenciar Empresas
-                                    </button>
-                                </div>
-                                
-                                <div className="bg-green-50 p-6 rounded-lg">
-                                    <h3 className="text-xl font-semibold text-green-900 mb-2">💬 Avaliações</h3>
-                                    <p className="text-green-700 mb-2">Total: 342 avaliações</p>
-                                    <button onClick={() => setCurrentPage('reviews')} className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
-                                        Ver Avaliações
-                                    </button>
-                                </div>
-                                
-                                <div className="bg-red-50 p-6 rounded-lg">
-                                    <h3 className="text-xl font-semibold text-red-900 mb-2">⚠️ Negativas</h3>
-                                    <p className="text-red-700 mb-2">18 precisam atenção</p>
-                                    <button onClick={() => setCurrentPage('negatives')} className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">
-                                        Ver Negativas
-                                    </button>
-                                </div>
-                            </div>
-                            
-                            <div className="bg-white p-6 rounded-lg shadow">
-                                <h3 className="text-lg font-semibold mb-4">Avaliações Recentes</h3>
-                                <div className="space-y-3">
-                                    <div className="flex items-center justify-between p-3 bg-gray-50 rounded">
-                                        <div>
-                                            <span className="font-medium">Restaurante XYZ</span>
-                                            <span className="ml-2">⭐⭐⭐⭐⭐</span>
-                                        </div>
-                                        <span className="text-sm text-gray-500">Hoje 14:30</span>
-                                    </div>
-                                    <div className="flex items-center justify-between p-3 bg-gray-50 rounded">
-                                        <div>
-                                            <span className="font-medium">Loja ABC</span>
-                                            <span className="ml-2">⭐⭐</span>
-                                        </div>
-                                        <span className="text-sm text-gray-500">Hoje 13:15</span>
-                                    </div>
-                                    <div className="flex items-center justify-between p-3 bg-gray-50 rounded">
-                                        <div>
-                                            <span className="font-medium">Café 123</span>
-                                            <span className="ml-2">⭐⭐⭐⭐</span>
-                                        </div>
-                                        <span className="text-sm text-gray-500">Hoje 12:45</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    )
-                },
-                companies: {
-                    title: '🏢 Empresas',
-                    content: (
-                        <div className="space-y-6">
-                            <div className="bg-white p-6 rounded-lg shadow">
-                                <h3 className="text-lg font-semibold mb-4">Nova Empresa</h3>
-                                <form className="space-y-4">
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">Nome da Empresa</label>
-                                        <input type="text" className="w-full" placeholder="Ex: Restaurante XYZ" />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
-                                        <input type="email" className="w-full" placeholder="contato@empresa.com" />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">URL do Google</label>
-                                        <input type="url" className="w-full" placeholder="https://maps.google.com/..." />
-                                    </div>
-                                    <div className="flex space-x-3">
-                                        <button type="submit" className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700">
-                                            Criar Empresa
-                                        </button>
-                                        <button onClick={() => setCurrentPage('dashboard')} className="bg-gray-300 text-gray-700 px-6 py-2 rounded hover:bg-gray-400">
-                                            Cancelar
-                                        </button>
-                                    </div>
-                                </form>
-                            </div>
-                            
-                            <div className="bg-white p-6 rounded-lg shadow">
-                                <h3 className="text-lg font-semibold mb-4">Empresas Cadastradas</h3>
-                                <div className="space-y-3">
-                                    <div className="flex items-center justify-between p-3 bg-gray-50 rounded">
-                                        <div>
-                                            <span className="font-medium">Restaurante XYZ</span>
-                                            <span className="ml-2 text-sm text-gray-500">contato@xyz.com</span>
-                                        </div>
-                                        <div className="flex space-x-2">
-                                            <button className="bg-blue-600 text-white px-3 py-1 rounded text-sm">Editar</button>
-                                            <button className="bg-green-600 text-white px-3 py-1 rounded text-sm">Ver URL</button>
-                                        </div>
-                                    </div>
-                                    <div className="flex items-center justify-between p-3 bg-gray-50 rounded">
-                                        <div>
-                                            <span className="font-medium">Loja ABC</span>
-                                            <span className="ml-2 text-sm text-gray-500">contato@abc.com</span>
-                                        </div>
-                                        <div className="flex space-x-2">
-                                            <button className="bg-blue-600 text-white px-3 py-1 rounded text-sm">Editar</button>
-                                            <button className="bg-green-600 text-white px-3 py-1 rounded text-sm">Ver URL</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    )
-                },
-                reviews: {
-                    title: '💬 Avaliações',
-                    content: (
-                        <div className="space-y-6">
-                            <div className="bg-white p-6 rounded-lg shadow">
-                                <div className="flex justify-between items-center mb-4">
-                                    <h3 className="text-lg font-semibold">Todas as Avaliações</h3>
-                                    <div className="flex space-x-2">
-                                        <select className="px-3 py-1">
-                                            <option>Todas</option>
-                                            <option>Positivas</option>
-                                            <option>Negativas</option>
-                                        </select>
-                                        <button className="bg-green-600 text-white px-4 py-1 rounded text-sm">Exportar CSV</button>
-                                    </div>
-                                </div>
-                                
-                                <div className="space-y-3">
-                                    <div className="flex items-center justify-between p-3 bg-gray-50 rounded">
-                                        <div>
-                                            <span className="font-medium">Restaurante XYZ</span>
-                                            <span className="ml-2">⭐⭐⭐⭐⭐</span>
-                                            <p className="text-sm text-gray-600 mt-1">📱 (11) 99999-9999</p>
-                                            <p className="text-sm text-gray-700">"Excelente comida e atendimento!"</p>
-                                        </div>
-                                        <div className="flex space-x-2">
-                                            <button className="bg-blue-600 text-white px-3 py-1 rounded text-sm">Contatar</button>
-                                            <button className="bg-gray-600 text-white px-3 py-1 rounded text-sm">Marcar</button>
-                                        </div>
-                                    </div>
-                                    
-                                    <div className="flex items-center justify-between p-3 bg-red-50 rounded border border-red-200">
-                                        <div>
-                                            <span className="font-medium">Loja ABC</span>
-                                            <span className="ml-2">⭐⭐</span>
-                                            <p className="text-sm text-gray-600 mt-1">📱 (11) 88888-8888</p>
-                                            <p className="text-sm text-gray-700">"Produto não chegou como esperado"</p>
-                                            <p className="text-sm text-orange-700 mt-1">Feedback: Produto veio danificado</p>
-                                        </div>
-                                        <div className="flex space-x-2">
-                                            <button className="bg-red-600 text-white px-3 py-1 rounded text-sm">Urgente</button>
-                                            <button className="bg-blue-600 text-white px-3 py-1 rounded text-sm">Contatar</button>
-                                        </div>
-                                    </div>
-                                    
-                                    <div className="flex items-center justify-between p-3 bg-gray-50 rounded">
-                                        <div>
-                                            <span className="font-medium">Café 123</span>
-                                            <span className="ml-2">⭐⭐⭐⭐</span>
-                                            <p className="text-sm text-gray-600 mt-1">📱 (11) 77777-7777</p>
-                                            <p className="text-sm text-gray-700">"Muito bom, recomendo!"</p>
-                                        </div>
-                                        <div className="flex space-x-2">
-                                            <button className="bg-blue-600 text-white px-3 py-1 rounded text-sm">Contatar</button>
-                                            <button className="bg-gray-600 text-white px-3 py-1 rounded text-sm">Marcar</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    )
-                },
-                negatives: {
-                    title: '⚠️ Avaliações Negativas',
-                    content: (
-                        <div className="space-y-6">
-                            <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                                <div className="flex items-center">
-                                    <span className="text-2xl mr-3">🚨</span>
-                                    <div>
-                                        <h3 className="text-lg font-medium text-red-900">Atenção Urgente</h3>
-                                        <p className="text-sm text-red-700">Você tem 2 avaliações negativas que precisam de contato imediato</p>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div className="bg-white p-6 rounded-lg shadow">
-                                <h3 className="text-lg font-semibold mb-4">Avaliações Negativas</h3>
-                                
-                                <div className="space-y-3">
-                                    <div className="flex items-center justify-between p-3 bg-red-50 rounded border border-red-200">
-                                        <div>
-                                            <span className="font-medium">Loja ABC</span>
-                                            <span className="ml-2">⭐⭐</span>
-                                            <span className="ml-2 bg-red-100 text-red-800 px-2 py-1 rounded text-xs">URGENTE</span>
-                                            <p className="text-sm text-gray-600 mt-1">📱 (11) 88888-8888</p>
-                                            <p className="text-sm text-gray-700">"Produto não chegou como esperado"</p>
-                                            <p className="text-sm text-orange-700 mt-1">Feedback: Produto veio danificado e atendimento ruim</p>
-                                        </div>
-                                        <div className="flex space-x-2">
-                                            <button className="bg-red-600 text-white px-3 py-1 rounded text-sm">Contatar Agora</button>
-                                            <button className="bg-green-600 text-white px-3 py-1 rounded text-sm">Marcar Contatado</button>
-                                        </div>
-                                    </div>
-                                    
-                                    <div className="flex items-center justify-between p-3 bg-red-50 rounded border border-red-200">
-                                        <div>
-                                            <span className="font-medium">Hotel Premium</span>
-                                            <span className="ml-2">⭐</span>
-                                            <span className="ml-2 bg-red-100 text-red-800 px-2 py-1 rounded text-xs">URGENTE</span>
-                                            <p className="text-sm text-gray-600 mt-1">📱 (11) 66666-6666</p>
-                                            <p className="text-sm text-gray-700">"Atendimento terrível"</p>
-                                            <p className="text-sm text-orange-700 mt-1">Feedback: Funcionários mal educados e quarto sujo</p>
-                                        </div>
-                                        <div className="flex space-x-2">
-                                            <button className="bg-red-600 text-white px-3 py-1 rounded text-sm">Contatar Agora</button>
-                                            <button className="bg-green-600 text-white px-3 py-1 rounded text-sm">Marcar Contatado</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    )
-                }
-            };
-            
-            return (
-                <div className="min-h-screen bg-gray-100">
-                    {/* Header */}
-                    <div className="bg-white shadow-sm border-b">
-                        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                            <div className="flex justify-between items-center h-16">
-                                <div className="flex items-center">
-                                    <h1 className="text-xl font-bold text-gray-900">Reviews Platform</h1>
-                                </div>
-                                <div className="flex items-center space-x-4">
-                                    <span className="text-sm text-gray-500">Admin</span>
-                                    <button className="text-sm text-gray-500 hover:text-gray-700">Sair</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    {/* Navigation */}
-                    <div className="bg-white shadow-sm border-b">
-                        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                            <nav className="flex space-x-8">
-                                {Object.keys(pages).map((pageKey) => (
-                                    <button
-                                        key={pageKey}
-                                        onClick={() => setCurrentPage(pageKey)}
-                                        className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                                            currentPage === pageKey
-                                                ? 'border-blue-500 text-blue-600'
-                                                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                                        }`}
-                                    >
-                                        {pages[pageKey].title}
-                                    </button>
-                                ))}
-                            </nav>
-                        </div>
-                    </div>
-                    
-                    {/* Main Content */}
-                    <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-                        <div className="mb-6">
-                            <h2 className="text-2xl font-bold text-gray-900">{pages[currentPage].title}</h2>
-                            <p className="mt-1 text-sm text-gray-500">
-                                {currentPage === 'dashboard' && 'Visão geral da plataforma de avaliações'}
-                                {currentPage === 'companies' && 'Gerencie suas empresas cadastradas'}
-                                {currentPage === 'reviews' && 'Todas as avaliações recebidas'}
-                                {currentPage === 'negatives' && 'Avaliações que precisam de atenção'}
-                            </p>
-                        </div>
-                        
-                        {pages[currentPage].content}
-                    </div>
-                    
-                    {/* Footer */}
-                    <div className="bg-white border-t mt-12">
-                        <div className="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
-                            <div className="text-center text-sm text-gray-500">
-                                <p>Reviews Platform - Sistema de Avaliações</p>
-                                <p className="mt-1">✅ Tailwind CSS local implementado - Sem avisos de produção!</p>
-                            </div>
-                        </div>
-                    </div>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <img src="{{ asset('assets/images/lopgosDASHBOARD.png') }}" alt="Reviews Platform">
+                <span class="logo-text">Reviews Platform</span>
+            </div>
+            <div style="display: flex; align-items: center;">
+                <div class="language-selector">
+                    <select id="languageSelector">
+                        <option value="pt_BR" {{ app()->getLocale() === 'pt_BR' ? 'selected' : '' }}>🇧🇷 PT</option>
+                        <option value="en_US" {{ app()->getLocale() === 'en_US' ? 'selected' : '' }}>🇺🇸 EN</option>
+                    </select>
                 </div>
-            );
-        };
+                <a href="/login" class="btn-login">
+                    <i class="fas fa-sign-in-alt"></i>
+                    {{ __('landing.access_panel') }}
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1>{{ __('landing.hero_title') }}</h1>
+            <p>{{ __('landing.hero_description') }}</p>
+            <div class="hero-buttons">
+                <a href="/login" class="btn-primary">
+                    <i class="fas fa-rocket"></i>
+                    {{ __('landing.start_now') }}
+                </a>
+                <a href="#como-funciona" class="btn-secondary">
+                    <i class="fas fa-play-circle"></i>
+                    {{ __('landing.learn_more') }}
+                </a>
+            </div>
+                                </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="stats">
+        <div class="stats-container">
+            <div class="stat-card fade-in">
+                <div class="stat-info">
+                    <h3>{{ __('landing.satisfaction_rate') }}</h3>
+                    <p>95%</p>
+                </div>
+                <div class="stat-icon">
+                    <i class="fas fa-heart"></i>
+                </div>
+            </div>
+            <div class="stat-card fade-in">
+                <div class="stat-info">
+                    <h3>{{ __('landing.reviews_processed') }}</h3>
+                    <p>+10k</p>
+                </div>
+                <div class="stat-icon">
+                    <i class="fas fa-star"></i>
+                </div>
+            </div>
+            <div class="stat-card fade-in">
+                <div class="stat-info">
+                    <h3>{{ __('landing.more_google_reviews') }}</h3>
+                    <p>3x</p>
+                </div>
+                <div class="stat-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+            </div>
+            <div class="stat-card fade-in">
+                <div class="stat-info">
+                    <h3>{{ __('landing.active_companies') }}</h3>
+                    <p>500+</p>
+                </div>
+                <div class="stat-icon">
+                    <i class="fas fa-building"></i>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features">
+        <div class="section-title">
+            <h2>{{ __('landing.features_title') }}</h2>
+            <p>{{ __('landing.features_description') }}</p>
+        </div>
+        <div class="features-grid">
+            <div class="feature-card fade-in">
+                <div class="feature-icon">
+                    <i class="fas fa-crosshairs"></i>
+                </div>
+                <h3>{{ __('landing.feature_redirect_title') }}</h3>
+                <p>{{ __('landing.feature_redirect_desc') }}</p>
+            </div>
+            <div class="feature-card fade-in">
+                <div class="feature-icon">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <h3>{{ __('landing.feature_protection_title') }}</h3>
+                <p>{{ __('landing.feature_protection_desc') }}</p>
+            </div>
+            <div class="feature-card fade-in">
+                <div class="feature-icon">
+                    <i class="fas fa-chart-bar"></i>
+                </div>
+                <h3>{{ __('landing.feature_dashboard_title') }}</h3>
+                <p>{{ __('landing.feature_dashboard_desc') }}</p>
+            </div>
+            <div class="feature-card fade-in">
+                <div class="feature-icon">
+                    <i class="fas fa-bell"></i>
+                </div>
+                <h3>{{ __('landing.feature_notifications_title') }}</h3>
+                <p>{{ __('landing.feature_notifications_desc') }}</p>
+            </div>
+            <div class="feature-card fade-in">
+                <div class="feature-icon">
+                    <i class="fas fa-mobile-alt"></i>
+                </div>
+                <h3>{{ __('landing.feature_contacts_title') }}</h3>
+                <p>{{ __('landing.feature_contacts_desc') }}</p>
+            </div>
+            <div class="feature-card fade-in">
+                <div class="feature-icon">
+                    <i class="fas fa-globe"></i>
+                </div>
+                <h3>{{ __('landing.feature_multilang_title') }}</h3>
+                <p>{{ __('landing.feature_multilang_desc') }}</p>
+            </div>
+            <div class="feature-card fade-in">
+                <div class="feature-icon">
+                    <i class="fas fa-download"></i>
+                </div>
+                <h3>{{ __('landing.feature_export_title') }}</h3>
+                <p>{{ __('landing.feature_export_desc') }}</p>
+            </div>
+            <div class="feature-card fade-in">
+                <div class="feature-icon">
+                    <i class="fas fa-palette"></i>
+                </div>
+                <h3>{{ __('landing.feature_customization_title') }}</h3>
+                <p>{{ __('landing.feature_customization_desc') }}</p>
+            </div>
+            <div class="feature-card fade-in">
+                <div class="feature-icon">
+                    <i class="fas fa-moon"></i>
+                </div>
+                <h3>{{ __('landing.feature_darkmode_title') }}</h3>
+                <p>{{ __('landing.feature_darkmode_desc') }}</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works -->
+    <section class="how-it-works" id="como-funciona">
+        <div class="section-title">
+            <h2>{{ __('landing.how_title') }}</h2>
+            <p>{{ __('landing.how_description') }}</p>
+        </div>
+        <div class="steps-container">
+            <div class="step fade-in">
+                <div class="step-number">1</div>
+                <h3>{{ __('landing.step1_title') }}</h3>
+                <p>{{ __('landing.step1_desc') }}</p>
+            </div>
+            <div class="step fade-in">
+                <div class="step-number">2</div>
+                <h3>{{ __('landing.step2_title') }}</h3>
+                <p>{{ __('landing.step2_desc') }}</p>
+            </div>
+            <div class="step fade-in">
+                <div class="step-number">3</div>
+                <h3>{{ __('landing.step3_title') }}</h3>
+                <p>{{ __('landing.step3_desc') }}</p>
+            </div>
+            <div class="step fade-in">
+                <div class="step-number">4</div>
+                <h3>{{ __('landing.step4_title') }}</h3>
+                <p>{{ __('landing.step4_desc') }}</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Benefits -->
+    <section class="benefits">
+        <div class="section-title">
+            <h2>{{ __('landing.benefits_title') }}</h2>
+            <p>{{ __('landing.benefits_description') }}</p>
+        </div>
+        <div class="benefits-grid">
+            <div class="benefit-card fade-in">
+                <div class="benefit-icon">
+                    <i class="fas fa-arrow-up"></i>
+                </div>
+                <div class="benefit-content">
+                    <h4>{{ __('landing.benefit1_title') }}</h4>
+                    <p>{{ __('landing.benefit1_desc') }}</p>
+                </div>
+            </div>
+            <div class="benefit-card fade-in">
+                <div class="benefit-icon">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <div class="benefit-content">
+                    <h4>{{ __('landing.benefit2_title') }}</h4>
+                    <p>{{ __('landing.benefit2_desc') }}</p>
+                </div>
+            </div>
+            <div class="benefit-card fade-in">
+                <div class="benefit-icon">
+                    <i class="fas fa-dollar-sign"></i>
+                </div>
+                <div class="benefit-content">
+                    <h4>{{ __('landing.benefit3_title') }}</h4>
+                    <p>{{ __('landing.benefit3_desc') }}</p>
+                </div>
+            </div>
+            <div class="benefit-card fade-in">
+                <div class="benefit-icon">
+                    <i class="fas fa-bolt"></i>
+                </div>
+                <div class="benefit-content">
+                    <h4>{{ __('landing.benefit4_title') }}</h4>
+                    <p>{{ __('landing.benefit4_desc') }}</p>
+                </div>
+            </div>
+            <div class="benefit-card fade-in">
+                <div class="benefit-icon">
+                    <i class="fas fa-chart-pie"></i>
+                </div>
+                <div class="benefit-content">
+                    <h4>{{ __('landing.benefit5_title') }}</h4>
+                    <p>{{ __('landing.benefit5_desc') }}</p>
+                </div>
+            </div>
+            <div class="benefit-card fade-in">
+                <div class="benefit-icon">
+                    <i class="fas fa-rocket"></i>
+                </div>
+                <div class="benefit-content">
+                    <h4>{{ __('landing.benefit6_title') }}</h4>
+                    <p>{{ __('landing.benefit6_desc') }}</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta">
+        <h2>{{ __('landing.cta_title') }}</h2>
+        <p>{{ __('landing.cta_description') }}</p>
+        <a href="/login" class="btn-primary" style="font-size: 1.2rem; padding: 1.2rem 3.5rem;">
+            <i class="fas fa-star"></i>
+            {{ __('landing.start_free') }}
+        </a>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4>
+                    <i class="fas fa-star"></i>
+                    Reviews Platform
+                </h4>
+                <p>{{ __('landing.footer_description') }}</p>
+                <p style="margin-top: 1rem;">© 2025 Reviews Platform</p>
+                <p>{{ __('landing.all_rights') }}</p>
+            </div>
+            <div class="footer-section">
+                <h4>
+                    <i class="fas fa-box"></i>
+                    {{ __('landing.product') }}
+                </h4>
+                <a href="#como-funciona">{{ __('landing.how_works') }}</a>
+                <a href="/login">{{ __('landing.control_panel') }}</a>
+                <a href="/login">{{ __('landing.create_account') }}</a>
+                <a href="#features">{{ __('landing.features') }}</a>
+            </div>
+            <div class="footer-section">
+                <h4>
+                    <i class="fas fa-book"></i>
+                    {{ __('landing.resources') }}
+                </h4>
+                <a href="#">{{ __('landing.documentation') }}</a>
+                <a href="#">{{ __('landing.help_center') }}</a>
+                <a href="#">{{ __('landing.faq') }}</a>
+                <a href="#">{{ __('landing.tutorials') }}</a>
+            </div>
+            <div class="footer-section">
+                <h4>
+                    <i class="fas fa-envelope"></i>
+                    {{ __('landing.contact') }}
+                </h4>
+                <p><i class="fas fa-at"></i> contato@reviewsplatform.com</p>
+                <p><i class="fas fa-phone"></i> (11) 9 9999-9999</p>
+                <p><i class="fas fa-headset"></i> {{ __('landing.technical_support') }}</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>{{ __('landing.developed_with') }} <i class="fas fa-heart" style="color: #8b5cf6;"></i> {{ __('landing.by') }} Iago Vilela & Mateus Bittencourt</p>
+        </div>
+    </footer>
+
+    <script>
+        // Language Selector
+        document.getElementById('languageSelector').addEventListener('change', function() {
+            const locale = this.value;
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+            
+            fetch('/change-locale', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken,
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({ locale: locale })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.reload();
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
         
-        ReactDOM.render(<App />, document.getElementById('root'));
+        // Scroll Animation
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.fade-in').forEach(el => {
+            observer.observe(el);
+        });
+
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    const headerOffset = 80;
+                    const elementPosition = target.getBoundingClientRect().top;
+                    const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+
+                    window.scrollTo({
+                        top: offsetPosition,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
     </script>
 </body>
 </html>
