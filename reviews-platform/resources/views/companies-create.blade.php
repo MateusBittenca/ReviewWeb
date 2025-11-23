@@ -6,21 +6,26 @@
 @section('page-description', __('companies.create_company_desc'))
 
 @section('header-actions')
-    <div class="flex items-center gap-2 sm:gap-4">
-        <a href="/companies" class="text-gray-600 hover:text-gray-800 transition-colors hidden sm:inline-flex items-center">
-            <i class="fas fa-arrow-left mr-2"></i>
-            <span>{{ __('companies.back') }}</span>
-        </a>
-        <button type="button" onclick="saveAsDraft()" class="bg-gray-500 hover:bg-gray-600 text-white px-3 sm:px-4 py-2 rounded-lg font-medium text-sm sm:text-base whitespace-nowrap">
-            <i class="fas fa-save mr-2"></i>
-            <span class="hidden sm:inline">{{ __('companies.save_as_draft') }}</span>
-            <span class="sm:hidden">{{ __('companies.save') }}</span>
-        </button>
-        <button type="button" onclick="publishCompany()" class="btn-primary text-white px-3 sm:px-4 py-2 rounded-lg font-medium text-sm sm:text-base whitespace-nowrap">
-            <i class="fas fa-upload mr-2"></i>
-            <span class="hidden sm:inline">{{ __('companies.publish') }}</span>
-            <span class="sm:hidden">{{ __('companies.publish') }}</span>
-        </button>
+    <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-4 w-full sm:w-auto">
+        <div class="flex items-center justify-between sm:justify-start gap-2 sm:gap-4 w-full sm:w-auto">
+            <a href="/companies" class="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors text-sm sm:text-base px-2 py-1.5 sm:px-0 sm:py-0 flex items-center">
+                <i class="fas fa-arrow-left mr-1.5 sm:mr-2 text-sm"></i>
+                <span class="hidden sm:inline">{{ __('companies.back') }}</span>
+                <span class="sm:hidden">Voltar</span>
+            </a>
+        </div>
+        <div class="flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
+            <button type="button" onclick="saveAsDraft()" class="bg-gray-500 hover:bg-gray-600 text-white px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg text-sm sm:text-base font-medium min-h-[36px] sm:min-h-[44px] flex items-center justify-center flex-1 sm:flex-none">
+                <i class="fas fa-save mr-1.5 sm:mr-2 text-xs sm:text-sm"></i>
+                <span class="hidden sm:inline">{{ __('companies.save_as_draft') }}</span>
+                <span class="sm:hidden uppercase text-xs">Salvar</span>
+            </button>
+            <button type="button" onclick="publishCompany()" class="btn-primary text-white px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg text-sm sm:text-base font-medium min-h-[36px] sm:min-h-[44px] flex items-center justify-center flex-1 sm:flex-none">
+                <i class="fas fa-upload mr-1.5 sm:mr-2 text-xs sm:text-sm"></i>
+                <span class="hidden sm:inline">{{ __('companies.publish') }}</span>
+                <span class="sm:hidden uppercase text-xs">Publicar</span>
+            </button>
+        </div>
     </div>
 @endsection
 

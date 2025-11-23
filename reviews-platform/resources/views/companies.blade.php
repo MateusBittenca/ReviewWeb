@@ -6,9 +6,10 @@
 @section('page-description', __('dashboard.companies_count') . ' • ' . $companies->where('status', 'published')->count() . ' ' . __('companies.count_active') . ' • ' . $companies->where('status', 'draft')->count() . ' ' . __('companies.count_draft'))
 
 @section('header-actions')
-    <a href="/companies/create" class="btn-primary text-white px-4 py-2 rounded-lg font-medium">
-        <i class="fas fa-plus mr-2"></i>
-        {{ __('companies.create') }}
+    <a href="/companies/create" class="btn-primary text-white px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg text-sm sm:text-base font-medium min-h-[36px] sm:min-h-[44px] flex items-center justify-center">
+        <i class="fas fa-plus mr-1.5 sm:mr-2 text-xs sm:text-sm"></i>
+        <span class="hidden sm:inline">{{ __('companies.create') }}</span>
+        <span class="sm:hidden uppercase text-xs">Criar</span>
     </a>
 @endsection
 

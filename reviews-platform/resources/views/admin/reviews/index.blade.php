@@ -6,14 +6,18 @@
 @section('page-description', __('reviews.dashboard_description'))
 
 @section('header-actions')
-    <button onclick="exportContacts(this)" class="bg-green-500 text-white px-4 py-2 rounded-lg font-medium hover:bg-green-600 transition-colors">
-        <i class="fas fa-download mr-2"></i>
-        {{ __('reviews.export_contacts') }}
-    </button>
-    <button onclick="refreshReviews()" class="btn-primary text-white px-4 py-2 rounded-lg font-medium">
-        <i class="fas fa-sync-alt mr-2"></i>
-        {{ __('reviews.update') }}
-    </button>
+    <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 w-full sm:w-auto">
+        <button onclick="exportContacts(this)" class="bg-green-500 text-white px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg text-sm sm:text-base font-medium hover:bg-green-600 transition-colors min-h-[36px] sm:min-h-[44px] flex items-center justify-center flex-1 sm:flex-none">
+            <i class="fas fa-download mr-1.5 sm:mr-2 text-xs sm:text-sm"></i>
+            <span class="hidden sm:inline">{{ __('reviews.export_contacts') }}</span>
+            <span class="sm:hidden uppercase text-xs">Exportar</span>
+        </button>
+        <button onclick="refreshReviews()" class="btn-primary text-white px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg text-sm sm:text-base font-medium min-h-[36px] sm:min-h-[44px] flex items-center justify-center flex-1 sm:flex-none">
+            <i class="fas fa-sync-alt mr-1.5 sm:mr-2 text-xs sm:text-sm"></i>
+            <span class="hidden sm:inline">{{ __('reviews.update') }}</span>
+            <span class="sm:hidden uppercase text-xs">Atualizar</span>
+        </button>
+    </div>
 @endsection
 
 @section('styles')
@@ -73,6 +77,50 @@
         .table-container {
             max-height: 500px;
             overflow-y: auto;
+        }
+        
+        /* Melhorias mobile - Elementos compactos */
+        @media (max-width: 640px) {
+            /* Cards mais compactos */
+            .bg-white.rounded-xl.shadow-sm,
+            .dark .bg-gray-800.rounded-xl.shadow-sm {
+                padding: 1rem !important;
+            }
+            
+            /* Títulos menores */
+            h2.text-xl,
+            h3.text-lg {
+                font-size: 1.125rem !important;
+                margin-bottom: 0.75rem !important;
+            }
+            
+            /* Botões de ação mais compactos */
+            button[onclick="exportContacts(this)"],
+            button[onclick="refreshReviews()"] {
+                font-size: 0.75rem !important;
+                padding: 0.5rem 0.75rem !important;
+                min-height: 36px !important;
+            }
+            
+            /* Labels e textos menores */
+            label.block.text-sm,
+            .text-sm {
+                font-size: 0.8125rem !important;
+            }
+            
+            /* Espaçamento reduzido */
+            .space-y-4 > * + *,
+            .space-y-6 > * + * {
+                margin-top: 0.75rem !important;
+            }
+            
+            /* Botões de filtro mais compactos */
+            button[onclick="applyFilters()"],
+            button[onclick="clearFilters()"] {
+                font-size: 0.75rem !important;
+                padding: 0.5rem 0.75rem !important;
+                min-height: 36px !important;
+            }
         }
         
         /* Responsive table wrapper */

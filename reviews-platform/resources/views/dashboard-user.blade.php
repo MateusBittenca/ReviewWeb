@@ -18,9 +18,10 @@
                 <p class="text-blue-800 dark:text-blue-400 mb-4">
                     {{ __('dashboard.no_company_message') }}
                 </p>
-                <a href="{{ route('companies.create') }}" class="btn-primary px-6 py-3 rounded-lg text-white font-medium shadow-md hover:shadow-lg transition-all inline-flex items-center gap-2">
-                    <i class="fas fa-plus"></i>
-                    {{ __('dashboard.create_my_company') }}
+                <a href="{{ route('companies.create') }}" class="btn-primary px-3 py-1.5 sm:px-6 sm:py-3 rounded-lg text-sm sm:text-base text-white font-medium shadow-md hover:shadow-lg transition-all inline-flex items-center gap-1.5 sm:gap-2 min-h-[36px] sm:min-h-[44px]">
+                    <i class="fas fa-plus text-xs sm:text-sm"></i>
+                    <span class="hidden sm:inline">{{ __('dashboard.create_my_company') }}</span>
+                    <span class="sm:hidden uppercase text-xs">Criar</span>
                 </a>
             </div>
         </div>
@@ -109,7 +110,7 @@
                     </span>
                 @endif
                 @if($selectedCompany->status === 'draft')
-                    <a href="{{ route('companies.edit', $selectedCompany->id) }}" class="btn-primary px-3 sm:px-4 py-2 rounded-lg text-white inline-flex items-center gap-2 text-sm sm:text-base whitespace-nowrap">
+                    <a href="{{ route('companies.edit', $selectedCompany->id) }}" class="btn-primary px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg text-sm sm:text-base text-white inline-flex items-center gap-1.5 sm:gap-2 min-h-[36px] sm:min-h-[44px]">
                         <i class="fas fa-edit"></i>
                         <span class="hidden sm:inline">{{ __('app.edit') }}</span>
                         <span class="sm:hidden">{{ __('app.edit') }}</span>

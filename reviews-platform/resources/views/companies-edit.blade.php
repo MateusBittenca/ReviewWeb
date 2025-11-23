@@ -1235,17 +1235,54 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
 
                 const file = new File([blob], cropState.fileName, { type: 'image/png' });
-                const dataTransfer = new DataTransfer();
-                dataTransfer.items.add(file);
-
+                
+                // Detectar iOS/Safari
+                const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || 
+                             (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+                
                 const logoInput = document.getElementById('logoInput');
                 if (logoInput) {
-                    logoInput.files = dataTransfer.files;
+                    // Método mais confiável para iOS
+                    if (isIOS) {
+                        // No iOS, usar DataTransfer pode não funcionar imediatamente
+                        // Vamos tentar uma abordagem alternativa
+                        try {
+                            const dataTransfer = new DataTransfer();
+                            dataTransfer.items.add(file);
+                            logoInput.files = dataTransfer.files;
+                            
+                            // Verificar se o arquivo foi atribuído corretamente
+                            if (!logoInput.files || logoInput.files.length === 0) {
+                                console.warn('iOS: DataTransfer não funcionou, tentando método alternativo');
+                                // Método alternativo: criar um novo input temporário
+                                const tempInput = document.createElement('input');
+                                tempInput.type = 'file';
+                                tempInput.accept = 'image/png';
+                                const formData = new FormData();
+                                formData.append('logo', file);
+                                // Armazenar o blob para uso posterior
+                                logoInput._blob = blob;
+                                logoInput._file = file;
+                            }
+                        } catch (e) {
+                            console.error('Erro ao atribuir arquivo no iOS:', e);
+                            // Armazenar o blob para uso posterior
+                            logoInput._blob = blob;
+                            logoInput._file = file;
+                        }
+                    } else {
+                        // Método padrão para outros navegadores
+                        const dataTransfer = new DataTransfer();
+                        dataTransfer.items.add(file);
+                        logoInput.files = dataTransfer.files;
+                    }
+                    
                     console.log('File added to input:', {
                         fileName: file.name,
                         fileSize: file.size,
                         fileType: file.type,
-                        inputFilesLength: logoInput.files.length
+                        inputFilesLength: logoInput.files ? logoInput.files.length : 0,
+                        isIOS: isIOS
                     });
                 } else {
                     console.error('logoInput not found!');
@@ -1275,7 +1312,81 @@ document.addEventListener('DOMContentLoaded', function() {
                     logoPreviewContainer.insertBefore(newImg, logoPreviewContainer.firstChild);
                 }
 
-                autoSaveMedia('logo');
+                // No iOS, adicionar um pequeno delay para garantir que o arquivo esteja disponível
+                if (isIOS) {
+                    setTimeout(function() {
+                        // Verificar novamente se o arquivo está disponível
+                        if (logoInput && logoInput.files && logoInput.files.length > 0) {
+                            autoSaveMedia('logo');
+                        } else if (logoInput && logoInput._file) {
+                            // Se o arquivo não foi atribuído via DataTransfer, usar o método alternativo
+                            console.log('iOS: Usando método alternativo para auto-save');
+                            // Criar um FormData manualmente
+                            const form = document.getElementById('companyForm');
+                            if (form) {
+                                const mediaSaveUrl = form.dataset.mediaSaveUrl;
+                                const mediaSaveToken = form.dataset.mediaSaveToken || '';
+                                if (mediaSaveUrl) {
+                                    const csrfMeta = document.querySelector('meta[name="csrf-token"]');
+                                    if (csrfMeta) {
+                                        const formData = new FormData();
+                                        formData.append('_token', csrfMeta.getAttribute('content'));
+                                        formData.append('media_type', 'logo');
+                                        formData.append('logo', logoInput._file);
+                                        if (mediaSaveToken) {
+                                            formData.append('media_token', mediaSaveToken);
+                                        }
+                                        
+                                        let requestUrl = mediaSaveUrl;
+                                        try {
+                                            const absoluteUrl = new URL(mediaSaveUrl, window.location.href);
+                                            absoluteUrl.protocol = window.location.protocol;
+                                            absoluteUrl.host = window.location.host;
+                                            requestUrl = absoluteUrl.pathname + absoluteUrl.search;
+                                        } catch (urlError) {
+                                            console.warn('autoSaveMedia: unable to normalize URL', urlError);
+                                        }
+                                        
+                                        setMediaStatus('logo', 'saving');
+                                        
+                                        fetch(requestUrl, {
+                                            method: 'POST',
+                                            body: formData,
+                                            credentials: 'include',
+                                            headers: {
+                                                'X-Requested-With': 'XMLHttpRequest',
+                                                'Accept': 'application/json',
+                                                'X-CSRF-TOKEN': csrfMeta.getAttribute('content')
+                                            }
+                                        })
+                                        .then(response => {
+                                            if (!response.ok) {
+                                                throw new Error('Auto-save request failed');
+                                            }
+                                            return response.json();
+                                        })
+                                        .then(data => {
+                                            if (data.logo_url) {
+                                                const previewImg = document.getElementById('logoPreviewImg');
+                                                if (previewImg) {
+                                                    previewImg.src = `${data.logo_url}?t=${Date.now()}`;
+                                                }
+                                            }
+                                            setMediaStatus('logo', 'saved');
+                                        })
+                                        .catch(error => {
+                                            console.error('Media auto-save error (iOS):', error);
+                                            setMediaStatus('logo', 'error');
+                                        });
+                                    }
+                                }
+                            }
+                        }
+                    }, 300); // Delay de 300ms para iOS
+                } else {
+                    // Para outros navegadores, chamar imediatamente
+                    autoSaveMedia('logo');
+                }
 
                 cancelCrop(false);
                 setTimeout(() => {
@@ -1417,32 +1528,61 @@ function showNotification(message, type) {
 }
 
 function handleBackgroundUpload(input) {
+    // Verificar se há arquivo disponível (método padrão ou alternativo para iOS)
+    let file = null;
     if (input.files && input.files[0]) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            const previewContainer = document.getElementById('backgroundPreviewContainer');
-            const placeholder = document.getElementById('backgroundPlaceholder');
-            
-            if (placeholder) {
-                placeholder.remove();
-            }
-            
-            let previewImg = document.getElementById('backgroundPreviewImg');
-                    if (!previewImg && previewContainer) {
-                previewImg = document.createElement('img');
-                previewImg.id = 'backgroundPreviewImg';
-                previewImg.className = 'max-w-xs mx-auto mb-2 rounded-lg';
-                previewImg.alt = '{{ __('companies.background_image') }}';
-                previewContainer.appendChild(previewImg);
-            }
-            
-                    if (previewImg) {
-            previewImg.src = e.target.result;
-                    }
-                    autoSaveMedia('background');
-        };
-        reader.readAsDataURL(input.files[0]);
+        file = input.files[0];
+    } else if (input._file) {
+        // Método alternativo para iOS quando DataTransfer não funcionou
+        file = input._file;
+        console.log('iOS: Usando arquivo alternativo para background upload');
     }
+    
+    if (!file) {
+        console.warn('Nenhum arquivo disponível para background upload');
+        return;
+    }
+    
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const previewContainer = document.getElementById('backgroundPreviewContainer');
+        const placeholder = document.getElementById('backgroundPlaceholder');
+        
+        if (placeholder) {
+            placeholder.remove();
+        }
+        
+        let previewImg = document.getElementById('backgroundPreviewImg');
+        if (!previewImg && previewContainer) {
+            previewImg = document.createElement('img');
+            previewImg.id = 'backgroundPreviewImg';
+            previewImg.className = 'max-w-xs mx-auto mb-2 rounded-lg';
+            previewImg.alt = '{{ __('companies.background_image') }}';
+            previewContainer.appendChild(previewImg);
+        }
+        
+        if (previewImg) {
+            previewImg.src = e.target.result;
+        }
+        
+        // No iOS, adicionar um pequeno delay antes do auto-save
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || 
+                     (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+        
+        if (isIOS) {
+            setTimeout(function() {
+                autoSaveMedia('background');
+            }, 200);
+        } else {
+            autoSaveMedia('background');
+        }
+    };
+    
+    reader.onerror = function(error) {
+        console.error('FileReader error (background):', error);
+    };
+    
+    reader.readAsDataURL(file);
 }
 
         document.querySelectorAll('.upload-area').forEach(area => {
@@ -1612,7 +1752,22 @@ function handleBackgroundUpload(input) {
             if (!mediaSaveUrl) return;
 
             const input = getMediaInputByType(type);
-            if (!input || !input.files || input.files.length === 0) return;
+            if (!input) return;
+            
+            // Verificar se há arquivo disponível (método padrão ou alternativo para iOS)
+            let file = null;
+            if (input.files && input.files.length > 0) {
+                file = input.files[0];
+            } else if (input._file) {
+                // Método alternativo para iOS quando DataTransfer não funcionou
+                file = input._file;
+                console.log('iOS: Usando arquivo alternativo para auto-save');
+            }
+            
+            if (!file) {
+                console.warn('Nenhum arquivo disponível para auto-save:', type);
+                return;
+            }
 
             const csrfMeta = document.querySelector('meta[name="csrf-token"]');
             if (!csrfMeta) {
@@ -1645,9 +1800,9 @@ function handleBackgroundUpload(input) {
             }
 
             if (type === 'logo') {
-                formData.append('logo', input.files[0]);
+                formData.append('logo', file);
             } else {
-                formData.append('background_image', input.files[0]);
+                formData.append('background_image', file);
             }
 
             setMediaStatus(type, 'saving');

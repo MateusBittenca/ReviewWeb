@@ -5,9 +5,10 @@
 @section('page-description', __('users.description'))
 
 @section('header-actions')
-    <a href="{{ route('users.create') }}" class="btn-primary px-6 py-2 rounded-lg text-white font-medium shadow-md hover:shadow-lg transition-all inline-flex items-center gap-2">
-        <i class="fas fa-plus"></i>
-        {{ __('users.new_user') }}
+    <a href="{{ route('users.create') }}" class="btn-primary px-3 py-1.5 sm:px-6 sm:py-2 rounded-lg text-sm sm:text-base text-white font-medium shadow-md hover:shadow-lg transition-all inline-flex items-center gap-1.5 sm:gap-2 min-h-[36px] sm:min-h-[44px]">
+        <i class="fas fa-plus text-xs sm:text-sm"></i>
+        <span class="hidden sm:inline">{{ __('users.new_user') }}</span>
+        <span class="sm:hidden uppercase text-xs">Novo</span>
     </a>
 @endsection
 

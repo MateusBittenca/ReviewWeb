@@ -169,17 +169,19 @@
                 </div>
 
                 <!-- Form Actions -->
-                <div class="flex items-center justify-end gap-3 pt-4 border-t border-gray-200">
+                <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-2 sm:gap-3 pt-4 border-t border-gray-200">
                     <a href="{{ route('users.index') }}" 
-                       class="btn-secondary px-6 py-2.5 rounded-lg text-white font-medium shadow-sm hover:shadow-md transition-all inline-flex items-center gap-2">
-                        <i class="fas fa-times"></i>
-                        {{ __('app.cancel') }}
+                       class="btn-secondary px-3 py-1.5 sm:px-6 sm:py-2.5 rounded-lg text-sm sm:text-base text-white font-medium shadow-sm hover:shadow-md transition-all inline-flex items-center gap-1.5 sm:gap-2 min-h-[36px] sm:min-h-[44px] justify-center sm:justify-start">
+                        <i class="fas fa-times text-xs sm:text-sm"></i>
+                        <span class="hidden sm:inline">{{ __('app.cancel') }}</span>
+                        <span class="sm:hidden uppercase text-xs">Cancelar</span>
                     </a>
                     <button 
                         type="submit" 
-                        class="btn-primary px-6 py-2.5 rounded-lg text-white font-medium shadow-md hover:shadow-lg transition-all inline-flex items-center gap-2">
-                        <i class="fas fa-save"></i>
-                        {{ __('users.create_user') }}
+                        class="btn-primary px-3 py-1.5 sm:px-6 sm:py-2.5 rounded-lg text-sm sm:text-base text-white font-medium shadow-md hover:shadow-lg transition-all inline-flex items-center gap-1.5 sm:gap-2 min-h-[36px] sm:min-h-[44px] justify-center w-full sm:w-auto">
+                        <i class="fas fa-save text-xs sm:text-sm"></i>
+                        <span class="hidden sm:inline">{{ __('users.create_user') }}</span>
+                        <span class="sm:hidden uppercase text-xs">Criar</span>
                     </button>
                 </div>
             </form>

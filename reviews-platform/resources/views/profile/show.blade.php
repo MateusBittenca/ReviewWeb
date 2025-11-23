@@ -155,7 +155,7 @@
                 <div class="pt-4 border-t border-gray-200 dark:border-gray-700">
                     <button 
                         type="submit" 
-                        class="btn-primary px-6 py-3 rounded-lg text-white font-medium shadow-md hover:shadow-lg transition-all inline-flex items-center gap-2">
+                        class="btn-primary px-3 py-1.5 sm:px-6 sm:py-3 rounded-lg text-sm sm:text-base text-white font-medium shadow-md hover:shadow-lg transition-all inline-flex items-center gap-1.5 sm:gap-2 min-h-[36px] sm:min-h-[44px]">
                         <i class="fas fa-save"></i>
                         {{ __('profile.save_changes') }}
                     </button>
@@ -254,7 +254,7 @@
                 <div class="pt-4 border-t border-gray-200 dark:border-gray-700">
                     <button 
                         type="submit" 
-                        class="btn-primary px-6 py-3 rounded-lg text-white font-medium shadow-md hover:shadow-lg transition-all inline-flex items-center gap-2">
+                        class="btn-primary px-3 py-1.5 sm:px-6 sm:py-3 rounded-lg text-sm sm:text-base text-white font-medium shadow-md hover:shadow-lg transition-all inline-flex items-center gap-1.5 sm:gap-2 min-h-[36px] sm:min-h-[44px]">
                         <i class="fas fa-key"></i>
                         {{ __('profile.change_password') }}
                     </button>

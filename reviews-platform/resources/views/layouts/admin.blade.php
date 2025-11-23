@@ -1179,17 +1179,15 @@
                         </div>
                     </div>
                     
-                    <!-- Links de Suporte - Lado a lado no mobile -->
-                    <div class="flex flex-col sm:flex-row gap-2 px-3">
-                        <a href="{{ route('support.help-center') }}" class="nav-item {{ request()->is('support') ? 'active' : '' }} flex items-center px-3 py-2 rounded-lg text-xs sm:text-sm font-medium text-gray-700 flex-1 justify-center sm:justify-start">
+                    <!-- Links de Suporte - Sempre um abaixo do outro -->
+                    <div class="flex flex-col gap-2 px-3">
+                        <a href="{{ route('support.help-center') }}" class="nav-item {{ request()->is('support') ? 'active' : '' }} flex items-center px-3 py-2 rounded-lg text-xs sm:text-sm font-medium text-gray-700 w-full justify-start">
                             <i class="fas fa-life-ring w-4 h-4 sm:w-5 sm:h-5 mr-2 sm:mr-3"></i>
-                            <span class="hidden sm:inline">{{ __('app.help_center') }}</span>
-                            <span class="sm:hidden">{{ __('app.help_center') }}</span>
+                            <span>{{ __('app.help_center') }}</span>
                         </a>
-                        <a href="{{ route('support.faqs') }}" class="nav-item {{ request()->is('faqs') ? 'active' : '' }} flex items-center px-3 py-2 rounded-lg text-xs sm:text-sm font-medium text-gray-700 flex-1 justify-center sm:justify-start">
+                        <a href="{{ route('support.faqs') }}" class="nav-item {{ request()->is('faqs') ? 'active' : '' }} flex items-center px-3 py-2 rounded-lg text-xs sm:text-sm font-medium text-gray-700 w-full justify-start">
                             <i class="fas fa-question-circle w-4 h-4 sm:w-5 sm:h-5 mr-2 sm:mr-3"></i>
-                            <span class="hidden sm:inline">{{ __('app.faqs') }}</span>
-                            <span class="sm:hidden">{{ __('app.faqs') }}</span>
+                            <span>{{ __('app.faqs') }}</span>
                         </a>
                     </div>
                 </div>
