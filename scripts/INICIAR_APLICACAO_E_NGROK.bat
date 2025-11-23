@@ -3,12 +3,12 @@ chcp 65001 >nul 2>&1
 setlocal enabledelayedexpansion
 
 echo.
-echo ╔════════════════════════════════════════════════════════╗
-echo ║   INICIAR APLICAÇÃO E NGROK - Reviews Platform         ║
-echo ╚════════════════════════════════════════════════════════╝
+echo ============================================================
+echo    INICIAR APLICACAO E NGROK - Reviews Platform
+echo ============================================================
 echo.
 
-cd /d "%~dp0reviews-platform"
+cd /d "%~dp0..\reviews-platform"
 
 echo [1/5] Verificando estrutura do projeto...
 if not exist "app" (
@@ -68,22 +68,22 @@ echo.
 
 echo [5/5] Iniciando servidor Laravel...
 echo.
-echo ╔════════════════════════════════════════════════════════╗
-echo ║   SERVIDOR LARAVEL INICIANDO...                        ║
-echo ╚════════════════════════════════════════════════════════╝
+echo ============================================================
+echo    SERVIDOR LARAVEL INICIANDO...
+echo ============================================================
 echo.
 echo Servidor iniciando na porta 8000...
 echo.
 echo IMPORTANTE: Mantenha esta janela aberta!
 echo.
-start "Laravel Backend - Reviews Platform" cmd /k "cd /d %cd% && echo ╔════════════════════════════════════════════════════════╗ && echo ║   REVIEWS PLATFORM - LARAVEL SERVER                    ║ && echo ╚════════════════════════════════════════════════════════╝ && echo. && echo Servidor iniciando... && echo. && php artisan serve && echo. && echo Servidor parado. Pressione qualquer tecla para fechar... && pause"
+start "Laravel Backend - Reviews Platform" cmd /k "cd /d %cd% && echo ============================================================ && echo    REVIEWS PLATFORM - LARAVEL SERVER && echo ============================================================ && echo. && echo Servidor iniciando... && echo. && php artisan serve && echo. && echo Servidor parado. Pressione qualquer tecla para fechar... && pause"
 
 timeout /t 3 /nobreak >nul
 
 echo.
-echo ╔════════════════════════════════════════════════════════╗
-echo ║   INICIANDO NGROK...                                   ║
-echo ╚════════════════════════════════════════════════════════╝
+echo ============================================================
+echo    INICIANDO NGROK...
+echo ============================================================
 echo.
 echo Aguarde alguns segundos para o servidor Laravel iniciar...
 timeout /t 5 /nobreak >nul
@@ -95,25 +95,25 @@ start "Ngrok Tunnel - Reviews Platform" cmd /k "ngrok http 8000 && echo. && echo
 timeout /t 3 /nobreak >nul
 
 echo.
-echo ╔════════════════════════════════════════════════════════╗
-echo ║   ✅ APLICAÇÃO E NGROK INICIADOS COM SUCESSO!         ║
-echo ╚════════════════════════════════════════════════════════╝
+echo ============================================================
+echo    APLICACAO E NGROK INICIADOS COM SUCESSO!
+echo ============================================================
 echo.
-echo 📋 INFORMAÇÕES IMPORTANTES:
+echo INFORMACOES IMPORTANTES:
 echo.
-echo 🔹 Servidor Laravel: http://localhost:8000
-echo 🔹 Painel Ngrok: http://127.0.0.1:4040
+echo - Servidor Laravel: http://localhost:8000
+echo - Painel Ngrok: http://127.0.0.1:4040
 echo.
-echo 📝 PRÓXIMOS PASSOS:
+echo PROXIMOS PASSOS:
 echo.
 echo 1. Aguarde alguns segundos para o ngrok iniciar completamente
 echo 2. Abra o navegador e acesse: http://127.0.0.1:4040
-echo 3. Copie a URL pública do ngrok (ex: https://xxxxx.ngrok-free.dev)
+echo 3. Copie a URL publica do ngrok (ex: https://xxxxx.ngrok-free.dev)
 echo 4. Compartilhe essa URL com o cliente
 echo.
-echo ⚠️  IMPORTANTE:
+echo IMPORTANTE:
 echo    - Mantenha AMBAS as janelas abertas (Laravel e Ngrok)
-echo    - A URL do ngrok muda toda vez que você reinicia
+echo    - A URL do ngrok muda toda vez que voce reinicia
 echo    - Para parar, feche as janelas ou pressione Ctrl+C
 echo.
 echo Esta janela pode ser fechada agora.

@@ -172,6 +172,30 @@
             background: var(--sidebar-bg);
         }
         
+        /* Language Selector na Sidebar */
+        .sidebar-gradient .language-selector-wrapper {
+            position: relative;
+        }
+        
+        .sidebar-gradient .language-selector-element {
+            width: 100%;
+            background-color: var(--bg-primary);
+            border-color: var(--border-color);
+            color: var(--text-primary);
+        }
+        
+        .sidebar-gradient .language-selector-element:hover {
+            background-color: rgba(139, 92, 246, 0.08);
+            border-color: var(--primary-color);
+        }
+        
+        .sidebar-gradient .language-selector-element:focus {
+            background-color: rgba(139, 92, 246, 0.12);
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2);
+        }
+        
         /* Navigation Items */
         .nav-item {
             transition: var(--transition-smooth);
@@ -828,6 +852,37 @@
                 padding-right: 0.75rem !important;
             }
             
+            /* Seletor de idioma e links lado a lado no mobile */
+            #sidebar .flex.flex-col.sm\\:flex-row {
+                flex-direction: row !important;
+                flex-wrap: wrap;
+            }
+            
+            #sidebar .language-selector-wrapper {
+                min-width: 80px;
+                flex: 1 1 auto;
+            }
+            
+            /* Links de suporte lado a lado no mobile */
+            #sidebar .nav-item {
+                flex: 1 1 auto;
+                min-width: 0;
+            }
+            
+            /* Reduzir tamanho de ícones no mobile */
+            #sidebar .nav-item i.w-4,
+            #sidebar .nav-item i.w-5 {
+                width: 16px !important;
+                height: 16px !important;
+                margin-right: 0.5rem !important;
+            }
+            
+            /* Espaçamento reduzido entre seções */
+            #sidebar .border-t {
+                margin-top: 0.75rem !important;
+                padding-top: 0.75rem !important;
+            }
+            
             /* User profile no mobile */
             #sidebar .user-profile-section,
             #sidebar > div:last-child {
@@ -1100,40 +1155,69 @@
                 
                 <div class="pt-4 mt-4 border-t border-gray-200">
                     <p class="px-3 text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">{{ __('app.support') }}</p>
-                    <a href="{{ route('support.help-center') }}" class="nav-item {{ request()->is('support') ? 'active' : '' }} flex items-center px-3 py-2 rounded-lg text-sm font-medium text-gray-700">
-                        <i class="fas fa-life-ring w-5 h-5 mr-3"></i>
-                        {{ __('app.help_center') }}
-                    </a>
-                    <a href="{{ route('support.faqs') }}" class="nav-item {{ request()->is('faqs') ? 'active' : '' }} flex items-center px-3 py-2 rounded-lg text-sm font-medium text-gray-700">
-                        <i class="fas fa-question-circle w-5 h-5 mr-3"></i>
-                        {{ __('app.faqs') }}
-                    </a>
+                    
+                    <!-- Language Selector e Links de Suporte - Lado a lado no mobile -->
+                    <div class="flex flex-col sm:flex-row gap-2 px-3 mb-2">
+                        <!-- Language Selector -->
+                        <div class="relative language-selector-wrapper flex-1">
+                            <select 
+                                class="language-selector-element appearance-none bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg px-2 sm:px-3 py-2 pr-6 sm:pr-8 text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent cursor-pointer transition-colors w-full"
+                                style="min-height: 36px; font-size: 13px; -webkit-appearance: none; -moz-appearance: none;"
+                            >
+                                <option value="pt_BR" {{ app()->getLocale() === 'pt_BR' ? 'selected' : '' }}>
+                                    🇧🇷 PT
+                                </option>
+                                <option value="en_US" {{ app()->getLocale() === 'en_US' ? 'selected' : '' }}>
+                                    🇬🇧 EN
+                                </option>
+                            </select>
+                            
+                            <!-- Ícone de seta customizado -->
+                            <div class="absolute inset-y-0 right-0 flex items-center pr-1.5 sm:pr-2 pointer-events-none">
+                                <i class="fas fa-chevron-down text-gray-500 text-xs"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Links de Suporte - Lado a lado no mobile -->
+                    <div class="flex flex-col sm:flex-row gap-2 px-3">
+                        <a href="{{ route('support.help-center') }}" class="nav-item {{ request()->is('support') ? 'active' : '' }} flex items-center px-3 py-2 rounded-lg text-xs sm:text-sm font-medium text-gray-700 flex-1 justify-center sm:justify-start">
+                            <i class="fas fa-life-ring w-4 h-4 sm:w-5 sm:h-5 mr-2 sm:mr-3"></i>
+                            <span class="hidden sm:inline">{{ __('app.help_center') }}</span>
+                            <span class="sm:hidden">{{ __('app.help_center') }}</span>
+                        </a>
+                        <a href="{{ route('support.faqs') }}" class="nav-item {{ request()->is('faqs') ? 'active' : '' }} flex items-center px-3 py-2 rounded-lg text-xs sm:text-sm font-medium text-gray-700 flex-1 justify-center sm:justify-start">
+                            <i class="fas fa-question-circle w-4 h-4 sm:w-5 sm:h-5 mr-2 sm:mr-3"></i>
+                            <span class="hidden sm:inline">{{ __('app.faqs') }}</span>
+                            <span class="sm:hidden">{{ __('app.faqs') }}</span>
+                        </a>
+                    </div>
                 </div>
             </nav>
             
             <!-- User Section -->
-            <div class="p-4 border-t border-gray-200">
-                <div class="flex items-center space-x-3 mb-3">
+            <div class="p-3 sm:p-4 border-t border-gray-200">
+                <div class="flex items-center space-x-2 sm:space-x-3 mb-2 sm:mb-3">
                     @if(Auth::user()->photo)
                         <img src="{{ asset('storage/' . Auth::user()->photo) }}" 
                              alt="{{ Auth::user()->name }}" 
-                             class="w-10 h-10 rounded-full object-cover border-2 border-purple-200">
+                             class="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover border-2 border-purple-200 flex-shrink-0">
                     @else
-                        <div class="w-10 h-10 bg-gradient-to-br from-purple-500 to-purple-600 rounded-full flex items-center justify-center">
+                        <div class="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-purple-500 to-purple-600 rounded-full flex items-center justify-center flex-shrink-0">
                             <span class="text-white font-semibold text-xs">
                                 {{ strtoupper(substr(Auth::user()->name ?? 'U', 0, 2)) }}
                             </span>
                         </div>
                     @endif
-                    <div class="flex-1">
-                        <p class="text-sm font-medium text-gray-800">{{ Auth::user()->name ?? __('app.user') }}</p>
-                        <p class="text-xs text-gray-500">{{ Auth::user()->email ?? 'user@example.com' }}</p>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-xs sm:text-sm font-medium text-gray-800 truncate">{{ Auth::user()->name ?? __('app.user') }}</p>
+                        <p class="text-xs text-gray-500 truncate">{{ Auth::user()->email ?? 'user@example.com' }}</p>
                     </div>
                 </div>
                 <form method="POST" action="/logout">
                     @csrf
-                    <button type="submit" class="w-full nav-item flex items-center px-3 py-2 rounded-lg text-sm font-medium text-gray-700">
-                        <i class="fas fa-sign-out-alt w-5 h-5 mr-3"></i>
+                    <button type="submit" class="w-full nav-item flex items-center justify-center px-3 py-2 rounded-lg text-xs sm:text-sm font-medium text-gray-700">
+                        <i class="fas fa-sign-out-alt w-4 h-4 sm:w-5 sm:h-5 mr-2 sm:mr-3"></i>
                         {{ __('app.logout') }}
                     </button>
                 </form>
@@ -1163,11 +1247,6 @@
                         </div>
                     </div>
                     <div class="flex items-center space-x-2 lg:space-x-3 flex-shrink-0">
-                        <!-- Language Selector -->
-                        <div class="hidden sm:block">
-                            <x-language-selector />
-                        </div>
-                        
                         <!-- Dark Mode Toggle -->
                         <button 
                             id="darkModeToggle"
@@ -1184,10 +1263,7 @@
                     </div>
                 </div>
                 <!-- Mobile Header Actions -->
-                <div class="sm:hidden mt-3 pt-3 border-t border-gray-200 flex flex-col space-y-2">
-                    <div class="flex items-center justify-between space-x-2">
-                        <x-language-selector />
-                    </div>
+                <div class="sm:hidden mt-2 pt-2 border-t border-gray-200">
                     <div class="w-full">
                         @yield('header-actions')
                     </div>
@@ -1906,6 +1982,86 @@
             }
         `;
         document.head.appendChild(modalStyle);
+    </script>
+    
+    <!-- Language Selector Script -->
+    <script>
+    (function() {
+        function initLanguageSelectors() {
+            const selectors = document.querySelectorAll('.language-selector-element');
+            
+            selectors.forEach(function(selector) {
+                // Remover listener anterior se existir para evitar duplicação
+                const newSelector = selector.cloneNode(true);
+                selector.parentNode.replaceChild(newSelector, selector);
+                
+                // Adicionar listener
+                newSelector.addEventListener('change', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    const locale = this.value;
+                    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
+                    
+                    if (!csrfToken) {
+                        console.error('CSRF token não encontrado');
+                        return;
+                    }
+                    
+                    // Trocar idioma
+                    fetch('/change-locale', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': csrfToken,
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify({ locale: locale })
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Resposta não OK');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.success) {
+                            // Recarregar página com o novo idioma
+                            window.location.reload();
+                        } else {
+                            console.error('Erro ao trocar idioma:', data);
+                            alert('Erro ao trocar idioma. Tente novamente.');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Erro:', error);
+                        alert('Erro ao trocar idioma. Tente novamente.');
+                    });
+                });
+                
+                // Adicionar eventos touch para melhor suporte mobile
+                newSelector.addEventListener('touchstart', function(e) {
+                    e.stopPropagation();
+                }, { passive: true });
+                
+                newSelector.addEventListener('touchend', function(e) {
+                    e.stopPropagation();
+                    // Forçar abertura do dropdown no mobile
+                    if (window.innerWidth < 1024) {
+                        this.focus();
+                        this.click();
+                    }
+                }, { passive: true });
+            });
+        }
+        
+        // Executar quando DOM estiver pronto
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initLanguageSelectors);
+        } else {
+            initLanguageSelectors();
+        }
+    })();
     </script>
     
     @yield('scripts')

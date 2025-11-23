@@ -6,21 +6,30 @@
 
 @section('header-actions')
     <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-4 w-full sm:w-auto">
-        <a href="/companies" class="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors text-center sm:text-left px-3 py-2 sm:px-0 sm:py-0">
-            <i class="fas fa-arrow-left mr-2"></i>
-            {{ __('companies.back') }}
-        </a>
-        <span class="px-3 py-1 text-sm font-medium rounded-full {{ $company->status === 'published' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300' : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300' }} text-center whitespace-nowrap">
-            {{ $company->status === 'published' ? __('companies.active') : __('companies.draft') }}
-        </span>
-        <button type="button" onclick="submitForm()" class="btn-primary text-white px-4 py-2 rounded-lg font-medium min-h-[44px] flex items-center justify-center">
-            <i class="fas fa-upload mr-2"></i>
-            {{ __('companies.activate') }}
-        </button>
-        <button type="button" onclick="saveForm()" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg font-medium min-h-[44px] flex items-center justify-center">
-            <i class="fas fa-save mr-2"></i>
-            {{ __('companies.save') }}
-        </button>
+        <!-- Mobile: Layout compacto e profissional -->
+        <div class="flex items-center justify-between sm:justify-start gap-2 sm:gap-4 w-full sm:w-auto">
+            <a href="/companies" class="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors text-sm sm:text-base px-2 py-1.5 sm:px-0 sm:py-0 flex items-center">
+                <i class="fas fa-arrow-left mr-1.5 sm:mr-2 text-sm"></i>
+                <span class="hidden sm:inline">{{ __('companies.back') }}</span>
+                <span class="sm:hidden">Voltar</span>
+            </a>
+            <span class="px-2 py-1 text-xs sm:text-sm font-medium rounded-full {{ $company->status === 'published' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300' : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300' }} whitespace-nowrap">
+                {{ $company->status === 'published' ? __('companies.active') : __('companies.draft') }}
+            </span>
+        </div>
+        <!-- Mobile: Botões em linha compacta -->
+        <div class="flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
+            <button type="button" onclick="submitForm()" class="btn-primary text-white px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg text-sm sm:text-base font-medium min-h-[36px] sm:min-h-[44px] flex items-center justify-center flex-1 sm:flex-none">
+                <i class="fas fa-upload mr-1.5 sm:mr-2 text-xs sm:text-sm"></i>
+                <span class="hidden sm:inline">{{ __('companies.activate') }}</span>
+                <span class="sm:hidden uppercase text-xs">Ativar</span>
+            </button>
+            <button type="button" onclick="saveForm()" class="bg-gray-500 hover:bg-gray-600 text-white px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg text-sm sm:text-base font-medium min-h-[36px] sm:min-h-[44px] flex items-center justify-center flex-1 sm:flex-none">
+                <i class="fas fa-save mr-1.5 sm:mr-2 text-xs sm:text-sm"></i>
+                <span class="hidden sm:inline">{{ __('companies.save') }}</span>
+                <span class="sm:hidden uppercase text-xs">Salvar</span>
+            </button>
+        </div>
     </div>
 @endsection
 
@@ -39,9 +48,11 @@
     #cropModal {
         display: none !important;
         position: fixed;
-        z-index: 9999;
+        z-index: 99999 !important;
         left: 0;
         top: 0;
+        right: 0;
+        bottom: 0;
         width: 100%;
         height: 100%;
         background-color: rgba(0, 0, 0, 0.8);
@@ -49,6 +60,13 @@
         visibility: hidden;
         opacity: 0;
         transition: opacity 0.3s ease, visibility 0.3s ease;
+        /* Garantir que cubra toda a tela no iPhone */
+        inset: 0;
+        /* Suporte para safe-area no iPhone */
+        padding-top: env(safe-area-inset-top);
+        padding-bottom: env(safe-area-inset-bottom);
+        padding-left: env(safe-area-inset-left);
+        padding-right: env(safe-area-inset-right);
     }
     
     #cropModal.show {
@@ -56,8 +74,29 @@
         align-items: center;
         justify-content: center;
         padding: 20px;
+        padding-top: calc(20px + env(safe-area-inset-top));
+        padding-bottom: calc(20px + env(safe-area-inset-bottom));
         visibility: visible;
         opacity: 1;
+    }
+    
+    /* Estilos específicos para iPhone/Safari */
+    @supports (-webkit-touch-callout: none) {
+        #cropModal {
+            position: fixed !important;
+            z-index: 99999 !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            bottom: 0 !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            height: -webkit-fill-available !important;
+        }
+        
+        #cropModal.show {
+            display: flex !important;
+        }
     }
     
     .crop-modal-content {
@@ -69,13 +108,14 @@
         max-width: 800px;
         overflow-y: auto;
         position: relative;
-        z-index: 10000;
+        z-index: 100000 !important;
         margin: auto;
         box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
         pointer-events: auto !important;
         display: flex;
         flex-direction: column;
         max-height: 90vh;
+        max-height: calc(90vh - env(safe-area-inset-top) - env(safe-area-inset-bottom));
     }
     
     @media (min-width: 640px) {
@@ -319,6 +359,69 @@
             margin-bottom: 3rem !important;
             padding-bottom: 2rem !important;
         }
+        
+        /* Melhorias mobile - Header Actions */
+        @media (max-width: 640px) {
+            /* Reduzir padding dos cards */
+            .bg-white.rounded-xl.shadow-sm,
+            .dark .bg-gray-800.rounded-xl.shadow-sm {
+                padding: 1rem !important;
+            }
+            
+            /* Títulos menores */
+            h2.text-xl {
+                font-size: 1.125rem !important;
+                margin-bottom: 1rem !important;
+            }
+            
+            /* Labels menores */
+            label.block.text-sm {
+                font-size: 0.8125rem !important;
+                margin-bottom: 0.5rem !important;
+            }
+            
+            /* Inputs mais compactos mas ainda acessíveis */
+            input[type="text"],
+            input[type="email"],
+            input[type="url"] {
+                padding: 0.625rem 0.875rem !important;
+                font-size: 16px !important;
+                min-height: 42px;
+            }
+            
+            /* Espaçamento entre seções reduzido */
+            .space-y-4 > * + *,
+            .space-y-6 > * + * {
+                margin-top: 1rem !important;
+            }
+            
+            /* Botões de ação mais compactos */
+            button[onclick="submitForm()"],
+            button[onclick="saveForm()"] {
+                font-size: 0.75rem !important;
+                padding: 0.5rem 0.75rem !important;
+                min-height: 36px !important;
+            }
+            
+            /* Status badge menor */
+            span.px-2.py-1 {
+                font-size: 0.6875rem !important;
+                padding: 0.375rem 0.625rem !important;
+            }
+            
+            /* Link voltar mais compacto */
+            a[href="/companies"] {
+                font-size: 0.8125rem !important;
+                padding: 0.375rem 0.5rem !important;
+            }
+            
+            /* Ícones menores */
+            .fa-arrow-left,
+            .fa-upload,
+            .fa-save {
+                font-size: 0.75rem !important;
+            }
+        }
     }
     
     .slider::-webkit-slider-thumb {
@@ -380,88 +483,88 @@
         'expires_at' => now()->addMinutes(60)->timestamp,
     ]);
 @endphp
-<div class="max-w-4xl mx-auto pb-8 sm:pb-6">
-    <form method="POST" action="{{ route('companies.update', $company->id) }}" enctype="multipart/form-data" id="companyForm" class="space-y-4 sm:space-y-6 pb-12 sm:pb-6" data-media-save-url="{{ route('companies.auto-save-media', $company->id, false) }}" data-media-save-token="{{ $mediaAutoSaveToken }}">
+<div class="max-w-4xl mx-auto pb-6 sm:pb-8">
+    <form method="POST" action="{{ route('companies.update', $company->id) }}" enctype="multipart/form-data" id="companyForm" class="space-y-3 sm:space-y-6 pb-12 sm:pb-6" data-media-save-url="{{ route('companies.auto-save-media', $company->id, false) }}" data-media-save-token="{{ $mediaAutoSaveToken }}">
         @csrf
         @method('PUT')
 
         <!-- Dados Básicos -->
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 sm:p-6">
-            <h2 class="text-xl font-bold text-gray-800 dark:text-gray-100 mb-4">{{ __('companies.basic_info') }}</h2>
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-3 sm:p-6">
+            <h2 class="text-lg sm:text-xl font-bold text-gray-800 dark:text-gray-100 mb-3 sm:mb-4">{{ __('companies.basic_info') }}</h2>
             
             <div class="space-y-4">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{{ __('companies.name') }} *</label>
-                    <input type="text" name="name" value="{{ old('name', $company->name) }}" placeholder="{{ __('companies.name_placeholder') }}" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-base" style="font-size: 16px; min-height: 44px;" required>
+                    <label class="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5 sm:mb-2">{{ __('companies.name') }} *</label>
+                    <input type="text" name="name" value="{{ old('name', $company->name) }}" placeholder="{{ __('companies.name_placeholder') }}" class="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-base" style="font-size: 16px; min-height: 44px;" required>
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{{ __('companies.url') }}</label>
-                    <input type="text" name="url" value="{{ old('url', $company->url) }}" placeholder="{{ __('companies.url_placeholder') }}" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-base" style="font-size: 16px; min-height: 44px;">
-                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">{{ __('companies.url_hint') }}</p>
+                    <label class="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5 sm:mb-2">{{ __('companies.url') }}</label>
+                    <input type="text" name="url" value="{{ old('url', $company->url) }}" placeholder="{{ __('companies.url_placeholder') }}" class="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-base" style="font-size: 16px; min-height: 44px;">
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ __('companies.url_hint') }}</p>
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{{ __('companies.email') }} *</label>
-                    <input type="email" name="negative_email" value="{{ old('negative_email', $company->negative_email) }}" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-base" style="font-size: 16px; min-height: 44px;" required>
+                    <label class="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5 sm:mb-2">{{ __('companies.email') }} *</label>
+                    <input type="email" name="negative_email" value="{{ old('negative_email', $company->negative_email) }}" class="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-base" style="font-size: 16px; min-height: 44px;" required>
                     <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ __('companies.negative_email_desc') }}</p>
                 </div>
             </div>
         </div>
 
         <!-- Upload de Imagens -->
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 sm:p-6">
-            <h2 class="text-xl font-bold text-gray-800 dark:text-gray-100 mb-4">{{ __('companies.visual_customization') }}</h2>
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-3 sm:p-6">
+            <h2 class="text-lg sm:text-xl font-bold text-gray-800 dark:text-gray-100 mb-3 sm:mb-4">{{ __('companies.visual_customization') }}</h2>
             
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{{ __('companies.logo') }}</label>
-                    <div class="upload-area rounded-lg p-4 text-center cursor-pointer" id="logoUploadArea">
+                    <label class="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5 sm:mb-2">{{ __('companies.logo') }}</label>
+                    <div class="upload-area rounded-lg p-2 sm:p-4 text-center cursor-pointer" id="logoUploadArea">
                         <div id="logoPreviewContainer">
                             @if($company->logo_url)
                                 <img src="{{ $company->logo_url }}?t={{ time() }}" alt="{{ __('companies.logo') }}" class="max-w-xs mx-auto mb-2 rounded-lg" id="logoPreviewImg" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
-                                <div id="logoPlaceholder" class="py-4" style="display: none;">
-                                    <i class="fas fa-image text-4xl text-gray-400 dark:text-gray-500 mb-2"></i>
-                                    <p class="text-sm text-gray-600 dark:text-gray-400">{{ __('companies.upload_click') }}</p>
+                                <div id="logoPlaceholder" class="py-2 sm:py-4" style="display: none;">
+                                    <i class="fas fa-image text-2xl sm:text-4xl text-gray-400 dark:text-gray-500 mb-1 sm:mb-2"></i>
+                                    <p class="text-xs sm:text-sm text-gray-600 dark:text-gray-400">{{ __('companies.upload_click') }}</p>
                                 </div>
                             @else
-                                <div id="logoPlaceholder" class="py-4">
-                                    <i class="fas fa-image text-4xl text-gray-400 dark:text-gray-500 mb-2"></i>
-                                    <p class="text-sm text-gray-600 dark:text-gray-400">{{ __('companies.upload_click') }}</p>
+                                <div id="logoPlaceholder" class="py-2 sm:py-4">
+                                    <i class="fas fa-image text-2xl sm:text-4xl text-gray-400 dark:text-gray-500 mb-1 sm:mb-2"></i>
+                                    <p class="text-xs sm:text-sm text-gray-600 dark:text-gray-400">{{ __('companies.upload_click') }}</p>
                                 </div>
                             @endif
                         </div>
                         <input type="file" name="logo" accept="image/png,image/jpeg,image/jpg,image/gif,image/webp" class="hidden" id="logoInput" onchange="handleLogoUpload(this)">
-                        <label for="logoInput" class="text-purple-600 hover:text-purple-700 dark:text-purple-400 dark:hover:text-purple-300 mt-2 cursor-pointer inline-block" style="touch-action: manipulation; -webkit-tap-highlight-color: transparent;">
-                            <i class="fas fa-upload mr-2"></i>{{ __('companies.logo_change') }}
+                        <label for="logoInput" class="text-purple-600 hover:text-purple-700 dark:text-purple-400 dark:hover:text-purple-300 mt-1 sm:mt-2 cursor-pointer inline-block text-xs sm:text-sm" style="touch-action: manipulation; -webkit-tap-highlight-color: transparent;">
+                            <i class="fas fa-upload mr-1.5 sm:mr-2"></i>{{ __('companies.logo_change') }}
                         </label>
-                        <div id="logoAutoSaveStatus" class="mt-2 text-xs text-gray-500 hidden flex items-center gap-1 justify-center" aria-live="polite"></div>
+                        <div id="logoAutoSaveStatus" class="mt-1 sm:mt-2 text-xs text-gray-500 hidden flex items-center gap-1 justify-center" aria-live="polite"></div>
                     </div>
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{{ __('companies.background_image') }}</label>
-                    <div class="upload-area rounded-lg p-4 text-center cursor-pointer" id="backgroundUploadArea">
+                    <label class="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5 sm:mb-2">{{ __('companies.background_image') }}</label>
+                    <div class="upload-area rounded-lg p-2 sm:p-4 text-center cursor-pointer" id="backgroundUploadArea">
                         <div id="backgroundPreviewContainer">
                             @if($company->background_image_url)
                                 <img src="{{ $company->background_image_url }}" alt="{{ __('companies.background_image') }}" class="max-w-xs mx-auto mb-2 rounded-lg" id="backgroundPreviewImg">
                             @else
-                                <div id="backgroundPlaceholder" class="py-4">
-                                    <i class="fas fa-image text-4xl text-gray-400 dark:text-gray-500 mb-2"></i>
-                                    <p class="text-sm text-gray-600 dark:text-gray-400">{{ __('companies.upload_click') }}</p>
+                                <div id="backgroundPlaceholder" class="py-2 sm:py-4">
+                                    <i class="fas fa-image text-2xl sm:text-4xl text-gray-400 dark:text-gray-500 mb-1 sm:mb-2"></i>
+                                    <p class="text-xs sm:text-sm text-gray-600 dark:text-gray-400">{{ __('companies.upload_click') }}</p>
                                 </div>
                             @endif
                         </div>
                         <input type="file" name="background_image" accept="image/png,image/jpeg,image/jpg,image/gif,image/webp" class="hidden" id="backgroundInput" onchange="handleBackgroundUpload(this)">
-                        <div class="flex gap-2 justify-center mt-2">
-                            <label for="backgroundInput" class="text-purple-600 hover:text-purple-700 dark:text-purple-400 dark:hover:text-purple-300 cursor-pointer inline-block" style="touch-action: manipulation; -webkit-tap-highlight-color: transparent;">
-                                <i class="fas fa-upload mr-2"></i>{{ __('companies.background_change') }}
+                        <div class="flex flex-col sm:flex-row gap-1.5 sm:gap-2 justify-center mt-1 sm:mt-2">
+                            <label for="backgroundInput" class="text-purple-600 hover:text-purple-700 dark:text-purple-400 dark:hover:text-purple-300 cursor-pointer inline-block text-xs sm:text-sm" style="touch-action: manipulation; -webkit-tap-highlight-color: transparent;">
+                                <i class="fas fa-upload mr-1.5 sm:mr-2"></i>{{ __('companies.background_change') }}
                             </label>
-                            <button type="button" onclick="openStockImageModal()" class="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300" style="touch-action: manipulation; -webkit-tap-highlight-color: transparent;">
-                                <i class="fas fa-search mr-2"></i>{{ __('companies.browse_free_images') }}
+                            <button type="button" onclick="openStockImageModal()" class="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 text-xs sm:text-sm" style="touch-action: manipulation; -webkit-tap-highlight-color: transparent;">
+                                <i class="fas fa-search mr-1.5 sm:mr-2"></i>{{ __('companies.browse_free_images') }}
                             </button>
                         </div>
-                        <div id="backgroundAutoSaveStatus" class="mt-2 text-xs text-gray-500 hidden flex items-center gap-1 justify-center" aria-live="polite"></div>
+                        <div id="backgroundAutoSaveStatus" class="mt-1 sm:mt-2 text-xs text-gray-500 hidden flex items-center gap-1 justify-center" aria-live="polite"></div>
                     </div>
                 </div>
             </div>
@@ -469,10 +572,10 @@
 
         <!-- Informações de Contato -->
         {{-- Seção comentada - pode ser reativada no futuro se necessário --}}
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 sm:p-6">
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-3 sm:p-6">
             {{-- <h2 class="text-xl font-bold text-gray-800 dark:text-gray-100 mb-4">{{ __('companies.company_details') }}</h2> --}}
             
-            <div class="space-y-4">
+            <div class="space-y-3 sm:space-y-4">
                 {{-- Campos comentados - podem ser reativados no futuro se necessário --}}
                 {{-- 
                 <div>
@@ -492,41 +595,41 @@
                 --}}
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{{ __('companies.google_business_url') }}</label>
-                    <input type="text" name="google_business_url" value="{{ old('google_business_url', $company->google_business_url) }}" placeholder="{{ __('companies.google_business_url_placeholder') }}" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-base" style="font-size: 16px; min-height: 44px;">
+                    <label class="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5 sm:mb-2">{{ __('companies.google_business_url') }}</label>
+                    <input type="text" name="google_business_url" value="{{ old('google_business_url', $company->google_business_url) }}" placeholder="{{ __('companies.google_business_url_placeholder') }}" class="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-base" style="font-size: 16px; min-height: 44px;">
                     <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ __('companies.google_business_url_desc') }}</p>
                 </div>
             </div>
         </div>
 
         <!-- Configurações -->
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 sm:p-6 mb-16 sm:mb-0" style="margin-bottom: 4rem;">
-            <h2 class="text-xl font-bold text-gray-800 dark:text-gray-100 mb-4">{{ __('companies.positive_score') }}</h2>
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-3 sm:p-6 mb-16 sm:mb-0" style="margin-bottom: 4rem;">
+            <h2 class="text-lg sm:text-xl font-bold text-gray-800 dark:text-gray-100 mb-3 sm:mb-4">{{ __('companies.positive_score') }}</h2>
             
             <div>
-                <label for="positive_score" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label for="positive_score" class="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5 sm:mb-2">
                     {{ __('companies.positive_score_label') }} *
                 </label>
-                <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
+                <div class="flex items-center space-x-4">
                     <input 
                         type="range" 
                         name="positive_score" 
-                        id="positiveScoreSlider"
+                        id="positive_score"
                         min="1" 
                         max="5" 
                         value="{{ old('positive_score', $company->positive_score ?? 4) }}" 
-                        class="flex-1 slider" 
-                        style="min-height: 44px;"
+                        class="flex-1 slider"
+                        oninput="updateStarDisplay(this.value)"
                         required
                     >
-                    <div class="flex items-center justify-center sm:justify-start space-x-2 min-w-[120px] sm:min-w-[120px]">
-                        <span id="positiveScoreValue" class="text-xl sm:text-2xl font-bold text-purple-600 dark:text-purple-400">{{ old('positive_score', $company->positive_score ?? 4) }}</span>
-                        <div class="flex text-yellow-400" id="positiveScoreStars">
+                    <div class="flex items-center space-x-2 min-w-[120px]">
+                        <span id="starCount" class="text-2xl font-bold text-purple-600 dark:text-purple-400">{{ old('positive_score', $company->positive_score ?? 4) }}</span>
+                        <div class="flex text-yellow-400" id="starIcons">
                             @for($i = 1; $i <= 5; $i++)
                                 @if($i <= (old('positive_score', $company->positive_score ?? 4)))
-                                    <i class="fas fa-star text-sm sm:text-base"></i>
+                                    <i class="fas fa-star"></i>
                                 @else
-                                    <i class="far fa-star text-sm sm:text-base"></i>
+                                    <i class="far fa-star"></i>
                                 @endif
                             @endfor
                         </div>
@@ -664,27 +767,20 @@ document.addEventListener('DOMContentLoaded', function() {
 
             window.addEventListener('resize', handleResizeWhileOpen);
 
-    const slider = document.getElementById('positiveScoreSlider');
-    const valueDisplay = document.getElementById('positiveScoreValue');
-    const starsContainer = document.getElementById('positiveScoreStars');
-    
-    if (slider && valueDisplay && starsContainer) {
-                const renderStars = (value) => {
-            valueDisplay.textContent = value;
-            starsContainer.innerHTML = '';
-            for (let i = 1; i <= 5; i++) {
-                const star = document.createElement('i');
-                        star.className = i <= value ? 'fas fa-star text-yellow-400' : 'far fa-star text-yellow-400';
-                starsContainer.appendChild(star);
+            // Star Rating Display
+            function updateStarDisplay(value) {
+                const starCount = document.getElementById('starCount');
+                if (starCount) {
+                    starCount.textContent = value;
+                }
+                const starIcons = document.getElementById('starIcons');
+                if (starIcons) {
+                    starIcons.innerHTML = '';
+                    for (let i = 0; i < value; i++) {
+                        starIcons.innerHTML += '<i class="fas fa-star"></i>';
+                    }
+                }
             }
-                };
-        
-        slider.addEventListener('input', function() {
-                    renderStars(this.value);
-        });
-        
-                renderStars(slider.value);
-    }
     
             // Código comentado - referente ao campo de telefone que foi desabilitado
             // Pode ser reativado no futuro se necessário
@@ -809,6 +905,17 @@ document.addEventListener('DOMContentLoaded', function() {
             cropElements.image.style.display = 'block';
             cropElements.image.style.visibility = 'visible';
             cropElements.image.style.opacity = '1';
+            
+            // Garantir z-index máximo no iPhone
+            cropElements.modal.style.zIndex = '99999';
+            cropElements.modal.style.position = 'fixed';
+            cropElements.modal.style.top = '0';
+            cropElements.modal.style.left = '0';
+            cropElements.modal.style.right = '0';
+            cropElements.modal.style.bottom = '0';
+            cropElements.modal.style.width = '100%';
+            cropElements.modal.style.height = '100%';
+            
             cropElements.modal.classList.add('show');
             // Prevenir scroll do body quando modal aberto
             document.body.style.overflow = 'hidden';

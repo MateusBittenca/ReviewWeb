@@ -93,9 +93,11 @@
         #cropModal {
             display: none !important;
             position: fixed;
-            z-index: 9999;
+            z-index: 99999 !important;
             left: 0;
             top: 0;
+            right: 0;
+            bottom: 0;
             width: 100%;
             height: 100%;
             background-color: rgba(0, 0, 0, 0.8);
@@ -103,6 +105,13 @@
             visibility: hidden;
             opacity: 0;
             transition: opacity 0.3s ease, visibility 0.3s ease;
+            /* Garantir que cubra toda a tela no iPhone */
+            inset: 0;
+            /* Suporte para safe-area no iPhone */
+            padding-top: env(safe-area-inset-top);
+            padding-bottom: env(safe-area-inset-bottom);
+            padding-left: env(safe-area-inset-left);
+            padding-right: env(safe-area-inset-right);
         }
         
         #cropModal.show {
@@ -110,8 +119,29 @@
             align-items: center;
             justify-content: center;
             padding: 20px;
+            padding-top: calc(20px + env(safe-area-inset-top));
+            padding-bottom: calc(20px + env(safe-area-inset-bottom));
             visibility: visible;
             opacity: 1;
+        }
+        
+        /* Estilos específicos para iPhone/Safari */
+        @supports (-webkit-touch-callout: none) {
+            #cropModal {
+                position: fixed !important;
+                z-index: 99999 !important;
+                top: 0 !important;
+                left: 0 !important;
+                right: 0 !important;
+                bottom: 0 !important;
+                width: 100vw !important;
+                height: 100vh !important;
+                height: -webkit-fill-available !important;
+            }
+            
+            #cropModal.show {
+                display: flex !important;
+            }
         }
         
         .crop-modal-content {
@@ -119,8 +149,9 @@
             padding: 1rem;
             max-width: 900px;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            z-index: 10000;
+            z-index: 100000 !important;
             max-height: 90vh;
+            max-height: calc(90vh - env(safe-area-inset-top) - env(safe-area-inset-bottom));
             overflow-y: auto;
         }
         
@@ -802,6 +833,17 @@
             cropElements.image.onload = prepareCropUI;
             cropElements.image.src = imageSrc;
             cropElements.image.style.display = 'block';
+            
+            // Garantir z-index máximo no iPhone
+            cropElements.modal.style.zIndex = '99999';
+            cropElements.modal.style.position = 'fixed';
+            cropElements.modal.style.top = '0';
+            cropElements.modal.style.left = '0';
+            cropElements.modal.style.right = '0';
+            cropElements.modal.style.bottom = '0';
+            cropElements.modal.style.width = '100%';
+            cropElements.modal.style.height = '100%';
+            
             cropElements.modal.classList.add('show');
             // Prevenir scroll do body quando modal aberto
             document.body.style.overflow = 'hidden';
