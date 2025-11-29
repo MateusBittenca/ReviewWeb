@@ -10,6 +10,18 @@
     <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('assets/images/lopgosDASHBOARD.png') }}?v=2">
     <link rel="shortcut icon" type="image/png" href="{{ asset('assets/images/lopgosDASHBOARD.png') }}?v=2">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    
+    <!-- Dark Mode Script - Previne Flash -->
+    <script>
+        (function() {
+            const savedMode = localStorage.getItem('darkMode');
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            if (savedMode === 'true' || (savedMode === null && prefersDark)) {
+                document.documentElement.classList.add('dark');
+            }
+        })();
+    </script>
+    
     <style>
         * {
             margin: 0;
@@ -27,6 +39,11 @@
             align-items: center;
             justify-content: center;
             padding: 2rem;
+            transition: background-color 0.3s ease;
+        }
+        
+        .dark body {
+            background-color: #111827;
         }
         
         /* Login Container */
@@ -39,6 +56,13 @@
             width: 100%;
             max-width: 450px;
             position: relative;
+            transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .dark .login-container {
+            background: #1f2937;
+            border-color: #374151;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
         }
         
         /* Logo Section */
@@ -67,11 +91,21 @@
             font-weight: 800;
             color: #111827;
             margin-bottom: 0.5rem;
+            transition: color 0.3s ease;
+        }
+        
+        .dark .logo-container h1 {
+            color: #f9fafb;
         }
         
         .logo-container p {
             color: #6b7280;
             font-size: 0.9375rem;
+            transition: color 0.3s ease;
+        }
+        
+        .dark .logo-container p {
+            color: #d1d5db;
         }
         
         /* Input Groups */
@@ -91,10 +125,24 @@
             color: #111827;
         }
         
+        .dark .input-field {
+            background: #374151;
+            border-color: #4b5563;
+            color: #f9fafb;
+        }
+        
+        .dark .input-field::placeholder {
+            color: #9ca3af;
+        }
+        
         .input-field:focus {
             outline: none;
             border-color: #8b5cf6;
             box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+        }
+        
+        .dark .input-field:focus {
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2);
         }
         
         .input-icon {
@@ -106,6 +154,10 @@
             transition: color 0.3s ease;
             pointer-events: none;
             z-index: 1;
+        }
+        
+        .dark .input-icon {
+            color: #6b7280;
         }
         
         .input-group:focus-within .input-icon {
@@ -159,6 +211,10 @@
             margin-top: 1.5rem;
         }
         
+        .dark .back-link {
+            color: #9ca3af;
+        }
+        
         .back-link:hover {
             color: #8b5cf6;
         }
@@ -169,6 +225,13 @@
             top: 1.5rem;
             right: 1.5rem;
             z-index: 50;
+            display: flex;
+            gap: 0.75rem;
+            align-items: center;
+        }
+        
+        .language-selector > div {
+            position: relative;
         }
         
         .language-selector select {
@@ -184,9 +247,19 @@
             transition: all 0.3s ease;
         }
         
+        .dark .language-selector select {
+            background: #1f2937;
+            border-color: #374151;
+            color: #d1d5db;
+        }
+        
         .language-selector select:hover {
             border-color: #8b5cf6;
             background: #f9fafb;
+        }
+        
+        .dark .language-selector select:hover {
+            background: #374151;
         }
         
         .language-selector select:focus {
@@ -195,7 +268,11 @@
             box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
         }
         
-        .language-selector::after {
+        .dark .language-selector select:focus {
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2);
+        }
+        
+        .language-selector > div::after {
             content: '\f078';
             font-family: 'Font Awesome 6 Free';
             font-weight: 900;
@@ -206,6 +283,45 @@
             pointer-events: none;
             color: #6b7280;
             font-size: 0.75rem;
+            transition: color 0.3s ease;
+        }
+        
+        .dark .language-selector > div::after {
+            color: #9ca3af;
+        }
+        
+        /* Dark Mode Toggle Button */
+        .dark-mode-toggle {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+            padding: 0.5rem 0.75rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #374151;
+        }
+        
+        .dark .dark-mode-toggle {
+            background: #1f2937;
+            border-color: #374151;
+            color: #d1d5db;
+        }
+        
+        .dark-mode-toggle:hover {
+            background: #f9fafb;
+            border-color: #8b5cf6;
+            color: #8b5cf6;
+        }
+        
+        .dark .dark-mode-toggle:hover {
+            background: #374151;
+        }
+        
+        .dark-mode-toggle i {
+            font-size: 1rem;
         }
         
         /* Messages */
@@ -220,6 +336,13 @@
             align-items: center;
             gap: 0.5rem;
             font-size: 0.875rem;
+            transition: all 0.3s ease;
+        }
+        
+        .dark .success-message {
+            background: rgba(16, 185, 129, 0.1);
+            border-color: rgba(16, 185, 129, 0.3);
+            color: #34d399;
         }
         
         .error-message {
@@ -233,6 +356,13 @@
             align-items: center;
             gap: 0.5rem;
             font-size: 0.875rem;
+            transition: all 0.3s ease;
+        }
+        
+        .dark .error-message {
+            background: rgba(239, 68, 68, 0.1);
+            border-color: rgba(239, 68, 68, 0.3);
+            color: #f87171;
         }
         
         /* Additional Info */
@@ -241,6 +371,11 @@
             text-align: center;
             font-size: 0.8125rem;
             color: #6b7280;
+            transition: color 0.3s ease;
+        }
+        
+        .dark .additional-info {
+            color: #9ca3af;
         }
         
         .additional-info p {
@@ -284,6 +419,8 @@
             .language-selector {
                 top: 1rem;
                 right: 1rem;
+                flex-direction: column;
+                gap: 0.5rem;
             }
             
             .logo-container h1 {
@@ -293,12 +430,17 @@
     </style>
 </head>
 <body>
-    <!-- Language Selector -->
+    <!-- Language Selector and Dark Mode Toggle -->
     <div class="language-selector">
-        <select id="languageSelector">
-            <option value="pt_BR" {{ app()->getLocale() === 'pt_BR' ? 'selected' : '' }}>🇧🇷 PT</option>
-            <option value="en_US" {{ app()->getLocale() === 'en_US' ? 'selected' : '' }}>🇬🇧 EN</option>
-        </select>
+        <button id="darkModeToggle" onclick="toggleDarkMode()" class="dark-mode-toggle" title="Toggle Dark Mode">
+            <i id="darkModeIcon" class="fas fa-moon"></i>
+        </button>
+        <div style="position: relative;">
+            <select id="languageSelector">
+                <option value="pt_BR" {{ app()->getLocale() === 'pt_BR' ? 'selected' : '' }}>🇧🇷 PT</option>
+                <option value="en_US" {{ app()->getLocale() === 'en_US' ? 'selected' : '' }}>🇬🇧 EN</option>
+            </select>
+        </div>
     </div>
     
     <!-- Login Container -->
@@ -438,6 +580,40 @@
             const emailInput = document.getElementById('email');
             if (emailInput && !emailInput.value) {
                 emailInput.focus();
+            }
+        });
+        
+        // Dark Mode Toggle Function
+        function toggleDarkMode() {
+            const html = document.documentElement;
+            const isDark = html.classList.toggle('dark');
+            const icon = document.getElementById('darkModeIcon');
+            
+            // Atualizar ícone
+            if (isDark) {
+                icon.classList.remove('fa-moon');
+                icon.classList.add('fa-sun');
+            } else {
+                icon.classList.remove('fa-sun');
+                icon.classList.add('fa-moon');
+            }
+            
+            // Salvar preferência
+            localStorage.setItem('darkMode', isDark ? 'true' : 'false');
+        }
+        
+        // Inicializar ícone do dark mode
+        document.addEventListener('DOMContentLoaded', function() {
+            const isDark = document.documentElement.classList.contains('dark');
+            const icon = document.getElementById('darkModeIcon');
+            if (icon) {
+                if (isDark) {
+                    icon.classList.remove('fa-moon');
+                    icon.classList.add('fa-sun');
+                } else {
+                    icon.classList.remove('fa-sun');
+                    icon.classList.add('fa-moon');
+                }
             }
         });
     </script>
