@@ -16,6 +16,18 @@
     <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('assets/images/lopgosDASHBOARD.png') }}?v=2">
     <link rel="shortcut icon" type="image/png" href="{{ asset('assets/images/lopgosDASHBOARD.png') }}?v=2">
     <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('assets/images/lopgosDASHBOARD.png') }}?v=2">
+    
+    <!-- Dark Mode Script - Previne Flash -->
+    <script>
+        (function() {
+            const savedMode = localStorage.getItem('darkMode');
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            if (savedMode === 'true' || (savedMode === null && prefersDark)) {
+                document.documentElement.classList.add('dark');
+            }
+        })();
+    </script>
+    
     <style>
         * {
             margin: 0;
@@ -31,6 +43,13 @@
             color: #111827;
             line-height: 1.6;
             overflow-x: hidden;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        
+        /* Dark Mode */
+        .dark body {
+            background-color: #111827;
+            color: #f9fafb;
         }
         
         /* Header */
@@ -43,6 +62,13 @@
             top: 0;
             z-index: 1000;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+        
+        .dark .header {
+            background: #1f2937;
+            border-bottom-color: #374151;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
         }
         
         .header-content {
@@ -69,6 +95,11 @@
             font-size: 1.5rem;
             font-weight: 800;
             color: #1f2937;
+            transition: color 0.3s ease;
+        }
+        
+        .dark .logo-text {
+            color: #f9fafb;
         }
         
         /* Language Selector */
@@ -90,9 +121,19 @@
             transition: all 0.3s ease;
         }
         
+        .dark .language-selector select {
+            background: #1f2937;
+            border-color: #374151;
+            color: #d1d5db;
+        }
+        
         .language-selector select:hover {
             border-color: #8b5cf6;
             background: #f9fafb;
+        }
+        
+        .dark .language-selector select:hover {
+            background: #374151;
         }
         
         .language-selector select:focus {
@@ -112,6 +153,11 @@
             pointer-events: none;
             color: #6b7280;
             font-size: 0.75rem;
+            transition: color 0.3s ease;
+        }
+        
+        .dark .language-selector::after {
+            color: #9ca3af;
         }
         
         .btn-login {
@@ -133,12 +179,51 @@
             box-shadow: 0 8px 20px rgba(139, 92, 246, 0.25);
         }
         
+        /* Dark Mode Toggle Button */
+        .dark-mode-toggle {
+            background: transparent;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+            padding: 0.5rem 0.75rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #374151;
+        }
+        
+        .dark .dark-mode-toggle {
+            border-color: #374151;
+            color: #d1d5db;
+        }
+        
+        .dark-mode-toggle:hover {
+            background: #f9fafb;
+            border-color: #8b5cf6;
+            color: #8b5cf6;
+        }
+        
+        .dark .dark-mode-toggle:hover {
+            background: #374151;
+        }
+        
+        .dark-mode-toggle i {
+            font-size: 1rem;
+        }
+        
         /* Hero Section */
         .hero {
             background: white;
             padding: 140px 2rem 80px;
             text-align: center;
             border-bottom: 1px solid #e5e7eb;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+        
+        .dark .hero {
+            background: #1f2937;
+            border-bottom-color: #374151;
         }
         
         .hero-content {
@@ -153,6 +238,11 @@
             line-height: 1.2;
             color: #111827;
             animation: fadeInUp 0.8s ease;
+            transition: color 0.3s ease;
+        }
+        
+        .dark .hero h1 {
+            color: #f9fafb;
         }
         
         .hero p {
@@ -160,6 +250,11 @@
             margin-bottom: 2.5rem;
             color: #4b5563;
             animation: fadeInUp 0.8s ease 0.2s both;
+            transition: color 0.3s ease;
+        }
+        
+        .dark .hero p {
+            color: #d1d5db;
         }
         
         .hero-buttons {
@@ -205,6 +300,12 @@
             border: 2px solid #e5e7eb;
         }
         
+        .dark .btn-secondary {
+            background: #1f2937;
+            color: #d1d5db;
+            border-color: #374151;
+        }
+        
         .btn-secondary:hover {
             background: #f9fafb;
             border-color: #8b5cf6;
@@ -213,10 +314,20 @@
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
         }
         
+        .dark .btn-secondary:hover {
+            background: #374151;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+        
         /* Stats Section */
         .stats {
             padding: 4rem 2rem;
             background: #f9fafb;
+            transition: background-color 0.3s ease;
+        }
+        
+        .dark .stats {
+            background: #111827;
         }
         
         .stats-container {
@@ -239,9 +350,19 @@
             justify-content: space-between;
         }
         
+        .dark .stat-card {
+            background: #1f2937;
+            border-color: #374151;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+        }
+        
         .stat-card:hover {
             transform: translateY(-4px);
             box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08);
+        }
+        
+        .dark .stat-card:hover {
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.4);
         }
         
         .stat-info h3 {
@@ -249,6 +370,11 @@
             font-weight: 500;
             color: #6b7280;
             margin-bottom: 0.5rem;
+            transition: color 0.3s ease;
+        }
+        
+        .dark .stat-info h3 {
+            color: #9ca3af;
         }
         
         .stat-info p {
@@ -265,6 +391,11 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            transition: background-color 0.3s ease;
+        }
+        
+        .dark .stat-icon {
+            background: rgba(139, 92, 246, 0.2);
         }
         
         .stat-icon i {
@@ -276,6 +407,11 @@
         .features {
             padding: 6rem 2rem;
             background: white;
+            transition: background-color 0.3s ease;
+        }
+        
+        .dark .features {
+            background: #1f2937;
         }
         
         .section-title {
@@ -288,6 +424,11 @@
             font-weight: 800;
             color: #111827;
             margin-bottom: 1rem;
+            transition: color 0.3s ease;
+        }
+        
+        .dark .section-title h2 {
+            color: #f9fafb;
         }
         
         .section-title p {
@@ -295,6 +436,11 @@
             color: #6b7280;
             max-width: 600px;
             margin: 0 auto;
+            transition: color 0.3s ease;
+        }
+        
+        .dark .section-title p {
+            color: #d1d5db;
         }
         
         .features-grid {
@@ -313,10 +459,19 @@
             transition: all 0.3s ease;
         }
         
+        .dark .feature-card {
+            background: #1f2937;
+            border-color: #374151;
+        }
+        
         .feature-card:hover {
             transform: translateY(-8px);
             box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08);
             border-color: #8b5cf6;
+        }
+        
+        .dark .feature-card:hover {
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.4);
         }
         
         .feature-icon {
@@ -328,6 +483,11 @@
             align-items: center;
             justify-content: center;
             margin-bottom: 1.5rem;
+            transition: background-color 0.3s ease;
+        }
+        
+        .dark .feature-icon {
+            background: rgba(139, 92, 246, 0.2);
         }
         
         .feature-icon i {
@@ -340,17 +500,32 @@
             font-weight: 700;
             margin-bottom: 1rem;
             color: #111827;
+            transition: color 0.3s ease;
+        }
+        
+        .dark .feature-card h3 {
+            color: #f9fafb;
         }
         
         .feature-card p {
             color: #4b5563;
             line-height: 1.7;
+            transition: color 0.3s ease;
+        }
+        
+        .dark .feature-card p {
+            color: #d1d5db;
         }
         
         /* How It Works */
         .how-it-works {
             padding: 6rem 2rem;
             background: #f9fafb;
+            transition: background-color 0.3s ease;
+        }
+        
+        .dark .how-it-works {
+            background: #111827;
         }
         
         .steps-container {
@@ -371,10 +546,19 @@
             transition: all 0.3s ease;
         }
         
+        .dark .step {
+            background: #1f2937;
+            border-color: #374151;
+        }
+        
         .step:hover {
             transform: translateY(-8px);
             box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08);
             border-color: #8b5cf6;
+        }
+        
+        .dark .step:hover {
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.4);
         }
         
         .step-number {
@@ -396,17 +580,32 @@
             margin-bottom: 1rem;
             font-weight: 700;
             color: #111827;
+            transition: color 0.3s ease;
+        }
+        
+        .dark .step h3 {
+            color: #f9fafb;
         }
         
         .step p {
             color: #4b5563;
             line-height: 1.7;
+            transition: color 0.3s ease;
+        }
+        
+        .dark .step p {
+            color: #d1d5db;
         }
         
         /* Benefits */
         .benefits {
             padding: 6rem 2rem;
             background: white;
+            transition: background-color 0.3s ease;
+        }
+        
+        .dark .benefits {
+            background: #1f2937;
         }
         
         .benefits-grid {
@@ -428,10 +627,19 @@
             transition: all 0.3s ease;
         }
         
+        .dark .benefit-card {
+            background: #1f2937;
+            border-color: #374151;
+        }
+        
         .benefit-card:hover {
             transform: translateX(8px);
             box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08);
             border-color: #8b5cf6;
+        }
+        
+        .dark .benefit-card:hover {
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.4);
         }
         
         .benefit-icon {
@@ -443,6 +651,11 @@
             align-items: center;
             justify-content: center;
             flex-shrink: 0;
+            transition: background-color 0.3s ease;
+        }
+        
+        .dark .benefit-icon {
+            background: rgba(139, 92, 246, 0.2);
         }
         
         .benefit-icon i {
@@ -455,11 +668,21 @@
             font-weight: 700;
             margin-bottom: 0.5rem;
             color: #111827;
+            transition: color 0.3s ease;
+        }
+        
+        .dark .benefit-content h4 {
+            color: #f9fafb;
         }
         
         .benefit-content p {
             color: #6b7280;
             line-height: 1.6;
+            transition: color 0.3s ease;
+        }
+        
+        .dark .benefit-content p {
+            color: #d1d5db;
         }
         
         /* CTA Section */
@@ -501,6 +724,11 @@
             background: #111827;
             color: white;
             padding: 3rem 2rem 1.5rem;
+            transition: background-color 0.3s ease;
+        }
+        
+        .dark .footer {
+            background: #0f172a;
         }
         
         .footer-content {
@@ -666,13 +894,16 @@
                 <img src="{{ asset('assets/images/lopgosDASHBOARD.png') }}" alt="Reviews Platform">
                 <span class="logo-text">Reviews Platform</span>
             </div>
-            <div style="display: flex; align-items: center;">
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
                 <div class="language-selector">
                     <select id="languageSelector">
                         <option value="pt_BR" {{ app()->getLocale() === 'pt_BR' ? 'selected' : '' }}>🇧🇷 PT</option>
                         <option value="en_US" {{ app()->getLocale() === 'en_US' ? 'selected' : '' }}>🇬🇧 EN</option>
                     </select>
                 </div>
+                <button id="darkModeToggle" onclick="toggleDarkMode()" class="dark-mode-toggle" title="Toggle Dark Mode">
+                    <i id="darkModeIcon" class="fas fa-moon"></i>
+                </button>
                 <a href="/login" class="btn-login">
                     <i class="fas fa-sign-in-alt"></i>
                     {{ __('landing.access_panel') }}
@@ -1041,6 +1272,40 @@
                     });
                 }
             });
+        });
+        
+        // Dark Mode Toggle Function
+        function toggleDarkMode() {
+            const html = document.documentElement;
+            const isDark = html.classList.toggle('dark');
+            const icon = document.getElementById('darkModeIcon');
+            
+            // Atualizar ícone
+            if (isDark) {
+                icon.classList.remove('fa-moon');
+                icon.classList.add('fa-sun');
+            } else {
+                icon.classList.remove('fa-sun');
+                icon.classList.add('fa-moon');
+            }
+            
+            // Salvar preferência
+            localStorage.setItem('darkMode', isDark ? 'true' : 'false');
+        }
+        
+        // Inicializar ícone do dark mode
+        document.addEventListener('DOMContentLoaded', function() {
+            const isDark = document.documentElement.classList.contains('dark');
+            const icon = document.getElementById('darkModeIcon');
+            if (icon) {
+                if (isDark) {
+                    icon.classList.remove('fa-moon');
+                    icon.classList.add('fa-sun');
+                } else {
+                    icon.classList.remove('fa-sun');
+                    icon.classList.add('fa-moon');
+                }
+            }
         });
     </script>
 </body>

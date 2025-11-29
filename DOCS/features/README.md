@@ -240,7 +240,7 @@ WhatsApp,Nota,Comentário,Data,Empresa
 
 **Idiomas Suportados:**
 - 🇧🇷 Português (PT-BR)
-- 🇺🇸 Inglês (EN-US)
+- 🇬🇧 Inglês (EN-US)
 
 **Como Trocar:**
 - **Dashboard:** Seletor no canto superior

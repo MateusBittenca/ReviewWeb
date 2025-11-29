@@ -800,6 +800,85 @@
                 }
             }
             
+            async loadAllReviewsForChart() {
+                try {
+                    const params = new URLSearchParams({
+                        per_page: 10000, // Carregar muitos reviews de uma vez para o gráfico
+                        page: 1
+                    });
+                    
+                    // Só adicionar filtros se tiverem valores (não vazios)
+                    // Quando não há filtros, o backend retorna todos os reviews de todas as empresas
+                    if (this.filters.company_id && this.filters.company_id !== '' && this.filters.company_id !== 'all') {
+                        params.set('company_id', this.filters.company_id);
+                    }
+                    if (this.filters.user_id && this.filters.user_id !== '' && this.filters.user_id !== 'all') {
+                        params.set('user_id', this.filters.user_id);
+                    }
+                    if (this.filters.type && this.filters.type !== '' && this.filters.type !== 'all') {
+                        params.set('type', this.filters.type);
+                    }
+                    if (this.filters.rating && this.filters.rating !== '' && this.filters.rating !== 'all') {
+                        params.set('rating', this.filters.rating);
+                    }
+                    if (this.filters.date && this.filters.date !== '' && this.filters.date !== 'all') {
+                        params.set('date', this.filters.date);
+                    }
+                    
+                    const response = await fetch(`/api/reviews?${params}`, {
+                        credentials: 'include',
+                        headers: {
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                    const result = await response.json();
+                    
+                    if (result.success && result.data && result.data.data) {
+                        this.allReviews = result.data.data;
+                        this.updateChartsWithRealData(this.allReviews);
+                        return this.allReviews;
+                    } else {
+                        // Se não retornou dados, tentar carregar todas as páginas
+                        let allReviews = [];
+                        let currentPage = 1;
+                        let hasMore = true;
+                        
+                        while (hasMore) {
+                            params.set('page', currentPage);
+                            params.set('per_page', 100); // Usar 100 por página para não sobrecarregar
+                            
+                            const pageResponse = await fetch(`/api/reviews?${params}`, {
+                                credentials: 'include',
+                                headers: {
+                                    'Accept': 'application/json',
+                                    'Content-Type': 'application/json'
+                                }
+                            });
+                            const pageResult = await pageResponse.json();
+                            
+                            if (pageResult.success && pageResult.data && pageResult.data.data) {
+                                allReviews = allReviews.concat(pageResult.data.data);
+                                
+                                // Verificar se há mais páginas
+                                const totalPages = pageResult.data.last_page || 1;
+                                hasMore = currentPage < totalPages;
+                                currentPage++;
+                            } else {
+                                hasMore = false;
+                            }
+                        }
+                        
+                        this.allReviews = allReviews;
+                        this.updateChartsWithRealData(allReviews);
+                        return allReviews;
+                    }
+                } catch (error) {
+                    console.error('Erro ao carregar todos os reviews para o gráfico:', error);
+                    return [];
+                }
+            }
+            
             async loadReviews() {
                 try {
                     this.showLoading();
@@ -808,11 +887,23 @@
                         page: this.currentPage
                     });
                     
-                    if (this.filters.company_id) params.set('company_id', this.filters.company_id);
-                    if (this.filters.user_id) params.set('user_id', this.filters.user_id);
-                    if (this.filters.type) params.set('type', this.filters.type);
-                    if (this.filters.rating) params.set('rating', this.filters.rating);
-                    if (this.filters.date) params.set('date', this.filters.date);
+                    // Só adicionar filtros se tiverem valores (não vazios)
+                    // Quando não há filtros, o backend retorna todos os reviews de todas as empresas
+                    if (this.filters.company_id && this.filters.company_id !== '' && this.filters.company_id !== 'all') {
+                        params.set('company_id', this.filters.company_id);
+                    }
+                    if (this.filters.user_id && this.filters.user_id !== '' && this.filters.user_id !== 'all') {
+                        params.set('user_id', this.filters.user_id);
+                    }
+                    if (this.filters.type && this.filters.type !== '' && this.filters.type !== 'all') {
+                        params.set('type', this.filters.type);
+                    }
+                    if (this.filters.rating && this.filters.rating !== '' && this.filters.rating !== 'all') {
+                        params.set('rating', this.filters.rating);
+                    }
+                    if (this.filters.date && this.filters.date !== '' && this.filters.date !== 'all') {
+                        params.set('date', this.filters.date);
+                    }
                     
                     const response = await fetch(`/api/reviews?${params}`, {
                         credentials: 'include',
@@ -826,11 +917,12 @@
                     if (result.success) {
                         // Store all reviews for chart updates - result.data is paginated, result.data.data has the reviews
                         const reviews = result.data.data || result.data;
-                        this.allReviews = reviews;
                         
                         this.displayReviews(result.data);
                         this.updateCompanyPerformanceTable(result.data);
-                        this.updateChartsWithRealData(reviews);
+                        
+                        // Carregar todos os reviews para o gráfico (sem paginação)
+                        this.loadAllReviewsForChart();
                     } else {
                         this.showError('Erro ao carregar avaliações');
                     }
@@ -1201,7 +1293,14 @@
             
             changeChartPeriod(period) {
                 this.chartPeriod = period;
-                this.updateReviewsOverTimeChart(this.allReviews);
+                // Recarregar todos os reviews para garantir que o gráfico tenha todos os dados
+                if (this.allReviews.length === 0) {
+                    this.loadAllReviewsForChart().then(() => {
+                        this.updateReviewsOverTimeChart(this.allReviews);
+                    });
+                } else {
+                    this.updateReviewsOverTimeChart(this.allReviews);
+                }
             }
             
             displayReviews(data) {
@@ -1391,12 +1490,19 @@
             }
             
             applyFilters() {
+                // Obter valores dos filtros e normalizar (tratar strings vazias e 'all' como sem filtro)
+                const companyId = document.getElementById('companyFilter').value;
+                const userId = document.getElementById('userFilter') ? document.getElementById('userFilter').value : '';
+                const type = document.getElementById('typeFilter').value;
+                const rating = document.getElementById('ratingFilter').value;
+                const date = document.getElementById('dateFilter').value;
+                
                 this.filters = {
-                    company_id: document.getElementById('companyFilter').value,
-                    user_id: document.getElementById('userFilter') ? document.getElementById('userFilter').value : '',
-                    type: document.getElementById('typeFilter').value,
-                    rating: document.getElementById('ratingFilter').value,
-                    date: document.getElementById('dateFilter').value
+                    company_id: (companyId && companyId !== '' && companyId !== 'all') ? companyId : '',
+                    user_id: (userId && userId !== '' && userId !== 'all') ? userId : '',
+                    type: (type && type !== '' && type !== 'all') ? type : '',
+                    rating: (rating && rating !== '' && rating !== 'all') ? rating : '',
+                    date: (date && date !== '' && date !== 'all') ? date : ''
                 };
                 
                 this.currentPage = 1;

@@ -198,7 +198,9 @@ class ReviewController extends Controller
             // Sort by created_at desc
             $query->orderBy('created_at', 'desc');
 
-            $reviews = $query->paginate(20);
+            // Allow custom per_page for charts (load all reviews)
+            $perPage = $request->get('per_page', 20);
+            $reviews = $query->paginate($perPage);
 
             Log::info('Reviews carregadas', ['total' => $reviews->total(), 'count' => $reviews->count()]);
 

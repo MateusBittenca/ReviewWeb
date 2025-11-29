@@ -42,7 +42,7 @@ Funcionalidades:
 
 Características:
 - Seletor dropdown bonito
-- Bandas dos países (🇧🇷 🇺🇸)
+- Bandas dos países (🇧🇷 🇬🇧)
 - Troca automática ao selecionar
 - Recarrega página com novo idioma
 - Mantém seleção na sessão
@@ -131,7 +131,7 @@ O seletor de idioma aparece no header:
 
 Opções:
 - 🇧🇷 Português
-- 🇺🇸 English
+- 🇬🇧 English
 
 ---
 

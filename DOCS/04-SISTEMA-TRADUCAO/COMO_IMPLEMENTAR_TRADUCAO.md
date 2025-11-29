@@ -164,7 +164,7 @@ Adicione um selector de idioma no header:
 ```html
 <select id="languageSelector" class="text-sm border rounded px-2 py-1">
     <option value="pt_BR" {{ session('locale') == 'pt_BR' ? 'selected' : '' }}>🇧🇷 Português</option>
-    <option value="en_US" {{ session('locale') == 'en_US' ? 'selected' : '' }}>🇺🇸 English</option>
+    <option value="en_US" {{ session('locale') == 'en_US' ? 'selected' : '' }}>🇬🇧 English</option>
 </select>
 ```
 
