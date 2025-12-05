@@ -436,10 +436,10 @@
             <i id="darkModeIcon" class="fas fa-moon"></i>
         </button>
         <div style="position: relative;">
-            <select id="languageSelector">
-                <option value="pt_BR" {{ app()->getLocale() === 'pt_BR' ? 'selected' : '' }}>🇧🇷 PT</option>
-                <option value="en_US" {{ app()->getLocale() === 'en_US' ? 'selected' : '' }}>🇬🇧 EN</option>
-            </select>
+        <select id="languageSelector">
+            <option value="pt_BR" {{ app()->getLocale() === 'pt_BR' ? 'selected' : '' }}>🇧🇷 PT</option>
+            <option value="en_US" {{ app()->getLocale() === 'en_US' ? 'selected' : '' }}>🇬🇧 EN</option>
+        </select>
         </div>
     </div>
     

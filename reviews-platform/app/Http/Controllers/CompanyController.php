@@ -703,58 +703,18 @@ class CompanyController extends Controller
      */
     private function compressAndStoreImage($file, $folder, $maxWidth, $maxHeight, $quality = 85)
     {
+        // Ambiente de produção (Railway) estava apresentando problemas com bibliotecas de imagem
+        // (Intervention Image / GD), resultando em arquivos em branco ou não legíveis.
+        // Para garantir confiabilidade, vamos simplificar e apenas armazenar o arquivo original
+        // no disco "public", sem tentativa de compressão. O caminho salvo continua igual.
+
         try {
-            // Check if Intervention Image is available and working
-            if (class_exists('Intervention\Image\Facades\Image')) {
-                try {
-                    $image = Image::make($file);
-                } catch (\Exception $e) {
-                    \Log::warning('Intervention Image failed, falling back: ' . $e->getMessage());
-                    // Fall through to GD or direct storage
-                    return $this->compressWithGD($file, $folder, $maxWidth, $maxHeight, $quality);
-                }
-                
-                // Resize maintaining aspect ratio
-                // Only resize if image is larger than max dimensions
-                $currentWidth = $image->width();
-                $currentHeight = $image->height();
-                
-                if ($currentWidth > $maxWidth || $currentHeight > $maxHeight) {
-                    // Image is larger than max - resize it down
-                    $image->resize($maxWidth, $maxHeight, function ($constraint) {
-                        $constraint->aspectRatio();
-                        $constraint->upsize(); // Don't upsize smaller images
-                    });
-                }
-                // If image is smaller, keep original size
-                
-                // Convert to RGB if needed (for better compression)
-                if ($image->mime() === 'image/png') {
-                    $image->encode('jpg', $quality);
-                    $extension = 'jpg';
-                } else {
-                    $image->encode($file->getClientOriginalExtension(), $quality);
-                    $extension = $file->getClientOriginalExtension();
-                }
-                
-                // Generate unique filename
-                $filename = uniqid($folder . '_') . '.' . $extension;
-                $path = $folder . '/' . $filename;
-                
-                // Store compressed image
-                Storage::disk('public')->put($path, (string) $image);
-                
-                return $path;
-            } else {
-                // Fallback: use GD library if Intervention Image is not available
-                return $this->compressWithGD($file, $folder, $maxWidth, $maxHeight, $quality);
-            }
-        } catch (\Exception $e) {
-            \Log::error('Error compressing image: ' . $e->getMessage());
-            // Fallback to original storage method
             $storedPath = $file->store($folder, 'public');
-            // Garantir que o caminho não tenha o prefixo do disco
+            // Remover prefixo "public/" se existir
             return str_replace('public/', '', $storedPath);
+        } catch (\Exception $e) {
+            \Log::error('Error storing image: ' . $e->getMessage());
+            throw $e;
         }
     }
 

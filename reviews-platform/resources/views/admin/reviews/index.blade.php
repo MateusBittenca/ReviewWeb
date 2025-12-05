@@ -1300,7 +1300,7 @@
                         this.updateReviewsOverTimeChart(this.allReviews);
                     });
                 } else {
-                    this.updateReviewsOverTimeChart(this.allReviews);
+                this.updateReviewsOverTimeChart(this.allReviews);
                 }
             }
             
@@ -1642,7 +1642,7 @@
                     setTimeout(() => {
                         // Verificar se o link ainda está sendo usado antes de revogar
                         try {
-                            window.URL.revokeObjectURL(url);
+                    window.URL.revokeObjectURL(url);
                         } catch (e) {
                             console.warn('Erro ao revogar URL:', e);
                         }
