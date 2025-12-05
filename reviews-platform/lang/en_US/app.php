@@ -1,7 +1,7 @@
 <?php
 
 return [
-    'name' => 'Reviews Platform',
+    'name' => 'Review & Win',
     'subtitle' => 'Reviews System',
     'dashboard' => 'Dashboard',
     'companies' => 'Companies',
@@ -19,7 +19,7 @@ return [
     'logout' => 'Logout',
     'login' => 'Login',
     'welcome' => 'Welcome',
-    'name' => 'Name',
+    'field_name' => 'Name',
     'email' => 'Email',
     'password' => 'Password',
     'remember' => 'Remember me',

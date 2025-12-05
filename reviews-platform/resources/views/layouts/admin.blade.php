@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'Reviews Platform')</title>
+    <title>@yield('title', __('app.name'))</title>
     
     <!-- Prevent Dark Mode Flash -->
     <script>
@@ -1090,9 +1090,12 @@
         <!-- Sidebar -->
         <div id="sidebar" class="fixed lg:static inset-y-0 left-0 z-50 w-64 sidebar-gradient border-r border-gray-200 flex flex-col transform transition-transform duration-300 ease-in-out sidebar-mobile-hidden lg:translate-x-0 lg:z-auto">
             <!-- Logo -->
-            <div class="p-4 border-b border-gray-200 relative flex items-center justify-center">
-                <div class="w-full max-w-[120px] aspect-square flex items-center justify-center">
+            <div class="p-4 border-b border-gray-200 relative flex items-center justify-center gap-3">
+                <div class="flex-shrink-0 w-12 h-12 flex items-center justify-center">
                     <img src="{{ asset('assets/images/lopgosDASHBOARD.png') }}" alt="{{ __('app.name') }}" class="w-full h-full object-contain logo-no-bg">
+                </div>
+                <div class="flex-1 min-w-0">
+                    <span class="text-gray-800 dark:text-white font-bold text-lg truncate block">{{ __('app.name') }}</span>
                 </div>
                 <!-- Close button for mobile -->
                 <button 

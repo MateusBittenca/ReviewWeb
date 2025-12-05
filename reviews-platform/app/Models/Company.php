@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
 
 class Company extends Model
 {
@@ -111,13 +112,19 @@ class Company extends Model
 
     public function getBackgroundImageUrlAttribute()
     {
-        if (!$this->background_image) {
+        // Verificar se background_image é null, vazio ou string "null"
+        if (!$this->background_image || $this->background_image === '' || $this->background_image === 'null') {
             return null;
         }
         
         // Limpar o caminho se tiver barras duplas ou prefixos desnecessários
         $bgPath = ltrim($this->background_image, '/');
         $bgPath = str_replace('storage/', '', $bgPath);
+        
+        // Verificar se o arquivo realmente existe antes de retornar a URL
+        if (!Storage::disk('public')->exists($bgPath)) {
+            return null;
+        }
         
         // Retorna URL usando asset() que é mais confiável
         return asset('storage/' . $bgPath);

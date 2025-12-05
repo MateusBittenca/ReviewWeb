@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', __('reviews.title') . ' - Reviews Platform')
+@section('title', __('reviews.title') . ' - ' . __('app.name'))
 
 @section('page-title', __('reviews.dashboard_title'))
 @section('page-description', __('reviews.dashboard_description'))
@@ -1623,19 +1623,22 @@
                     
                     const csvContent = BOM + csvRows.join('\r\n');
                     
-                    // Usar charset correto e BOM - usar Excel CSV MIME type para melhor compatibilidade
+                    // Criar blob com MIME type correto para CSV
                     const blob = new Blob([csvContent], { 
-                        type: 'application/vnd.ms-excel;charset=utf-8;' 
+                        type: 'text/csv;charset=utf-8;' 
                     });
                     
                     const url = window.URL.createObjectURL(blob);
                     const a = document.createElement('a');
                     a.href = url;
                     a.download = `contatos_${result.data.company.replace(/[^a-zA-Z0-9]/g, '_')}_${new Date().toISOString().split('T')[0]}.csv`;
+                    // Permitir preview abrindo em nova aba
+                    a.target = '_blank';
                     document.body.appendChild(a);
                     a.click();
                     document.body.removeChild(a);
-                    window.URL.revokeObjectURL(url);
+                    // Não revogar imediatamente para permitir preview
+                    setTimeout(() => window.URL.revokeObjectURL(url), 100);
                     
                     showNotification(`Arquivo exportado com sucesso! ${result.data.contacts.length} contato(s).`, 'success');
                 } else {
@@ -1714,8 +1717,8 @@
                 
                 const csvContent = BOM + csvRows.join('\r\n');
                 
-                // Criar e baixar arquivo - usar Excel CSV MIME type para melhor compatibilidade
-                const blob = new Blob([csvContent], { type: 'application/vnd.ms-excel;charset=utf-8;' });
+                // Criar e baixar arquivo - usar CSV MIME type correto
+                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
                 const url = window.URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;

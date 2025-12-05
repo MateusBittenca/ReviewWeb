@@ -1,7 +1,7 @@
 <?php
 
 return [
-    'name' => 'Reviews Platform',
+    'name' => 'Avalie $ Ganhe',
     'subtitle' => 'Sistema de Avaliações',
     'dashboard' => 'Dashboard',
     'companies' => 'Empresas',
@@ -19,7 +19,7 @@ return [
     'logout' => 'Sair',
     'login' => 'Entrar',
     'welcome' => 'Bem-vindo',
-    'name' => 'Nome',
+    'field_name' => 'Nome',
     'email' => 'Email',
     'password' => 'Senha',
     'remember' => 'Lembrar-me',

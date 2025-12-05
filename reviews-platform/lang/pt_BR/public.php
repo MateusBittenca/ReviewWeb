@@ -80,7 +80,7 @@ return [
     'please_wait' => 'Aguarde...',
     
     // Footer
-    'powered_by' => 'Powered by Reviews Platform',
+    'powered_by' => 'Desenvolvido por Avalie $ Ganhe',
     
     // Prize Banner
     'prize_amount' => 'R$ 10.000 em Prêmios!',

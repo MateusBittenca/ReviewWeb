@@ -95,8 +95,21 @@ class CompanyController extends Controller
 
     public function create()
     {
-        // Usuários agora podem criar quantas empresas quiserem
-        return view('companies-create');
+        $user = auth()->user();
+        $users = null;
+        
+        // Se for proprietário ou admin, carregar lista de usuários para atribuição
+        if (in_array($user->role, ['proprietario', 'admin'])) {
+            if ($user->role === 'proprietario') {
+                // Proprietário pode atribuir a qualquer usuário
+                $users = \App\Models\User::orderBy('name')->get();
+            } else {
+                // Admin pode atribuir apenas a usuários comuns
+                $users = \App\Models\User::where('role', 'user')->orderBy('name')->get();
+            }
+        }
+        
+        return view('companies-create', compact('users'));
     }
 
     public function store(Request $request)
@@ -164,8 +177,27 @@ class CompanyController extends Controller
             unset($data['google_business_url']); // Remove se for null ou vazio
         }
         
-        // Adicionar user_id automaticamente
-        $data['user_id'] = $user->id;
+        // Adicionar user_id - permitir atribuição se for proprietário ou admin
+        if (in_array($user->role, ['proprietario', 'admin']) && $request->has('assigned_user_id') && $request->assigned_user_id) {
+            $assignedUserId = $request->input('assigned_user_id');
+            
+            // Validar se o usuário pode atribuir a este usuário
+            if ($user->role === 'proprietario') {
+                // Proprietário pode atribuir a qualquer usuário
+                $data['user_id'] = $assignedUserId;
+            } elseif ($user->role === 'admin') {
+                // Admin só pode atribuir a usuários comuns
+                $assignedUser = \App\Models\User::find($assignedUserId);
+                if ($assignedUser && $assignedUser->role === 'user') {
+                    $data['user_id'] = $assignedUserId;
+                } else {
+                    $data['user_id'] = $user->id; // Fallback para o próprio admin
+                }
+            }
+        } else {
+            // Usuário comum ou sem atribuição específica - usar o próprio usuário
+            $data['user_id'] = $user->id;
+        }
         
         // Handle file uploads with compression
         if ($request->hasFile('logo')) {
@@ -216,9 +248,10 @@ class CompanyController extends Controller
             ]);
             \Log::info('Review page criada', ['review_page_id' => $reviewPage->id]);
 
-            \Log::info('Redirecionando para página pública', ['token' => $company->token]);
-            return redirect()->route('public.review-page', ['token' => $company->token])
-                ->with('success', 'Empresa ativada com sucesso! Sua página pública está pronta!');
+            \Log::info('Empresa publicada com sucesso', ['token' => $company->token]);
+            return redirect()->route('companies.edit', ['id' => $company->id])
+                ->with('success', 'Empresa ativada com sucesso! Sua página pública está pronta!')
+                ->with('open_review_page', $company->public_url);
         } else {
             // Para rascunhos, redirecionar para página de edição
             \Log::info('Redirecionando para página de edição', ['company_id' => $company->id]);
@@ -309,14 +342,14 @@ class CompanyController extends Controller
         $oldBackground = $company->background_image;
         
         // Processar arquivos ANTES de filtrar campos vazios
-        // Handle file uploads - Logo with compression
-        \Log::info('Checking for logo file', [
-            'hasFile' => $request->hasFile('logo'),
-            'hasLogoInput' => $request->has('logo'),
-            'allFiles' => array_keys($request->allFiles())
-        ]);
-        
-        if ($request->hasFile('logo')) {
+        // Handle logo removal or upload
+        if ($request->has('remove_logo') && $request->input('remove_logo') == '1') {
+            // Remover logo
+            if ($oldLogo && Storage::disk('public')->exists($oldLogo)) {
+                Storage::disk('public')->delete($oldLogo);
+            }
+            $data['logo'] = null;
+        } elseif ($request->hasFile('logo')) {
             $logoFile = $request->file('logo');
             \Log::info('Logo file received', [
                 'originalName' => $logoFile->getClientOriginalName(),
@@ -356,8 +389,14 @@ class CompanyController extends Controller
             unset($data['logo']);
         }
         
-        // Handle file uploads - Background Image with compression
-        if ($request->hasFile('background_image')) {
+        // Handle background removal or upload
+        if ($request->has('remove_background') && $request->input('remove_background') == '1') {
+            // Remover background
+            if ($oldBackground && Storage::disk('public')->exists($oldBackground)) {
+                Storage::disk('public')->delete($oldBackground);
+            }
+            $data['background_image'] = null;
+        } elseif ($request->hasFile('background_image')) {
             // Deletar background antigo se existir
             if ($oldBackground && Storage::disk('public')->exists($oldBackground)) {
                 Storage::disk('public')->delete($oldBackground);
@@ -382,8 +421,12 @@ class CompanyController extends Controller
         if ($logoPath !== null) {
             $data['logo'] = $logoPath;
         }
+        // Se backgroundPath for null (removido), garantir que seja null e não string vazia
         if ($backgroundPath !== null) {
             $data['background_image'] = $backgroundPath;
+        } elseif ($request->has('remove_background') && $request->input('remove_background') == '1') {
+            // Garantir que seja null quando removido, não string vazia
+            $data['background_image'] = null;
         }
         
         // Para draft na edição, se campos obrigatórios não vierem, manter os existentes
@@ -416,19 +459,44 @@ class CompanyController extends Controller
         unset($data['logo_cropped']); // Este campo é processado separadamente
         unset($data['_token']);
 
-        // Definir status
-        $data['status'] = $isDraft ? 'draft' : 'published';
-        
-        // Se for rascunho, automaticamente definir como não visível (sempre)
+        // Definir status - preservar status atual se empresa já está publicada
         if ($isDraft) {
-            $data['is_active'] = false;
-        } else {
-            // Se for publicado, por padrão definir como visível
-            // Se vier is_active do request, usar o valor do request
-            if (!isset($request->is_active)) {
-                $data['is_active'] = true;
+            // Se explicitamente marcado como draft, definir como draft
+            // Mas só mudar para draft se realmente quiser (não preservar se já está publicado)
+            // Se a empresa já está publicada e usuário clicou em SAVE, preservar status
+            if ($company->status === 'published' && !$request->has('force_draft')) {
+                // Preservar status publicado mesmo se save_as_draft foi enviado
+                $data['status'] = 'published';
+                // Preservar is_active atual
+                if (!isset($request->is_active)) {
+                    $data['is_active'] = $company->is_active;
+                } else {
+                    $data['is_active'] = $request->boolean('is_active');
+                }
             } else {
-                $data['is_active'] = $request->boolean('is_active');
+                // Mudar para draft apenas se realmente quiser ou se estava como draft
+                $data['status'] = 'draft';
+                $data['is_active'] = false;
+            }
+        } else {
+            // Se não for draft (botão ACTIVATE foi clicado ou não há save_as_draft)
+            // Se a empresa já está publicada, preservar status publicado
+            if ($company->status === 'published') {
+                $data['status'] = 'published';
+                // Preservar is_active atual se não foi especificado no request
+                if (!isset($request->is_active)) {
+                    $data['is_active'] = $company->is_active;
+                } else {
+                    $data['is_active'] = $request->boolean('is_active');
+                }
+            } else {
+                // Se estava como draft e não foi marcado como draft, publicar
+                $data['status'] = 'published';
+                if (!isset($request->is_active)) {
+                    $data['is_active'] = true;
+                } else {
+                    $data['is_active'] = $request->boolean('is_active');
+                }
             }
         }
 
@@ -465,9 +533,10 @@ class CompanyController extends Controller
                 \Log::info('Review page criada', ['review_page_id' => $reviewPage->id]);
             }
 
-            \Log::info('Redirecionando para página pública', ['token' => $company->token]);
-            return redirect()->route('public.review-page', ['token' => $company->token])
-                ->with('success', 'Empresa ativada com sucesso! Sua página pública está pronta!');
+            \Log::info('Empresa publicada com sucesso', ['token' => $company->token]);
+            return redirect()->route('companies.edit', ['id' => $company->id])
+                ->with('success', 'Empresa ativada com sucesso! Sua página pública está pronta!')
+                ->with('open_review_page', $company->public_url);
         } else {
             // Para rascunhos, redirecionar para página de edição
             \Log::info('Redirecionando para página de edição', ['company_id' => $company->id]);

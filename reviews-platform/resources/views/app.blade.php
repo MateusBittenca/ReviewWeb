@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Reviews Platform - {{ __('landing.hero_title') }}</title>
+    <title>{{ __('app.name') }} - {{ __('landing.hero_title') }}</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -891,8 +891,8 @@
     <header class="header">
         <div class="header-content">
             <div class="logo">
-                <img src="{{ asset('assets/images/lopgosDASHBOARD.png') }}" alt="Reviews Platform">
-                <span class="logo-text">Reviews Platform</span>
+                <img src="{{ asset('assets/images/lopgosDASHBOARD.png') }}" alt="{{ __('app.name') }}">
+                <span class="logo-text">{{ __('app.name') }}</span>
             </div>
             <div style="display: flex; align-items: center; gap: 0.75rem;">
                 <div class="language-selector">
@@ -1155,10 +1155,10 @@
             <div class="footer-section">
                 <h4>
                     <i class="fas fa-star"></i>
-                    Reviews Platform
+                    {{ __('app.name') }}
                 </h4>
                 <p>{{ __('landing.footer_description') }}</p>
-                <p style="margin-top: 1rem;">© 2025 Reviews Platform</p>
+                <p style="margin-top: 1rem;">© 2025 {{ __('app.name') }}</p>
                 <p>{{ __('landing.all_rights') }}</p>
             </div>
             <div class="footer-section">

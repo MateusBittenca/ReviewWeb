@@ -14,7 +14,7 @@
         }
         
         .hero-gradient {
-            background: #667eea;
+            background: #667eea; /* Fallback color if image fails to load */
         }
         
         .floating-shapes {
@@ -276,10 +276,12 @@
     </div>
     
     <!-- Hero Section -->
-    <div class="relative overflow-hidden hero-gradient" @if($company->background_image_url) style="background-image: url('{{ $company->background_image_url }}'); background-size: cover; background-position: center;" @endif>
+    <div class="relative overflow-hidden hero-gradient" @if($company->background_image_url) style="background-image: url('{{ $company->background_image_url }}'); background-size: cover; background-position: center;" @else style="background-image: url('{{ asset('assets/images/Backpadrao.jpg') }}'); background-size: cover; background-position: center;" @endif>
         <!-- Overlay para melhorar legibilidade quando há imagem de fundo -->
         @if($company->background_image_url)
         <div class="absolute inset-0 bg-black/30"></div>
+        @else
+        <div class="absolute inset-0 bg-black/20"></div>
         @endif
         
         <div class="floating-shapes">
@@ -292,11 +294,9 @@
             <div class="max-w-4xl mx-auto text-center">
                 <!-- Company Logo/Name Section -->
                 <div class="mb-6 sm:mb-8 fade-in">
-                    @if(isset($company->logo) && $company->logo)
-                        <!-- Logo exists - show much larger logo -->
-                        <div class="inline-flex items-center justify-center p-3 sm:p-4 bg-white/20 backdrop-blur-sm rounded-3xl mb-4 sm:mb-8 shadow-lg" style="min-width: fit-content; min-height: fit-content;">
-                            <img src="{{ $company->logo_url }}" alt="{{ $company->name }}" class="company-logo" loading="lazy" style="max-width: 160px; max-height: 160px; width: auto; height: auto; display: block;" onerror="this.style.display='none';">
-                        </div>
+                    @if($company->logo_url)
+                        <!-- Logo exists - show logo without circle background -->
+                        <img src="{{ $company->logo_url }}" alt="{{ $company->name }}" class="company-logo mx-auto mb-4 sm:mb-8" loading="lazy" style="max-width: 160px; max-height: 160px; width: auto; height: auto; display: block;" onerror="this.style.display='none';">
                         <!-- Company Name below logo -->
                         <h1 class="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4 sm:mb-8 fade-in company-name-large">
                             {{ $company->name ?? 'Nossa Empresa' }}
@@ -310,11 +310,11 @@
                 </div>
                 
                 <!-- Prize Promotion Banner -->
-                <div class="mb-6 sm:mb-8 fade-in pulse-animation">
-                    <div class="inline-block bg-yellow-200 rounded-xl px-6 sm:px-8 py-4 sm:py-5 shadow-lg">
-                        <div class="flex items-center justify-center gap-3 sm:gap-4">
-                            <i class="fas fa-gift text-yellow-700 text-lg sm:text-xl"></i>
-                            <p class="text-base sm:text-lg md:text-xl font-bold text-gray-800">
+                <div class="mb-4 sm:mb-6 fade-in pulse-animation">
+                    <div class="inline-block bg-green-500 rounded-lg px-4 sm:px-5 py-2.5 sm:py-3 shadow-lg">
+                        <div class="flex items-center justify-center gap-2 sm:gap-3">
+                            <i class="fas fa-gift text-white text-sm sm:text-base"></i>
+                            <p class="text-sm sm:text-base font-bold text-white">
                                 {{ __('public.prize_hero_text') }}
                             </p>
                         </div>
@@ -340,7 +340,6 @@
                         <i class="fas fa-star text-3xl sm:text-4xl text-gray-300 cursor-pointer hover:text-yellow-400 transition-colors touch-target" data-rating="4"></i>
                         <i class="fas fa-star text-3xl sm:text-4xl text-gray-300 cursor-pointer hover:text-yellow-400 transition-colors touch-target" data-rating="5"></i>
                     </div>
-                    <p class="text-sm sm:text-base text-gray-600 px-4" id="ratingText">{{ __('public.touch_stars_to_rate') }}</p>
                 </div>
                 
                 <!-- Review Form -->
@@ -396,13 +395,20 @@
                 
                 <!-- Loading State -->
                 <div id="loadingState" class="hidden text-center py-8">
-                    <div class="bg-green-100 border border-green-300 rounded-lg p-4 mb-4">
-                        <h5 class="text-lg font-semibold text-green-800 mb-2">{{ __('public.redirecting_to_google') }}</h5>
-                        <p class="text-green-700 mb-3">{{ __('public.redirecting_google_desc') }}</p>
+                    <div class="bg-green-100 border border-green-300 rounded-lg p-4 mb-4" id="loadingStateContent">
+                        <h5 class="text-lg font-semibold text-green-800 mb-2" id="loadingTitle">{{ __('public.redirecting_to_google') }}</h5>
+                        <p class="text-green-700 mb-3" id="loadingDescription">{{ __('public.redirecting_google_desc') }}</p>
                         <div class="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-2">
                             <i class="fas fa-spinner fa-spin text-green-600 text-2xl"></i>
                         </div>
-                        <p class="text-green-600 text-sm">{{ __('public.redirecting_in_seconds') }}</p>
+                        <p class="text-green-600 text-sm" id="loadingCountdown">{{ __('public.redirecting_in_seconds') }}</p>
+                    </div>
+                    <!-- Generic loading state for negative reviews -->
+                    <div class="bg-blue-100 border border-blue-300 rounded-lg p-4 mb-4 hidden" id="genericLoadingState">
+                        <h5 class="text-lg font-semibold text-blue-800 mb-2">{{ __('public.processing_review') }}</h5>
+                        <div class="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mb-2">
+                            <i class="fas fa-spinner fa-spin text-blue-600 text-2xl"></i>
+                        </div>
                     </div>
                 </div>
                 
@@ -568,7 +574,6 @@
             selectRating(rating) {
                 this.selectedRating = rating;
                 this.highlightStars(rating);
-                this.updateRatingText(rating);
                 document.getElementById('rating').value = rating;
                 
                 // Show submit button when rating is selected
@@ -604,16 +609,7 @@
                 });
             }
             
-            updateRatingText(rating) {
-                const texts = {
-                    1: t.rating_1,
-                    2: t.rating_2,
-                    3: t.rating_3,
-                    4: t.rating_4,
-                    5: t.rating_5
-                };
-                document.getElementById('ratingText').textContent = texts[rating];
-            }
+            // updateRatingText function removed - no text labels below stars
             
             
             bindFormEvents() {
@@ -631,8 +627,18 @@
                 const isNegativeWithComment = !commentSection.classList.contains('hidden') && 
                                              document.getElementById('comment').value.trim() !== '';
                 
-                // Show loading state
-                this.showLoadingState();
+                // Check if this is a negative review (first submission)
+                const rating = parseInt(document.getElementById('rating').value);
+                const isNegativeReview = rating < this.positiveThreshold;
+                
+                // Show appropriate loading state
+                if (isNegativeReview) {
+                    // For negative reviews, always show generic loading (no Google message)
+                    this.showGenericLoadingState();
+                } else {
+                    // Positive review - show normal loading with Google redirect
+                    this.showLoadingState();
+                }
                 
                 try {
                     const response = await fetch('/api/reviews', {
@@ -646,11 +652,15 @@
                     const result = await response.json();
                     
                     if (result.success) {
-                        // If negative review with comment, show simple success
+                        // If negative review with comment, go straight to success (no redirect, no Google message)
                         if (isNegativeWithComment) {
+                            // Hide all loading states immediately
                             document.getElementById('loadingState').classList.add('hidden');
+                            document.getElementById('genericLoadingState').classList.add('hidden');
+                            document.getElementById('loadingStateContent').classList.add('hidden');
                             document.getElementById('commentSection').classList.add('hidden');
                             document.getElementById('submitBtn').classList.add('hidden');
+                            // Show success state directly
                             document.getElementById('successState').classList.remove('hidden');
                             document.getElementById('nextAction').innerHTML = `
                                 <div class="bg-green-50 border border-green-200 rounded-xl p-6">
@@ -675,6 +685,17 @@
             showLoadingState() {
                 document.getElementById('reviewForm').classList.add('hidden');
                 document.getElementById('loadingState').classList.remove('hidden');
+                // Show Google redirect content for positive reviews
+                document.getElementById('loadingStateContent').classList.remove('hidden');
+                document.getElementById('genericLoadingState').classList.add('hidden');
+            }
+            
+            showGenericLoadingState() {
+                document.getElementById('reviewForm').classList.add('hidden');
+                document.getElementById('loadingState').classList.remove('hidden');
+                // Show generic loading for negative reviews (no Google redirect)
+                document.getElementById('loadingStateContent').classList.add('hidden');
+                document.getElementById('genericLoadingState').classList.remove('hidden');
             }
             
             showSuccessState(result) {
@@ -690,6 +711,63 @@
                     googleUrl,
                     resultData: result.data
                 });
+                
+                // For negative reviews, hide ALL loading states immediately and show comment form
+                if (!isPositive) {
+                    // Negative review - hide ALL loading states completely (no redirect message)
+                    const loadingState = document.getElementById('loadingState');
+                    if (loadingState) {
+                        loadingState.classList.add('hidden');
+                    }
+                    const genericLoadingState = document.getElementById('genericLoadingState');
+                    if (genericLoadingState) {
+                        genericLoadingState.classList.add('hidden');
+                    }
+                    const loadingStateContent = document.getElementById('loadingStateContent');
+                    if (loadingStateContent) {
+                        loadingStateContent.classList.add('hidden');
+                    }
+                    
+                    // First, show the form again (it was hidden during loading)
+                    const reviewForm = document.getElementById('reviewForm');
+                    if (reviewForm) {
+                        reviewForm.classList.remove('hidden');
+                    }
+                    
+                    // Hide stars and WhatsApp
+                    const ratingStars = document.getElementById('ratingStars');
+                    if (ratingStars && ratingStars.parentElement) {
+                        ratingStars.parentElement.classList.add('hidden');
+                    }
+                    const whatsappSection = document.getElementById('whatsappSection');
+                    if (whatsappSection) {
+                        whatsappSection.classList.add('hidden');
+                    }
+                    
+                    // Show comment section
+                    const commentSection = document.getElementById('commentSection');
+                    if (commentSection) {
+                        commentSection.classList.remove('hidden');
+                    }
+                    
+                    // Show submit button again with comment
+                    const submitBtn = document.getElementById('submitBtn');
+                    if (submitBtn) {
+                        submitBtn.classList.remove('hidden');
+                        submitBtn.disabled = false;
+                    }
+                    const submitBtnText = document.getElementById('submitBtnText');
+                    if (submitBtnText) {
+                        submitBtnText.textContent = '{{ __('public.send_review') }}';
+                    }
+                    
+                    // Don't show success state yet - wait for comment submission
+                    const successState = document.getElementById('successState');
+                    if (successState) {
+                        successState.classList.add('hidden');
+                    }
+                    return; // Exit early for negative reviews - no redirect message should appear
+                }
                 
                 if (isPositive) {
                     // Positive review - continue showing loading with countdown, then redirect
@@ -762,6 +840,9 @@
                     }
                 } else {
                     // Negative review - hide stars/WhatsApp, show comment box
+                    // Hide loading state completely (no redirect message)
+                    document.getElementById('loadingState').classList.add('hidden');
+                    
                     // First, show the form again (it was hidden during loading)
                     document.getElementById('reviewForm').classList.remove('hidden');
                     
@@ -781,7 +862,6 @@
                     
                     // Don't show success state yet - wait for comment submission
                     document.getElementById('successState').classList.add('hidden');
-                    document.getElementById('loadingState').classList.add('hidden');
                 }
             }
             

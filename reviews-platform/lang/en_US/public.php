@@ -80,7 +80,7 @@ return [
     'please_wait' => 'Please wait...',
     
     // Footer
-    'powered_by' => 'Powered by Reviews Platform',
+    'powered_by' => 'Powered by Review & Win',
     
     // Prize Banner
     'prize_amount' => 'R$ 10,000 in Prizes!',

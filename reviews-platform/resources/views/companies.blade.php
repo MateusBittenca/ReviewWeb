@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', __('companies.title') . ' - Reviews Platform')
+@section('title', __('companies.title') . ' - ' . __('app.name'))
 
 @section('page-title', __('companies.title'))
 @section('page-description', __('dashboard.companies_count') . ' • ' . $companies->where('status', 'published')->count() . ' ' . __('companies.count_active') . ' • ' . $companies->where('status', 'draft')->count() . ' ' . __('companies.count_draft'))
