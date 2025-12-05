@@ -202,6 +202,12 @@ Este guia apresenta as melhores opções de hospedagem para hospedar o sistema R
 2. Escolha o repositório do projeto
 3. Railway detecta automaticamente o Laravel
 
+⚠️ **IMPORTANTE - Configurar Root Directory:**
+1. Após conectar o repositório, vá em **Settings** → **Service**
+2. Em **Root Directory**, digite: `reviews-platform`
+3. Clique em **Save**
+4. Isso é necessário porque o projeto Laravel está dentro de um subdiretório
+
 ### Passo 3: Adicionar Banco de Dados
 1. Clique em "New" → "Database" → "MySQL"
 2. Railway cria automaticamente o banco

@@ -1,0 +1,23 @@
+{
+    "name": "reviews-platform/root",
+    "description": "Root directory for Railway deployment - Laravel app is in reviews-platform/",
+    "type": "project",
+    "require": {
+        "php": "^8.2.0"
+    },
+    "scripts": {
+        "post-install-cmd": [
+            "cd reviews-platform && composer install --no-dev --optimize-autoloader",
+            "cd reviews-platform && npm install",
+            "cd reviews-platform && npm run build"
+        ]
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "preferred-install": "dist",
+        "sort-packages": true
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}
+

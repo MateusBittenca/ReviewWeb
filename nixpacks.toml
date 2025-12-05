@@ -1,0 +1,20 @@
+# Nixpacks configuration for Railway
+# This file tells Nixpacks to build the Laravel app in reviews-platform subdirectory
+
+[providers]
+php = "82"
+node = "18"
+
+[phases.setup]
+nixPkgs = ["php82", "composer", "nodejs-18_x"]
+
+[phases.install]
+cmds = [
+  "cd reviews-platform && composer install --no-dev --optimize-autoloader",
+  "cd reviews-platform && npm install",
+  "cd reviews-platform && npm run build"
+]
+
+[start]
+cmd = "cd reviews-platform && php artisan serve --host=0.0.0.0 --port=$PORT"
+
