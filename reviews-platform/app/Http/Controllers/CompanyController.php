@@ -226,7 +226,7 @@ class CompanyController extends Controller
         } else {
             // Se for publicado, por padrão definir como visível
             // Se vier is_active do request, usar o valor do request
-            if (!isset($request->is_active)) {
+            if (!$request->has('is_active')) {
                 $data['is_active'] = true;
             } else {
                 $data['is_active'] = $request->boolean('is_active');
@@ -468,7 +468,7 @@ class CompanyController extends Controller
                 // Preservar status publicado mesmo se save_as_draft foi enviado
                 $data['status'] = 'published';
                 // Preservar is_active atual
-                if (!isset($request->is_active)) {
+                if (!$request->has('is_active')) {
                     $data['is_active'] = $company->is_active;
                 } else {
                     $data['is_active'] = $request->boolean('is_active');
@@ -484,7 +484,7 @@ class CompanyController extends Controller
             if ($company->status === 'published') {
                 $data['status'] = 'published';
                 // Preservar is_active atual se não foi especificado no request
-                if (!isset($request->is_active)) {
+                if (!$request->has('is_active')) {
                     $data['is_active'] = $company->is_active;
                 } else {
                     $data['is_active'] = $request->boolean('is_active');
@@ -492,7 +492,7 @@ class CompanyController extends Controller
             } else {
                 // Se estava como draft e não foi marcado como draft, publicar
                 $data['status'] = 'published';
-                if (!isset($request->is_active)) {
+                if (!$request->has('is_active')) {
                     $data['is_active'] = true;
                 } else {
                     $data['is_active'] = $request->boolean('is_active');

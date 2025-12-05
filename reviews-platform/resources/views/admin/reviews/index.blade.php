@@ -809,19 +809,20 @@
                     
                     // Só adicionar filtros se tiverem valores (não vazios)
                     // Quando não há filtros, o backend retorna todos os reviews de todas as empresas
-                    if (this.filters.company_id && this.filters.company_id !== '' && this.filters.company_id !== 'all') {
+                    // Usar comparações explícitas para evitar tratar '0' como falsy
+                    if (this.filters.company_id !== '' && this.filters.company_id !== 'all' && this.filters.company_id !== null && this.filters.company_id !== undefined) {
                         params.set('company_id', this.filters.company_id);
                     }
-                    if (this.filters.user_id && this.filters.user_id !== '' && this.filters.user_id !== 'all') {
+                    if (this.filters.user_id !== '' && this.filters.user_id !== 'all' && this.filters.user_id !== null && this.filters.user_id !== undefined) {
                         params.set('user_id', this.filters.user_id);
                     }
-                    if (this.filters.type && this.filters.type !== '' && this.filters.type !== 'all') {
+                    if (this.filters.type !== '' && this.filters.type !== 'all' && this.filters.type !== null && this.filters.type !== undefined) {
                         params.set('type', this.filters.type);
                     }
-                    if (this.filters.rating && this.filters.rating !== '' && this.filters.rating !== 'all') {
+                    if (this.filters.rating !== '' && this.filters.rating !== 'all' && this.filters.rating !== null && this.filters.rating !== undefined) {
                         params.set('rating', this.filters.rating);
                     }
-                    if (this.filters.date && this.filters.date !== '' && this.filters.date !== 'all') {
+                    if (this.filters.date !== '' && this.filters.date !== 'all' && this.filters.date !== null && this.filters.date !== undefined) {
                         params.set('date', this.filters.date);
                     }
                     
@@ -922,7 +923,7 @@
                         this.updateCompanyPerformanceTable(result.data);
                         
                         // Carregar todos os reviews para o gráfico (sem paginação)
-                        this.loadAllReviewsForChart();
+                        await this.loadAllReviewsForChart();
                     } else {
                         this.showError('Erro ao carregar avaliações');
                     }
@@ -1498,11 +1499,11 @@
                 const date = document.getElementById('dateFilter').value;
                 
                 this.filters = {
-                    company_id: (companyId && companyId !== '' && companyId !== 'all') ? companyId : '',
-                    user_id: (userId && userId !== '' && userId !== 'all') ? userId : '',
-                    type: (type && type !== '' && type !== 'all') ? type : '',
-                    rating: (rating && rating !== '' && rating !== 'all') ? rating : '',
-                    date: (date && date !== '' && date !== 'all') ? date : ''
+                    company_id: (companyId !== '' && companyId !== 'all' && companyId !== null && companyId !== undefined) ? companyId : '',
+                    user_id: (userId !== '' && userId !== 'all' && userId !== null && userId !== undefined) ? userId : '',
+                    type: (type !== '' && type !== 'all' && type !== null && type !== undefined) ? type : '',
+                    rating: (rating !== '' && rating !== 'all' && rating !== null && rating !== undefined) ? rating : '',
+                    date: (date !== '' && date !== 'all' && date !== null && date !== undefined) ? date : ''
                 };
                 
                 this.currentPage = 1;
@@ -1637,8 +1638,15 @@
                     document.body.appendChild(a);
                     a.click();
                     document.body.removeChild(a);
-                    // Não revogar imediatamente para permitir preview
-                    setTimeout(() => window.URL.revokeObjectURL(url), 100);
+                    // Não revogar imediatamente para permitir preview - usar timeout maior para garantir download
+                    setTimeout(() => {
+                        // Verificar se o link ainda está sendo usado antes de revogar
+                        try {
+                            window.URL.revokeObjectURL(url);
+                        } catch (e) {
+                            console.warn('Erro ao revogar URL:', e);
+                        }
+                    }, 5000); // 5 segundos para garantir que o download foi iniciado
                     
                     showNotification(`Arquivo exportado com sucesso! ${result.data.contacts.length} contato(s).`, 'success');
                 } else {
