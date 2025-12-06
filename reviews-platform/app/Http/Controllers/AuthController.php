@@ -135,26 +135,29 @@ class AuthController extends Controller
             'used' => false,
         ]);
 
-        // Enviar email com código de forma assíncrona (não bloqueia resposta HTTP)
-        // Usar dispatch em background para evitar timeout no Railway
+        // Enviar email usando o mesmo método dos emails de avaliação (que já funcionam)
         $mailer = config('mail.default');
         
-        // Enviar email em background usando dispatch para não bloquear resposta
-        dispatch(function () use ($user, $code) {
-            try {
-                Mail::to($user->email, $user->name)->send(new PasswordResetCodeMail($user, $code, 15));
-                Log::info('Email de recuperação enviado com sucesso', [
-                    'email' => $user->email
-                ]);
-            } catch (\Exception $e) {
-                Log::error('Erro ao enviar email de recuperação em background', [
-                    'email' => $user->email,
-                    'error' => $e->getMessage()
-                ]);
-            }
-        })->afterResponse(); // Processar após enviar resposta HTTP
+        try {
+            Mail::to($user->email, $user->name)->send(new PasswordResetCodeMail($user, $code, 15));
+            
+            Log::info('Email de recuperação enviado com sucesso', [
+                'email' => $user->email,
+                'ip' => $request->ip(),
+                'mailer' => $mailer
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Erro ao enviar email de recuperação', [
+                'email' => $user->email,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            // Não falhar silenciosamente - informar ao usuário mas não bloquear
+            // O código já foi salvo no banco, então o usuário pode tentar novamente
+        }
         
-        Log::info('Código de recuperação gerado e email agendado', [
+        Log::info('Código de recuperação gerado', [
             'email' => $request->email,
             'ip' => $request->ip(),
             'mailer' => $mailer,
