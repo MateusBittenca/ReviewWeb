@@ -200,7 +200,13 @@ class CompanyController extends Controller
         }
         
         // Handle file uploads with compression
-        if ($request->hasFile('logo')) {
+        // Processar logo_cropped (base64) primeiro, se existir
+        if ($request->has('logo_cropped') && !empty($request->input('logo_cropped'))) {
+            $logoPath = $this->saveBase64Image($request->input('logo_cropped'), 'logos', 800, 800);
+            if ($logoPath) {
+                $data['logo'] = $logoPath;
+            }
+        } elseif ($request->hasFile('logo')) {
             $data['logo'] = $this->compressAndStoreImage($request->file('logo'), 'logos', 800, 800, 85);
         } else {
             unset($data['logo']); // Remove se não houver arquivo
@@ -214,7 +220,7 @@ class CompanyController extends Controller
         
         // Remover campos que não devem ser salvos
         unset($data['save_as_draft']);
-        unset($data['logo_cropped']); // Este campo é processado separadamente
+        unset($data['logo_cropped']); // Já foi processado acima
         unset($data['_token']);
 
         // Definir status
@@ -349,6 +355,33 @@ class CompanyController extends Controller
                 Storage::disk('public')->delete($oldLogo);
             }
             $data['logo'] = null;
+        } elseif ($request->has('logo_cropped') && !empty($request->input('logo_cropped'))) {
+            // Processar logo_cropped (base64) primeiro, se existir
+            // Deletar logo antiga se existir
+            if ($oldLogo && Storage::disk('public')->exists($oldLogo)) {
+                Storage::disk('public')->delete($oldLogo);
+            }
+            
+            try {
+                $logoPath = $this->saveBase64Image($request->input('logo_cropped'), 'logos', 800, 800);
+                if ($logoPath) {
+                    \Log::info('Logo from crop saved', [
+                        'path' => $logoPath, 
+                        'file_exists' => Storage::disk('public')->exists($logoPath)
+                    ]);
+                    $data['logo'] = $logoPath;
+                } else {
+                    throw new \Exception('Failed to save cropped logo');
+                }
+            } catch (\Exception $e) {
+                \Log::error('Error processing cropped logo: ' . $e->getMessage());
+                // Se houver erro, manter a logo antiga
+                if ($oldLogo) {
+                    $data['logo'] = $oldLogo;
+                } else {
+                    unset($data['logo']);
+                }
+            }
         } elseif ($request->hasFile('logo')) {
             $logoFile = $request->file('logo');
             \Log::info('Logo file received', [
@@ -715,6 +748,52 @@ class CompanyController extends Controller
         } catch (\Exception $e) {
             \Log::error('Error storing image: ' . $e->getMessage());
             throw $e;
+        }
+    }
+
+    /**
+     * Save base64 image to storage
+     * 
+     * @param string $base64Data
+     * @param string $folder
+     * @param int $maxWidth
+     * @param int $maxHeight
+     * @return string|null
+     */
+    private function saveBase64Image($base64Data, $folder, $maxWidth, $maxHeight)
+    {
+        try {
+            // Remove data URL prefix if present (data:image/png;base64,)
+            if (strpos($base64Data, ',') !== false) {
+                $base64Data = explode(',', $base64Data)[1];
+            }
+            
+            // Decode base64
+            $imageData = base64_decode($base64Data);
+            if ($imageData === false) {
+                \Log::error('Failed to decode base64 image');
+                return null;
+            }
+            
+            // Generate unique filename
+            $filename = uniqid($folder . '_') . '.png';
+            $path = $folder . '/' . $filename;
+            $fullPath = Storage::disk('public')->path($path);
+            
+            // Ensure directory exists
+            $directory = dirname($fullPath);
+            if (!is_dir($directory)) {
+                mkdir($directory, 0755, true);
+            }
+            
+            // Save image
+            file_put_contents($fullPath, $imageData);
+            
+            // Remove prefix "public/" if exists
+            return str_replace('public/', '', $path);
+        } catch (\Exception $e) {
+            \Log::error('Error saving base64 image: ' . $e->getMessage());
+            return null;
         }
     }
 
