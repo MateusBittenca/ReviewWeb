@@ -27,6 +27,14 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 Route::get('/logout', [AuthController::class, 'logout'])->name('logout.get');
 
+// Password Reset routes
+Route::get('/forgot-password', [AuthController::class, 'showForgotPasswordForm'])->name('password.forgot');
+Route::post('/forgot-password', [AuthController::class, 'sendResetCode'])->name('password.send-code');
+Route::get('/reset-password/code', [AuthController::class, 'showResetCodeForm'])->name('password.reset.code');
+Route::post('/reset-password/verify', [AuthController::class, 'verifyResetCode'])->name('password.verify-code');
+Route::get('/reset-password', [AuthController::class, 'showResetPasswordForm'])->name('password.reset');
+Route::post('/reset-password', [AuthController::class, 'resetPassword'])->name('password.reset');
+
 // Create admin user (for initial setup)
 Route::get('/create-admin', [AuthController::class, 'createAdmin']);
 

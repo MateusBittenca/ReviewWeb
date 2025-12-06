@@ -518,6 +518,14 @@
             </button>
         </form>
         
+        <!-- Forgot Password Link -->
+        <div style="text-align: center; margin-top: 1rem;">
+            <a href="{{ route('password.forgot') }}" class="back-link">
+                <i class="fas fa-key"></i>
+                <span>Esqueceu sua senha?</span>
+            </a>
+        </div>
+        
         <!-- Back Link -->
         <div style="text-align: center;">
             <a href="/" class="back-link">
