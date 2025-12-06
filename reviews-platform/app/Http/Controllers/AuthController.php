@@ -137,19 +137,40 @@ class AuthController extends Controller
 
         // Enviar email usando o mesmo método dos emails de avaliação (que já funcionam)
         $mailer = config('mail.default');
+        $mailHost = config('mail.mailers.smtp.host');
+        $mailPort = config('mail.mailers.smtp.port');
+        $mailUsername = config('mail.mailers.smtp.username');
+        $mailFrom = config('mail.from.address');
+        
+        // Log detalhado da configuração (sem senha)
+        Log::info('Tentando enviar email de recuperação', [
+            'email_destino' => $user->email,
+            'mailer' => $mailer,
+            'host' => $mailHost,
+            'port' => $mailPort,
+            'username' => $mailUsername ? 'configurado' : 'NÃO CONFIGURADO',
+            'from' => $mailFrom,
+            'ip' => $request->ip()
+        ]);
         
         try {
             Mail::to($user->email, $user->name)->send(new PasswordResetCodeMail($user, $code, 15));
             
-            Log::info('Email de recuperação enviado com sucesso', [
+            Log::info('✅ Email de recuperação enviado com SUCESSO', [
                 'email' => $user->email,
                 'ip' => $request->ip(),
-                'mailer' => $mailer
+                'mailer' => $mailer,
+                'host' => $mailHost
             ]);
         } catch (\Exception $e) {
-            Log::error('Erro ao enviar email de recuperação', [
+            Log::error('❌ ERRO ao enviar email de recuperação', [
                 'email' => $user->email,
                 'error' => $e->getMessage(),
+                'error_class' => get_class($e),
+                'mailer' => $mailer,
+                'host' => $mailHost,
+                'port' => $mailPort,
+                'username_configured' => !empty($mailUsername),
                 'trace' => $e->getTraceAsString()
             ]);
             
@@ -157,11 +178,12 @@ class AuthController extends Controller
             // O código já foi salvo no banco, então o usuário pode tentar novamente
         }
         
-        Log::info('Código de recuperação gerado', [
+        Log::info('Código de recuperação gerado e processado', [
             'email' => $request->email,
             'ip' => $request->ip(),
             'mailer' => $mailer,
-            'code' => $code
+            'code' => $code,
+            'code_saved' => true
         ]);
 
         // Salvar email na sessão para próxima etapa
