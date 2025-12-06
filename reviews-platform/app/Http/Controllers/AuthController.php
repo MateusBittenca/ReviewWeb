@@ -147,6 +147,12 @@ class AuthController extends Controller
                 'mailer' => $mailer,
                 'code' => $code
             ]);
+            
+            // Se estiver em modo log (desenvolvimento), mostrar código na tela
+            if ($mailer === 'log' || config('app.debug')) {
+                // Salvar código na sessão para mostrar na próxima tela
+                session(['password_reset_code_display' => $code]);
+            }
         } catch (\Exception $e) {
             Log::error('Erro ao enviar email de recuperação', [
                 'email' => $request->email,
@@ -161,7 +167,12 @@ class AuthController extends Controller
         // Salvar email na sessão para próxima etapa
         session(['password_reset_email' => $request->email]);
 
-        return redirect()->route('password.reset.code')->with('success', 'Código de recuperação enviado para seu email!');
+        $message = 'Código de recuperação enviado para seu email!';
+        if ($mailer === 'log' || config('app.debug')) {
+            $message .= ' (Modo desenvolvimento: verifique o código abaixo)';
+        }
+
+        return redirect()->route('password.reset.code')->with('success', $message);
     }
 
     /**
