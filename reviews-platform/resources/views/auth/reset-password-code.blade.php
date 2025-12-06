@@ -184,26 +184,6 @@
             </div>
         @endif
         
-        @if(session('password_reset_code_display'))
-            <div style="background: #fef3c7; border: 2px solid #f59e0b; border-radius: 0.75rem; padding: 1.5rem; margin-bottom: 1.5rem; text-align: center;">
-                <p style="color: #92400e; font-size: 0.875rem; margin-bottom: 0.5rem; font-weight: 600;">
-                    <i class="fas fa-exclamation-triangle"></i> MODO DESENVOLVIMENTO
-                </p>
-                <p style="color: #92400e; font-size: 0.75rem; margin-bottom: 1rem;">
-                    O email está configurado como "log" ou APP_DEBUG=true. Use o código abaixo:
-                </p>
-                <div style="background: white; border: 2px dashed #f59e0b; border-radius: 0.5rem; padding: 1rem;">
-                    <p style="color: #92400e; font-size: 0.75rem; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 1px;">Código de Recuperação</p>
-                    <p style="font-size: 2rem; font-weight: 800; color: #8b5cf6; letter-spacing: 4px; font-family: 'Courier New', monospace; margin: 0;">
-                        {{ session('password_reset_code_display') }}
-                    </p>
-                </div>
-                <p style="color: #92400e; font-size: 0.7rem; margin-top: 1rem;">
-                    Para receber emails reais, configure SMTP no arquivo .env
-                </p>
-            </div>
-        @endif
-        
         @if($errors->any())
             <div class="error-message">
                 <i class="fas fa-exclamation-circle"></i>

@@ -139,11 +139,6 @@ class AuthController extends Controller
         // Usar dispatch em background para evitar timeout no Railway
         $mailer = config('mail.default');
         
-        // Salvar código na sessão para desenvolvimento
-        if ($mailer === 'log' || config('app.debug')) {
-            session(['password_reset_code_display' => $code]);
-        }
-        
         // Enviar email em background usando dispatch para não bloquear resposta
         dispatch(function () use ($user, $code) {
             try {
@@ -169,12 +164,7 @@ class AuthController extends Controller
         // Salvar email na sessão para próxima etapa
         session(['password_reset_email' => $request->email]);
 
-        $message = 'Código de recuperação enviado para seu email!';
-        if ($mailer === 'log' || config('app.debug')) {
-            $message .= ' (Modo desenvolvimento: verifique o código abaixo)';
-        }
-
-        return redirect()->route('password.reset.code')->with('success', $message);
+        return redirect()->route('password.reset.code')->with('success', 'Código de recuperação enviado para seu email!');
     }
 
     /**
