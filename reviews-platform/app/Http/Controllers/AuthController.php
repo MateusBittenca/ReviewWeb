@@ -135,34 +135,36 @@ class AuthController extends Controller
             'used' => false,
         ]);
 
-        // Enviar email com código usando Mailable (igual aos emails de avaliação)
-        try {
-            $mailer = config('mail.default');
-            
-            Mail::to($user->email, $user->name)->send(new PasswordResetCodeMail($user, $code, 15));
-
-            Log::info('Código de recuperação enviado', [
-                'email' => $request->email,
-                'ip' => $request->ip(),
-                'mailer' => $mailer,
-                'code' => $code
-            ]);
-            
-            // Se estiver em modo log (desenvolvimento), mostrar código na tela
-            if ($mailer === 'log' || config('app.debug')) {
-                // Salvar código na sessão para mostrar na próxima tela
-                session(['password_reset_code_display' => $code]);
-            }
-        } catch (\Exception $e) {
-            Log::error('Erro ao enviar email de recuperação', [
-                'email' => $request->email,
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
-            
-            // Não falhar silenciosamente - informar ao usuário
-            return back()->withErrors(['email' => 'Erro ao enviar email. Verifique as configurações de email do sistema.']);
+        // Enviar email com código de forma assíncrona (não bloqueia resposta HTTP)
+        // Usar dispatch em background para evitar timeout no Railway
+        $mailer = config('mail.default');
+        
+        // Salvar código na sessão para desenvolvimento
+        if ($mailer === 'log' || config('app.debug')) {
+            session(['password_reset_code_display' => $code]);
         }
+        
+        // Enviar email em background usando dispatch para não bloquear resposta
+        dispatch(function () use ($user, $code) {
+            try {
+                Mail::to($user->email, $user->name)->send(new PasswordResetCodeMail($user, $code, 15));
+                Log::info('Email de recuperação enviado com sucesso', [
+                    'email' => $user->email
+                ]);
+            } catch (\Exception $e) {
+                Log::error('Erro ao enviar email de recuperação em background', [
+                    'email' => $user->email,
+                    'error' => $e->getMessage()
+                ]);
+            }
+        })->afterResponse(); // Processar após enviar resposta HTTP
+        
+        Log::info('Código de recuperação gerado e email agendado', [
+            'email' => $request->email,
+            'ip' => $request->ip(),
+            'mailer' => $mailer,
+            'code' => $code
+        ]);
 
         // Salvar email na sessão para próxima etapa
         session(['password_reset_email' => $request->email]);
