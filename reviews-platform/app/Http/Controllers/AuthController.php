@@ -135,7 +135,8 @@ class AuthController extends Controller
             'used' => false,
         ]);
 
-        // Enviar email usando o mesmo método dos emails de avaliação (que já funcionam)
+        // Enviar email de forma assíncrona para não bloquear resposta HTTP
+        // Usar register_shutdown_function para processar após enviar resposta
         $mailer = config('mail.default');
         $mailHost = config('mail.mailers.smtp.host');
         $mailPort = config('mail.mailers.smtp.port');
@@ -143,7 +144,7 @@ class AuthController extends Controller
         $mailFrom = config('mail.from.address');
         
         // Log detalhado da configuração (sem senha)
-        Log::info('Tentando enviar email de recuperação', [
+        Log::info('Agendando envio de email de recuperação', [
             'email_destino' => $user->email,
             'mailer' => $mailer,
             'host' => $mailHost,
@@ -153,30 +154,27 @@ class AuthController extends Controller
             'ip' => $request->ip()
         ]);
         
-        try {
-            Mail::to($user->email, $user->name)->send(new PasswordResetCodeMail($user, $code, 15));
-            
-            Log::info('✅ Email de recuperação enviado com SUCESSO', [
-                'email' => $user->email,
-                'ip' => $request->ip(),
-                'mailer' => $mailer,
-                'host' => $mailHost
-            ]);
-        } catch (\Exception $e) {
-            Log::error('❌ ERRO ao enviar email de recuperação', [
-                'email' => $user->email,
-                'error' => $e->getMessage(),
-                'error_class' => get_class($e),
-                'mailer' => $mailer,
-                'host' => $mailHost,
-                'port' => $mailPort,
-                'username_configured' => !empty($mailUsername),
-                'trace' => $e->getTraceAsString()
-            ]);
-            
-            // Não falhar silenciosamente - informar ao usuário mas não bloquear
-            // O código já foi salvo no banco, então o usuário pode tentar novamente
-        }
+        // Enviar email após enviar resposta HTTP (não bloqueia)
+        register_shutdown_function(function () use ($user, $code, $mailer, $mailHost) {
+            try {
+                Mail::to($user->email, $user->name)->send(new PasswordResetCodeMail($user, $code, 15));
+                
+                Log::info('✅ Email de recuperação enviado com SUCESSO', [
+                    'email' => $user->email,
+                    'mailer' => $mailer,
+                    'host' => $mailHost
+                ]);
+            } catch (\Exception $e) {
+                Log::error('❌ ERRO ao enviar email de recuperação', [
+                    'email' => $user->email,
+                    'error' => $e->getMessage(),
+                    'error_class' => get_class($e),
+                    'mailer' => $mailer,
+                    'host' => $mailHost,
+                    'trace' => $e->getTraceAsString()
+                ]);
+            }
+        });
         
         Log::info('Código de recuperação gerado e processado', [
             'email' => $request->email,
