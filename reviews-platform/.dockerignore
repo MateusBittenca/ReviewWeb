@@ -1,20 +1,31 @@
 # Docker Ignore File
+# Secrets e arquivos sensíveis - NUNCA copiar para imagem
+.env
+.env.*
+!.env.example
+
+# Dependências (serão instaladas no build)
 node_modules
-npm-debug.log
+vendor
+
+# Arquivos de desenvolvimento
 .git
 .gitignore
-README.md
-.env.example
 .nyc_output
 coverage
 .vscode
 .idea
 *.log
+npm-debug.log
+README.md
+
+# Cache e temporários
 storage/logs/*
 storage/framework/cache/*
 storage/framework/sessions/*
 storage/framework/views/*
 bootstrap/cache/*
-vendor
+
+# Arquivos do sistema
 .DS_Store
 Thumbs.db
