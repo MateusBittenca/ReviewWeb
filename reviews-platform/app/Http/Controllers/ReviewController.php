@@ -7,6 +7,7 @@ use App\Models\Company;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\View;
 use App\Mail\NewReviewNotification;
 use App\Mail\NegativeReviewAlert;
 
@@ -102,27 +103,87 @@ class ReviewController extends Controller
     private function sendEmailNotification($company, $review)
     {
         try {
+            // Try SMTP first
             if ($review->is_positive) {
-                // Send positive review notification
                 Mail::to($company->negative_email)->send(new NewReviewNotification($company, $review));
-                Log::info('Email de avaliação positiva enviado', [
+                Log::info('Email de avaliação positiva enviado via SMTP', [
                     'company_id' => $company->id,
                     'review_id' => $review->id
                 ]);
             } else {
-                // Send negative review alert
                 Mail::to($company->negative_email)->send(new NegativeReviewAlert($company, $review));
-                Log::info('Email de avaliação negativa enviado', [
+                Log::info('Email de avaliação negativa enviado via SMTP', [
                     'company_id' => $company->id,
                     'review_id' => $review->id
                 ]);
             }
         } catch (\Exception $e) {
-            Log::error('Erro ao enviar email', [
-                'message' => $e->getMessage(),
+            // If SMTP fails, try SendGrid API directly
+            Log::warning('SMTP falhou, tentando API do SendGrid', [
+                'error' => $e->getMessage(),
                 'company_id' => $company->id,
                 'review_id' => $review->id
             ]);
+            
+            try {
+                $this->sendViaSendGridAPI($company, $review);
+            } catch (\Exception $apiError) {
+                Log::error('Erro ao enviar email (SMTP e API falharam)', [
+                    'smtp_error' => $e->getMessage(),
+                    'api_error' => $apiError->getMessage(),
+                    'company_id' => $company->id,
+                    'review_id' => $review->id
+                ]);
+            }
+        }
+    }
+
+    /**
+     * Send email using SendGrid API directly (fallback when SMTP is blocked)
+     */
+    private function sendViaSendGridAPI($company, $review)
+    {
+        $apiKey = env('SENDGRID_API_KEY');
+        
+        if (!$apiKey) {
+            throw new \Exception('SENDGRID_API_KEY não configurada');
+        }
+
+        // Determine email type and get content
+        if ($review->is_positive) {
+            $subject = 'Nova Avaliação Positiva - ' . $company->name;
+            $view = 'emails.new-review';
+        } else {
+            $subject = '🚨 ALERTA: Avaliação Negativa - ' . $company->name;
+            $view = 'emails.negative-review-alert';
+        }
+
+        // Render email HTML
+        $htmlContent = View::make($view, [
+            'company' => $company,
+            'review' => $review,
+            'isPositive' => $review->is_positive
+        ])->render();
+
+        // Send via SendGrid API
+        $email = new \SendGrid\Mail\Mail();
+        $email->setFrom(env('MAIL_FROM_ADDRESS', 'iagovventura@gmail.com'), env('MAIL_FROM_NAME', 'Avalie e Ganhe'));
+        $email->setSubject($subject);
+        $email->addTo($company->negative_email);
+        $email->addContent("text/html", $htmlContent);
+
+        $sendgrid = new \SendGrid($apiKey);
+        $response = $sendgrid->send($email);
+
+        if ($response->statusCode() >= 200 && $response->statusCode() < 300) {
+            Log::info('Email enviado com sucesso via SendGrid API', [
+                'company_id' => $company->id,
+                'review_id' => $review->id,
+                'status_code' => $response->statusCode(),
+                'is_positive' => $review->is_positive
+            ]);
+        } else {
+            throw new \Exception('SendGrid API retornou status: ' . $response->statusCode());
         }
     }
 
