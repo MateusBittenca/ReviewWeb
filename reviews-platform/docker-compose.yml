@@ -1,4 +1,14 @@
 # Docker Compose para Desenvolvimento em Equipe
+# 
+# NOTA DE SEGURANÇA:
+# Este arquivo contém valores hardcoded APENAS para desenvolvimento local.
+# Em produção (Railway), todos os secrets são fornecidos via variáveis de ambiente
+# configuradas no painel do Railway, NÃO via este arquivo.
+#
+# Para produção, use:
+# - Railway: Variáveis de ambiente no painel
+# - Docker: docker run -e VAR=value
+# - Docker Compose: Arquivo .env separado (não commitado)
 
 version: '3.8'
 

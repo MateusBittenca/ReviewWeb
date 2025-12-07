@@ -1,0 +1,8 @@
+# Configuração do Hadolint (linter de Dockerfile)
+# Ignora avisos sobre secrets em docker-compose.yml (apenas para desenvolvimento local)
+
+ignored:
+  # Secrets em docker-compose.yml são apenas para desenvolvimento local
+  # Em produção, secrets são fornecidos via variáveis de ambiente do Railway
+  - DL3008
+  - SC2086

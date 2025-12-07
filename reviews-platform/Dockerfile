@@ -1,4 +1,13 @@
 # Dockerfile para Reviews Platform
+#
+# SEGURANÇA: Este Dockerfile NÃO contém secrets hardcoded.
+# Todas as variáveis sensíveis (APP_KEY, DB_PASSWORD, MAIL_PASSWORD, etc.)
+# são fornecidas em RUNTIME via variáveis de ambiente:
+# - Railway: Painel de configuração → Variables
+# - Docker: docker run -e VAR=value
+# - Docker Compose: Arquivo .env (não commitado no git)
+#
+# Nenhum ARG ou ENV com secrets está presente neste arquivo.
 
 FROM php:8.2-fpm
 
