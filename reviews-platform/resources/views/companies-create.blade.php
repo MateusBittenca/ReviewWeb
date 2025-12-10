@@ -24,6 +24,7 @@
                 <i class="fas fa-upload mr-1.5 sm:mr-2 text-xs sm:text-sm"></i>
                 <span class="hidden sm:inline">{{ __('companies.publish') }}</span>
                 <span class="sm:hidden uppercase text-xs">{{ strtoupper(__('companies.publish')) }}</span>
+                
             </button>
         </div>
     </div>
