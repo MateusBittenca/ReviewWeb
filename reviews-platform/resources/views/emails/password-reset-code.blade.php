@@ -167,7 +167,7 @@
                 Se você não solicitou esta recuperação de senha, ignore este email.
             </p>
             <p class="footer-text">
-                <a href="{{ config('app.url') }}" class="footer-link">{{ config('app.name') }}</a>
+                <a href="{{ url('/') }}" class="footer-link">{{ config('app.name') }}</a>
             </p>
             <p class="footer-text" style="margin-top: 15px; font-size: 12px; color: #9ca3af;">
                 Este é um email automático, por favor não responda.
