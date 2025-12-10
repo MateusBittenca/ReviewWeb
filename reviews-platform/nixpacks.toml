@@ -13,5 +13,5 @@ cmds = [
 ]
 
 [start]
-cmd = "php artisan serve --host=0.0.0.0 --port=$PORT"
+cmd = "mkdir -p bootstrap/cache storage/framework/cache storage/framework/sessions storage/framework/views storage/app/public/logos storage/app/public/backgrounds storage/app/public/photos && chmod -R 755 bootstrap/cache storage && php artisan migrate --force && php artisan storage:link && php artisan serve --host=0.0.0.0 --port=$PORT"
 
