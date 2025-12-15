@@ -4,13 +4,18 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
-use App\Mail\TrialRequestAdmin;
-use App\Mail\TrialRequestCustomer;
+use App\Services\SendGridService;
 
 class ContactController extends Controller
 {
+    protected $sendGrid;
+
+    public function __construct(SendGridService $sendGrid)
+    {
+        $this->sendGrid = $sendGrid;
+    }
+
     public function submitTrialRequest(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -41,17 +46,35 @@ class ContactController extends Controller
 
         try {
             // Get admin email from environment variable
-            $adminEmail = env('ADMIN_EMAIL', 'admin@reviewsplatform.com');
+            $adminEmail = env('ADMIN_EMAIL', 'iagovventura@gmail.com');
             
-            // Send email to admin
-            Mail::to($adminEmail)->send(new TrialRequestAdmin($emailData));
-            
-            // Send confirmation email to customer
-            Mail::to($data['email'])->send(
-                new TrialRequestCustomer($data['contact_name'], $data['company_name'])
+            // Send email to admin using SendGrid Web API (no SMTP)
+            $this->sendGrid->sendFromView(
+                $adminEmail,
+                '🎯 New Trial Request - ' . $data['company_name'],
+                'emails.trial-request-admin',
+                [
+                    'contactName' => $data['contact_name'],
+                    'companyName' => $data['company_name'],
+                    'email' => $data['email'],
+                    'whatsapp' => $data['whatsapp'],
+                    'ipAddress' => $emailData['ip_address'],
+                    'timestamp' => $emailData['timestamp'],
+                ]
             );
             
-            Log::info('Trial request emails sent successfully', [
+            // Send confirmation email to customer using SendGrid Web API
+            $this->sendGrid->sendFromView(
+                $data['email'],
+                '✅ Your Free Trial Request Has Been Received',
+                'emails.trial-request-customer',
+                [
+                    'contactName' => $data['contact_name'],
+                    'companyName' => $data['company_name'],
+                ]
+            );
+            
+            Log::info('Trial request emails sent successfully via SendGrid API', [
                 'customer_email' => $data['email'],
                 'admin_email' => $adminEmail
             ]);
@@ -63,10 +86,6 @@ class ContactController extends Controller
                 'data' => $emailData
             ]);
         }
-
-        // TODO: You can add additional functionality here such as:
-        // - Save to database (create a TrialRequest model)
-        // - Integrate with CRM
 
         return response()->json([
             'success' => true,

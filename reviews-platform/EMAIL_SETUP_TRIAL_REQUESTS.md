@@ -13,42 +13,32 @@ Add these to your `.env` file:
 
 ```env
 # Admin email to receive trial request notifications
-ADMIN_EMAIL=your-admin@email.com
+ADMIN_EMAIL=iagovventura@gmail.com
 
-# SMTP Configuration (if not already set)
-MAIL_MAILER=smtp
-MAIL_HOST=smtp.your-provider.com
-MAIL_PORT=587
-MAIL_USERNAME=your-smtp-username
-MAIL_PASSWORD=your-smtp-password
-MAIL_ENCRYPTION=tls
-MAIL_FROM_ADDRESS=noreply@reviewsplatform.com
-MAIL_FROM_NAME="${APP_NAME}"
+# SendGrid Web API Configuration (uses HTTP/HTTPS, not SMTP - no blocked ports!)
+SENDGRID_API_KEY=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
+MAIL_FROM_ADDRESS=iagovventura@gmail.com
+MAIL_FROM_NAME="Avalie e Ganhe"
 ```
 
-### Testing Email Configuration
+**Important:** This system uses SendGrid's **Web API** (not SMTP) to avoid blocked ports issues. It sends emails via HTTPS (port 443) which is never blocked.
 
-To test if emails are working, you can use:
+### How It Works
 
-1. **Mailtrap** (for development):
-   ```env
-   MAIL_MAILER=smtp
-   MAIL_HOST=smtp.mailtrap.io
-   MAIL_PORT=2525
-   MAIL_USERNAME=your-mailtrap-username
-   MAIL_PASSWORD=your-mailtrap-password
-   MAIL_ENCRYPTION=tls
-   ```
+The system uses **SendGrid Web API** instead of SMTP:
 
-2. **Gmail** (for production - use app password):
-   ```env
-   MAIL_MAILER=smtp
-   MAIL_HOST=smtp.gmail.com
-   MAIL_PORT=587
-   MAIL_USERNAME=your-gmail@gmail.com
-   MAIL_PASSWORD=your-app-password
-   MAIL_ENCRYPTION=tls
-   ```
+✅ **Advantages:**
+- No SMTP ports needed (uses HTTPS/port 443)
+- Faster delivery
+- Better reliability
+- No timeout issues
+- Works on any server/hosting
+
+🔧 **Technical Details:**
+- Uses HTTP POST to `https://api.sendgrid.com/v3/mail/send`
+- Authentication via API Key (Bearer token)
+- No need for SMTP configuration
+- Implemented in `app/Services/SendGridService.php`
 
 ## Email Templates
 
