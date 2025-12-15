@@ -10,6 +10,11 @@ return [
     'start_now' => 'Start Now',
     'learn_more' => 'Learn More',
     
+    // Prize Draw
+    'prize_draw_title' => 'Review & Win!',
+    'prize_draw_description' => 'Your customers are incentivized to review via a R$10,000 prize draw. Paid by us at no cost to them.',
+    'prize_draw_badge' => '100% Free for Customers',
+    
     // Stats
     'satisfaction_rate' => 'Satisfaction Rate',
     'reviews_processed' => 'Reviews Processed',

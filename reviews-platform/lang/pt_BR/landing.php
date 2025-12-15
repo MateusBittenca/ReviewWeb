@@ -10,6 +10,11 @@ return [
     'start_now' => 'Começar Agora',
     'learn_more' => 'Saiba Mais',
     
+    // Prize Draw
+    'prize_draw_title' => 'Avalie e Ganhe!',
+    'prize_draw_description' => 'Seus clientes são incentivados a avaliar através de um sorteio de R$ 10.000,00. Pago por nós, sem custo para eles.',
+    'prize_draw_badge' => '100% Gratuito para Clientes',
+    
     // Stats
     'satisfaction_rate' => 'Taxa de Satisfação',
     'reviews_processed' => 'Avaliações Processadas',

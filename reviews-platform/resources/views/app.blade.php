@@ -257,6 +257,145 @@
             color: #d1d5db;
         }
         
+        /* Prize Draw Section */
+        .prize-draw {
+            padding: 4rem 2rem;
+            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+            text-align: center;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .prize-draw::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+            animation: pulse 3s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+                opacity: 0.5;
+            }
+            50% {
+                transform: scale(1.1);
+                opacity: 0.3;
+            }
+        }
+        
+        .prize-draw-container {
+            max-width: 900px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .prize-draw-content {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 3rem 2rem;
+            border-radius: 1.5rem;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+        
+        .prize-draw-icon {
+            width: 80px;
+            height: 80px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .prize-draw-icon i {
+            font-size: 2.5rem;
+            color: #ffd700;
+            animation: bounce 2s ease-in-out infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+        
+        .prize-draw h2 {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        .prize-amount {
+            font-size: 3.5rem;
+            font-weight: 900;
+            margin: 1rem 0;
+            color: #ffd700;
+            text-shadow: 0 4px 20px rgba(255, 215, 0, 0.5);
+            line-height: 1;
+        }
+        
+        .prize-description {
+            font-size: 1.25rem;
+            margin: 1.5rem 0;
+            opacity: 0.95;
+            line-height: 1.6;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .prize-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 0.75rem 1.5rem;
+            border-radius: 2rem;
+            margin-top: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            font-weight: 600;
+        }
+        
+        .prize-badge i {
+            color: #ffd700;
+        }
+        
+        @media (max-width: 768px) {
+            .prize-draw {
+                padding: 3rem 1.5rem;
+            }
+            
+            .prize-draw-content {
+                padding: 2rem 1.5rem;
+            }
+            
+            .prize-draw h2 {
+                font-size: 1.5rem;
+            }
+            
+            .prize-amount {
+                font-size: 2.5rem;
+            }
+            
+            .prize-description {
+                font-size: 1.1rem;
+            }
+        }
+        
         .hero-buttons {
             display: flex;
             gap: 1rem;
@@ -928,6 +1067,24 @@
                 </a>
             </div>
                                 </div>
+    </section>
+
+    <!-- Prize Draw Section -->
+    <section class="prize-draw">
+        <div class="prize-draw-container">
+            <div class="prize-draw-content fade-in">
+                <div class="prize-draw-icon">
+                    <i class="fas fa-trophy"></i>
+                </div>
+                <h2>{{ __('landing.prize_draw_title') }}</h2>
+                <p class="prize-amount">R$ 10.000,00</p>
+                <p class="prize-description">{{ __('landing.prize_draw_description') }}</p>
+                <div class="prize-badge">
+                    <i class="fas fa-gift"></i>
+                    <span>{{ __('landing.prize_draw_badge') }}</span>
+                </div>
+            </div>
+        </div>
     </section>
 
     <!-- Stats Section -->
