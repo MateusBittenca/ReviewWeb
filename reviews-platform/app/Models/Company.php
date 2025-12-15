@@ -99,6 +99,7 @@ class Company extends Model
     
     /**
      * Retorna URL completa da logo incluindo APP_URL
+     * Garante HTTPS em produção
      */
     public function getFullLogoUrlAttribute()
     {
@@ -107,6 +108,14 @@ class Company extends Model
         }
         
         $appUrl = rtrim(config('app.url'), '/');
+        
+        // Garantir HTTPS em produção (Railway)
+        if (config('app.env') === 'production' && 
+            str_starts_with($appUrl, 'http://') && 
+            !str_contains($appUrl, 'localhost')) {
+            $appUrl = str_replace('http://', 'https://', $appUrl);
+        }
+        
         return $appUrl . '/storage/' . $this->logo;
     }
 

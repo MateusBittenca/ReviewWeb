@@ -183,11 +183,39 @@ Pressione `Ctrl+C` para sair do Tinker.
 
 ---
 
-### **PASSO 9: Verificar Deploy**
+### **PASSO 9: Configurar Volume Persistente para Imagens** ⚠️ **CRÍTICO**
+
+**Este passo é ESSENCIAL para que as imagens não sejam perdidas a cada deploy!**
+
+1. No Railway, vá para o seu **projeto**
+2. Clique no **serviço da aplicação** (não no banco de dados)
+3. Vá em **"Settings"** → **"Volumes"**
+4. Clique em **"New Volume"**
+5. Configure:
+   - **Name**: `storage-images` (ou qualquer nome que preferir)
+   - **Mount Path**: `/var/www/html/storage/app/public`
+   - **Size**: Escolha o tamanho necessário (ex: 1GB, 5GB, etc.)
+6. Clique em **"Create"**
+
+⚠️ **IMPORTANTE**: 
+- O caminho deve ser exatamente: `/var/www/html/storage/app/public`
+- Se o Root Directory estiver configurado como `reviews-platform`, o caminho pode ser: `/var/www/html/reviews-platform/storage/app/public`
+- Verifique qual caminho está correto para seu setup
+
+**Por quê?** Sem o volume persistente, todas as imagens (logos, backgrounds, fotos de perfil) serão **perdidas a cada deploy**.
+
+📖 **Documentação completa:** Veja `SOLUCAO_IMAGENS_PERSISTENTES.md`
+
+---
+
+### **PASSO 10: Verificar Deploy**
 
 1. Após o deploy, acesse a URL fornecida pelo Railway
 2. Você deve ver a página de login
 3. Se aparecer erro, verifique os logs em **"Deployments"** → **"View Logs"**
+4. Faça upload de uma imagem de teste
+5. Faça um novo deploy
+6. A imagem deve **permanecer** após o deploy! ✅
 
 ---
 
@@ -220,6 +248,29 @@ Pressione `Ctrl+C` para sair do Tinker.
 1. Verifique se as variáveis `DB_*` estão corretas
 2. Use as variáveis de referência: `${{MySQL.MYSQLHOST}}` (não valores diretos)
 3. Verifique se o serviço MySQL está rodando
+
+### **Problema: Imagens são Perdidas a Cada Deploy** ⚠️ **CRÍTICO**
+
+**Sintoma:** Após fazer deploy de uma nova versão, todas as fotos/imagens são excluídas.
+
+**Causa:** O Railway recria o container a cada deploy, e o diretório `storage/app/public` não persiste entre deploys.
+
+**Solução:** Configure um **Volume Persistente** no Railway:
+
+1. No Railway, vá para o seu **projeto**
+2. Clique no **serviço da aplicação**
+3. Vá em **"Settings"** → **"Volumes"**
+4. Clique em **"New Volume"**
+5. Configure:
+   - **Name**: `storage-images`
+   - **Mount Path**: `/var/www/html/storage/app/public` (ou `/var/www/html/reviews-platform/storage/app/public` se Root Directory estiver configurado)
+   - **Size**: Escolha o tamanho (ex: 1GB, 5GB)
+6. Clique em **"Create"**
+7. Faça um novo deploy
+
+📖 **Documentação completa:** Veja `SOLUCAO_IMAGENS_PERSISTENTES.md`
+
+---
 
 ### **Página em Branco**
 
