@@ -94,7 +94,7 @@ return [
     'start_free' => 'Start Free',
     
     // Contact Form
-    'contact_form_title' => 'Get Access to Your Free Trial Account',
+    'contact_form_title' => 'Free Trial',
     'contact_form_subtitle' => 'Fill in your details and we\'ll get you started',
     'contact_name' => 'Contact Name',
     'contact_name_placeholder' => 'Enter your full name',
