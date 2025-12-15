@@ -16,10 +16,8 @@ return [
     'prize_draw_badge' => '100% Gratuito para Clientes',
     
     // Stats
-    'satisfaction_rate' => 'Taxa de Satisfação',
     'reviews_processed' => 'Avaliações Processadas',
-    'more_google_reviews' => 'Mais Avaliações Google',
-    'active_companies' => 'Empresas Ativas',
+    'more_google_reviews' => 'Até 10x Mais Avaliações',
     
     // Features Section
     'features_title' => 'Funcionalidades Poderosas',
@@ -94,6 +92,23 @@ return [
     'cta_title' => 'Pronto para Transformar suas Avaliações?',
     'cta_description' => 'Junte-se a centenas de empresas que já estão melhorando sua reputação online e aumentando suas vendas com a Reviews Platform.',
     'start_free' => 'Começar Gratuitamente',
+    
+    // Contact Form
+    'contact_form_title' => 'Obtenha Acesso à Sua Conta Teste Gratuita',
+    'contact_form_subtitle' => 'Preencha seus dados e começaremos em instantes',
+    'contact_name' => 'Nome de Contato',
+    'contact_name_placeholder' => 'Digite seu nome completo',
+    'company_name' => 'Nome da Empresa',
+    'company_name_placeholder' => 'Digite o nome da sua empresa',
+    'email' => 'E-mail',
+    'email_placeholder' => 'seu@email.com',
+    'whatsapp' => 'WhatsApp',
+    'whatsapp_placeholder' => '+55 11 99999-9999',
+    'submit_button' => 'Começar Teste Gratuito',
+    'sending' => 'Enviando...',
+    'success_title' => 'Solicitação Enviada com Sucesso!',
+    'success_message' => 'Entraremos em contato em breve para ativar sua conta de teste.',
+    'error_message' => 'Ocorreu um erro. Por favor, tente novamente.',
     
     // Footer
     'footer_description' => 'A solução completa para gestão inteligente de avaliações online.',

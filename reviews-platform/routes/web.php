@@ -3,11 +3,15 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ContactController;
 
 // Public routes
 Route::get('/', function () {
     return view('app');
 });
+
+// Contact trial form submission
+Route::post('/contact-trial', [ContactController::class, 'submitTrialRequest'])->name('contact.trial');
 
 // Change locale route
 Route::post('/change-locale', function (Request $request) {

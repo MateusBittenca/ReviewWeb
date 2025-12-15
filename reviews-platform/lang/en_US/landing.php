@@ -16,10 +16,8 @@ return [
     'prize_draw_badge' => '100% Free for Customers',
     
     // Stats
-    'satisfaction_rate' => 'Satisfaction Rate',
     'reviews_processed' => 'Reviews Processed',
-    'more_google_reviews' => 'More Google Reviews',
-    'active_companies' => 'Active Companies',
+    'more_google_reviews' => 'Up to 10x More Reviews',
     
     // Features Section
     'features_title' => 'Powerful Features',
@@ -94,6 +92,23 @@ return [
     'cta_title' => 'Ready to Transform Your Reviews?',
     'cta_description' => 'Join hundreds of companies that are already improving their online reputation and increasing sales with Reviews Platform.',
     'start_free' => 'Start Free',
+    
+    // Contact Form
+    'contact_form_title' => 'Get Access to Your Free Trial Account',
+    'contact_form_subtitle' => 'Fill in your details and we\'ll get you started',
+    'contact_name' => 'Contact Name',
+    'contact_name_placeholder' => 'Enter your full name',
+    'company_name' => 'Company Name',
+    'company_name_placeholder' => 'Enter your company name',
+    'email' => 'Email',
+    'email_placeholder' => 'your@email.com',
+    'whatsapp' => 'WhatsApp',
+    'whatsapp_placeholder' => '+55 11 99999-9999',
+    'submit_button' => 'Get Free Trial',
+    'sending' => 'Sending...',
+    'success_title' => 'Request Sent Successfully!',
+    'success_message' => 'We\'ll contact you shortly to activate your trial account.',
+    'error_message' => 'An error occurred. Please try again.',
     
     // Footer
     'footer_description' => 'The complete solution for intelligent online review management.',

@@ -396,6 +396,234 @@
             }
         }
         
+        /* Contact Form Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+            z-index: 9999;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .modal-overlay.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 1;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 1.5rem;
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+            position: relative;
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+        
+        .dark .modal-content {
+            background: #1f2937;
+        }
+        
+        .modal-overlay.active .modal-content {
+            transform: scale(1);
+        }
+        
+        .modal-header {
+            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+            padding: 2rem;
+            border-radius: 1.5rem 1.5rem 0 0;
+            text-align: center;
+            color: white;
+            position: relative;
+        }
+        
+        .modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.3s ease;
+        }
+        
+        .modal-close:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        .modal-header h2 {
+            font-size: 1.75rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+        }
+        
+        .modal-header p {
+            font-size: 1rem;
+            opacity: 0.95;
+        }
+        
+        .modal-body {
+            padding: 2rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #374151;
+        }
+        
+        .dark .form-label {
+            color: #d1d5db;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 0.75rem;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: white;
+            color: #111827;
+        }
+        
+        .dark .form-input {
+            background: #374151;
+            border-color: #4b5563;
+            color: #f9fafb;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: #8b5cf6;
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+        }
+        
+        .form-input::placeholder {
+            color: #9ca3af;
+        }
+        
+        .dark .form-input::placeholder {
+            color: #6b7280;
+        }
+        
+        .btn-submit {
+            width: 100%;
+            background: #8b5cf6;
+            color: white;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 0.75rem;
+            font-weight: 700;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        
+        .btn-submit:hover {
+            background: #7c3aed;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(139, 92, 246, 0.3);
+        }
+        
+        .btn-submit:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .success-message {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+        }
+        
+        .success-message.active {
+            display: block;
+        }
+        
+        .success-icon {
+            width: 80px;
+            height: 80px;
+            background: #10b981;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+        }
+        
+        .success-icon i {
+            font-size: 2.5rem;
+            color: white;
+        }
+        
+        .success-message h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #111827;
+            margin-bottom: 1rem;
+        }
+        
+        .dark .success-message h3 {
+            color: #f9fafb;
+        }
+        
+        .success-message p {
+            color: #6b7280;
+            font-size: 1rem;
+        }
+        
+        .dark .success-message p {
+            color: #9ca3af;
+        }
+        
+        @media (max-width: 768px) {
+            .modal-content {
+                width: 95%;
+            }
+            
+            .modal-header {
+                padding: 1.5rem;
+            }
+            
+            .modal-header h2 {
+                font-size: 1.5rem;
+            }
+            
+            .modal-body {
+                padding: 1.5rem;
+            }
+        }
+        
         .hero-buttons {
             display: flex;
             gap: 1rem;
@@ -1057,10 +1285,10 @@
             <h1>{{ __('landing.hero_title') }}</h1>
             <p>{{ __('landing.hero_description') }}</p>
             <div class="hero-buttons">
-                <a href="/login" class="btn-primary">
+                <button onclick="openContactModal()" class="btn-primary" style="border: none; cursor: pointer;">
                     <i class="fas fa-rocket"></i>
                     {{ __('landing.start_now') }}
-                </a>
+                </button>
                 <a href="#como-funciona" class="btn-secondary">
                     <i class="fas fa-play-circle"></i>
                     {{ __('landing.learn_more') }}
@@ -1092,15 +1320,6 @@
         <div class="stats-container">
             <div class="stat-card fade-in">
                 <div class="stat-info">
-                    <h3>{{ __('landing.satisfaction_rate') }}</h3>
-                    <p>95%</p>
-                </div>
-                <div class="stat-icon">
-                    <i class="fas fa-heart"></i>
-                </div>
-            </div>
-            <div class="stat-card fade-in">
-                <div class="stat-info">
                     <h3>{{ __('landing.reviews_processed') }}</h3>
                     <p>+10k</p>
                 </div>
@@ -1111,19 +1330,10 @@
             <div class="stat-card fade-in">
                 <div class="stat-info">
                     <h3>{{ __('landing.more_google_reviews') }}</h3>
-                    <p>3x</p>
+                    <p>Up to 10x</p>
                 </div>
                 <div class="stat-icon">
                     <i class="fas fa-chart-line"></i>
-                </div>
-            </div>
-            <div class="stat-card fade-in">
-                <div class="stat-info">
-                    <h3>{{ __('landing.active_companies') }}</h3>
-                    <p>500+</p>
-                </div>
-                <div class="stat-icon">
-                    <i class="fas fa-building"></i>
                 </div>
             </div>
         </div>
@@ -1300,10 +1510,10 @@
     <section class="cta">
         <h2>{{ __('landing.cta_title') }}</h2>
         <p>{{ __('landing.cta_description') }}</p>
-        <a href="/login" class="btn-primary" style="font-size: 1.2rem; padding: 1.2rem 3.5rem;">
+        <button onclick="openContactModal()" class="btn-primary" style="font-size: 1.2rem; padding: 1.2rem 3.5rem; border: none; cursor: pointer;">
             <i class="fas fa-star"></i>
             {{ __('landing.start_free') }}
-        </a>
+        </button>
     </section>
 
     <!-- Footer -->
@@ -1352,6 +1562,91 @@
             <p>{{ __('landing.developed_with') }} <i class="fas fa-heart" style="color: #8b5cf6;"></i> {{ __('landing.by') }} Iago Vilela & Mateus Bittencourt</p>
         </div>
     </footer>
+
+    <!-- Contact Form Modal -->
+    <div id="contactModal" class="modal-overlay" onclick="closeModalOnOutsideClick(event)">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button class="modal-close" onclick="closeContactModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+                <h2>{{ __('landing.contact_form_title') }}</h2>
+                <p>{{ __('landing.contact_form_subtitle') }}</p>
+            </div>
+            <div class="modal-body">
+                <form id="contactForm" onsubmit="handleContactSubmit(event)">
+                    <div class="form-group">
+                        <label class="form-label" for="contactName">
+                            {{ __('landing.contact_name') }}
+                        </label>
+                        <input 
+                            type="text" 
+                            id="contactName" 
+                            name="contact_name" 
+                            class="form-input" 
+                            placeholder="{{ __('landing.contact_name_placeholder') }}"
+                            required
+                        >
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="companyName">
+                            {{ __('landing.company_name') }}
+                        </label>
+                        <input 
+                            type="text" 
+                            id="companyName" 
+                            name="company_name" 
+                            class="form-input" 
+                            placeholder="{{ __('landing.company_name_placeholder') }}"
+                            required
+                        >
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="email">
+                            {{ __('landing.email') }}
+                        </label>
+                        <input 
+                            type="email" 
+                            id="email" 
+                            name="email" 
+                            class="form-input" 
+                            placeholder="{{ __('landing.email_placeholder') }}"
+                            required
+                        >
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="whatsapp">
+                            {{ __('landing.whatsapp') }}
+                        </label>
+                        <input 
+                            type="tel" 
+                            id="whatsapp" 
+                            name="whatsapp" 
+                            class="form-input" 
+                            placeholder="{{ __('landing.whatsapp_placeholder') }}"
+                            required
+                        >
+                    </div>
+                    
+                    <button type="submit" class="btn-submit">
+                        <i class="fas fa-paper-plane"></i>
+                        {{ __('landing.submit_button') }}
+                    </button>
+                </form>
+                
+                <div id="successMessage" class="success-message">
+                    <div class="success-icon">
+                        <i class="fas fa-check"></i>
+                    </div>
+                    <h3>{{ __('landing.success_title') }}</h3>
+                    <p>{{ __('landing.success_message') }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script>
         // Force favicon reload
@@ -1462,6 +1757,87 @@
                     icon.classList.remove('fa-sun');
                     icon.classList.add('fa-moon');
                 }
+            }
+        });
+        
+        // Contact Modal Functions
+        function openContactModal() {
+            const modal = document.getElementById('contactModal');
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+        
+        function closeContactModal() {
+            const modal = document.getElementById('contactModal');
+            modal.classList.remove('active');
+            document.body.style.overflow = '';
+            
+            // Reset form after closing
+            setTimeout(() => {
+                document.getElementById('contactForm').reset();
+                document.getElementById('contactForm').style.display = 'block';
+                document.getElementById('successMessage').classList.remove('active');
+            }, 300);
+        }
+        
+        function closeModalOnOutsideClick(event) {
+            if (event.target.id === 'contactModal') {
+                closeContactModal();
+            }
+        }
+        
+        // Handle form submission
+        function handleContactSubmit(event) {
+            event.preventDefault();
+            
+            const formData = new FormData(event.target);
+            const data = {
+                contact_name: formData.get('contact_name'),
+                company_name: formData.get('company_name'),
+                email: formData.get('email'),
+                whatsapp: formData.get('whatsapp')
+            };
+            
+            // Disable submit button
+            const submitBtn = event.target.querySelector('.btn-submit');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> {{ __("landing.sending") }}';
+            
+            // Send to backend (you'll need to create this route)
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+            
+            fetch('/contact-trial', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken,
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(result => {
+                // Show success message
+                document.getElementById('contactForm').style.display = 'none';
+                document.getElementById('successMessage').classList.add('active');
+                
+                // Close modal after 3 seconds
+                setTimeout(() => {
+                    closeContactModal();
+                }, 3000);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('{{ __("landing.error_message") }}');
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> {{ __("landing.submit_button") }}';
+            });
+        }
+        
+        // Close modal with Escape key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeContactModal();
             }
         });
     </script>
