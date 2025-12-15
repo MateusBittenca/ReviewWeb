@@ -13,12 +13,12 @@ Add these to your `.env` file:
 
 ```env
 # Admin email to receive trial request notifications
-ADMIN_EMAIL=iagovventura@gmail.com
+ADMIN_EMAIL=your-admin-email@example.com
 
 # SendGrid Web API Configuration (uses HTTP/HTTPS, not SMTP - no blocked ports!)
-SENDGRID_API_KEY=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
-MAIL_FROM_ADDRESS=iagovventura@gmail.com
-MAIL_FROM_NAME="Avalie e Ganhe"
+SENDGRID_API_KEY=your-sendgrid-api-key-here
+MAIL_FROM_ADDRESS=your-email@example.com
+MAIL_FROM_NAME="Your App Name"
 ```
 
 **Important:** This system uses SendGrid's **Web API** (not SMTP) to avoid blocked ports issues. It sends emails via HTTPS (port 443) which is never blocked.
