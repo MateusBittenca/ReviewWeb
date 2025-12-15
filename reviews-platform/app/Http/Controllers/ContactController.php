@@ -5,17 +5,11 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
-use App\Services\SendGridService;
+use Illuminate\Support\Facades\View;
+use GuzzleHttp\Client;
 
 class ContactController extends Controller
 {
-    protected $sendGrid;
-
-    public function __construct(SendGridService $sendGrid)
-    {
-        $this->sendGrid = $sendGrid;
-    }
-
     public function submitTrialRequest(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -48,8 +42,8 @@ class ContactController extends Controller
             // Get admin email from environment variable
             $adminEmail = env('ADMIN_EMAIL', 'iagovventura@gmail.com');
             
-            // Send email to admin using SendGrid Web API (no SMTP)
-            $this->sendGrid->sendFromView(
+            // Send email to admin using SendGrid API via HTTP (same as ReviewController)
+            $this->sendViaSendGridAPI(
                 $adminEmail,
                 '🎯 New Trial Request - ' . $data['company_name'],
                 'emails.trial-request-admin',
@@ -63,8 +57,8 @@ class ContactController extends Controller
                 ]
             );
             
-            // Send confirmation email to customer using SendGrid Web API
-            $this->sendGrid->sendFromView(
+            // Send confirmation email to customer using SendGrid API via HTTP
+            $this->sendViaSendGridAPI(
                 $data['email'],
                 '✅ Your Free Trial Request Has Been Received',
                 'emails.trial-request-customer',
@@ -74,9 +68,10 @@ class ContactController extends Controller
                 ]
             );
             
-            Log::info('Trial request emails sent successfully via SendGrid API', [
+            Log::info('✅ Trial request emails sent successfully via SendGrid API (HTTP)', [
                 'customer_email' => $data['email'],
-                'admin_email' => $adminEmail
+                'admin_email' => $adminEmail,
+                'status' => 'success'
             ]);
             
         } catch (\Exception $e) {
@@ -91,5 +86,61 @@ class ContactController extends Controller
             'success' => true,
             'message' => 'Trial request submitted successfully'
         ], 200);
+    }
+
+    /**
+     * Send email using SendGrid API via HTTP (using Guzzle)
+     * This bypasses SMTP port blocks - same method as ReviewController
+     */
+    private function sendViaSendGridAPI($toEmail, $subject, $view, $data = [])
+    {
+        $apiKey = env('SENDGRID_API_KEY');
+        
+        if (!$apiKey) {
+            throw new \Exception('SENDGRID_API_KEY não configurada');
+        }
+
+        // Render email HTML using Laravel Views
+        $htmlContent = View::make($view, $data)->render();
+
+        // Prepare SendGrid API request using Guzzle
+        $client = new Client();
+        $response = $client->post('https://api.sendgrid.com/v3/mail/send', [
+            'headers' => [
+                'Authorization' => 'Bearer ' . $apiKey,
+                'Content-Type' => 'application/json',
+            ],
+            'json' => [
+                'personalizations' => [
+                    [
+                        'to' => [
+                            ['email' => $toEmail]
+                        ],
+                        'subject' => $subject
+                    ]
+                ],
+                'from' => [
+                    'email' => env('MAIL_FROM_ADDRESS', 'iagovventura@gmail.com'),
+                    'name' => env('MAIL_FROM_NAME', 'Avalie e Ganhe')
+                ],
+                'content' => [
+                    [
+                        'type' => 'text/html',
+                        'value' => $htmlContent
+                    ]
+                ]
+            ]
+        ]);
+
+        if ($response->getStatusCode() >= 200 && $response->getStatusCode() < 300) {
+            Log::info('✅ Email enviado com sucesso via SendGrid API (HTTP)', [
+                'to' => $toEmail,
+                'subject' => $subject,
+                'status_code' => $response->getStatusCode()
+            ]);
+            return true;
+        } else {
+            throw new \Exception('SendGrid API retornou status: ' . $response->getStatusCode());
+        }
     }
 }
